@@ -1,0 +1,23 @@
+{
+  "name": "ReactUi",
+  "version": "1.0.0",
+  "description": "My Wonderland project",
+  "main": "js/index.js",
+  "type": "module",
+  "module": "js/index.js",
+  "scripts": {
+    "build": "echo \"The 'build' script is run by the editor and should produce your application bundle\""
+  },
+  "keywords": [
+    "wonderland-engine"
+  ],
+  "dependencies": {
+    "@types/react-reconciler": "^0.28.8",
+    "@wonderlandengine/api": "file:../../../../../Program Files/Wonderland/WonderlandEngine/js/api/wonderlandengine-api.tgz",
+    "@wonderlandengine/components": "^1.0.7",
+    "gl-matrix": "^3.4.3",
+    "react": "^18.2.0",
+    "react-reconciler": "^0.29.0",
+    "yoga-layout": "^3.0.2"
+  }
+}

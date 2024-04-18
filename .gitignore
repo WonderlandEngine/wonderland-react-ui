@@ -1,0 +1,19 @@
+# NPM dependencies
+**/node_modules/
+
+# Packaged project files
+**/deploy/
+
+# Local editor data
+**/.editor/
+
+# Local editor js bundle
+**/cache/js/
+
+# Local UI state
+**/imgui.ini
+
+# Blender backup files
+*.blend1
+
+package-lock.json
