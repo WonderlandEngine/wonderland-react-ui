@@ -674,7 +674,6 @@ export abstract class ReactUiBase extends Component implements ReactComp {
     /* Clear hovering flag */
     this.ctx.wrappers.forEach((w) => (w.hovering![cur] = false));
     this.curGen = cur;
-    console.log("move", x, y);
     this.emitEvent("onMove", x, y, e);
 
     const other = this.curGen ^ 0x1;
