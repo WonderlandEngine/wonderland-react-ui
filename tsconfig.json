@@ -6,7 +6,8 @@
     "allowJs": true,
     "strict": true,
     "experimentalDecorators": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "types": ["@types/**"]
   },
   "exclude": ["node_modules", "dist"],
   "include": ["./js/**/*.js", "./js/**/*.ts"]

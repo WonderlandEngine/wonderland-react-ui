@@ -4,6 +4,7 @@ import {
   Material,
   Object3D,
   VerticalAlignment,
+  ViewComponent,
 } from "@wonderlandengine/api";
 import { property } from "@wonderlandengine/api/decorators.js";
 import { mat4, vec3 } from "gl-matrix";
@@ -108,6 +109,13 @@ export interface YogaNodeProps {
   right?: ValueTypeNoAuto;
   bottom?: ValueTypeNoAuto;
   position?: PositionType;
+
+  onClick: (e: { x: number; y: number; e: React.MouseEvent }) => void;
+  onUp: (e: { x: number; y: number; e: React.PointerEvent }) => void;
+  onDown: (e: { x: number; y: number; e: React.PointerEvent }) => void;
+  onMove: (e: { x: number; y: number; e: React.PointerEvent }) => void;
+  hover: (e: { x: number; y: number; e: React.PointerEvent }) => void;
+  unHover: (e: { x: number; y: number; e: React.PointerEvent }) => void;
 }
 
 function propsEqual(oldProps: YogaNodeProps, newProps: YogaNodeProps) {
@@ -117,7 +125,7 @@ function propsEqual(oldProps: YogaNodeProps, newProps: YogaNodeProps) {
 
   for (const k of oldKeys) {
     if (
-      oldProps[k as any as keyof YogaNodeProps] !==
+      oldProps[k as any as keyof YogaNodeProps] !=
       newProps[k as any as keyof YogaNodeProps]
     )
       return false;
@@ -140,6 +148,8 @@ class Context {
   }
 
   addNodeWrapper(w: NodeWrapper) {
+    w.children = w.children ?? [];
+    w.hovering = [false, false];
     this.wrappers.push(w);
     w.ctx = this;
   }
@@ -180,7 +190,9 @@ interface NodeWrapper {
   props: any;
   object?: Object3D;
   parent?: NodeWrapper | null;
+  children?: NodeWrapper[];
   ctx?: Context;
+  hovering?: boolean[];
 }
 
 function applyLayout(n: NodeWrapper, context: Context) {
@@ -192,6 +204,7 @@ function applyLayout(n: NodeWrapper, context: Context) {
       );
       return o;
     })();
+  n.object = o;
   o.parent = n.parent?.object ?? context.comp.object;
 
   if (n.tag === "text") {
@@ -213,12 +226,14 @@ function applyLayout(n: NodeWrapper, context: Context) {
     const t =
       o.getComponent("text") ??
       o.addComponent("text", {
-        alignment: alignment,
+        alignment,
         verticalAlignment: VerticalAlignment.Top,
       });
     t.material = n.props.material ?? context.comp.textMaterial;
     t.text = n.props.text;
   } else {
+    /* "mesh" and everything else */
+    console.log(n.tag, n.node.getComputedTop());
     setPositionLeft(o, n, context.comp.scaling);
   }
 
@@ -242,7 +257,7 @@ function applyLayout(n: NodeWrapper, context: Context) {
 
     let mesh = m.mesh;
     if (n.tag === "rounded-rectangle") {
-      if (mesh) mesh?.destroy();
+      if (mesh) mesh.destroy();
       mesh = roundedRectangle(
         n.props.engine,
         n.node.getComputedWidth() * context.comp.scaling[0],
@@ -253,8 +268,6 @@ function applyLayout(n: NodeWrapper, context: Context) {
     }
     m.mesh = n.props.mesh ?? mesh;
   }
-
-  n.object = o;
 }
 
 function updateInstance(tag: string, node: YogaNode, props: YogaNodeProps) {
@@ -263,8 +276,8 @@ function updateInstance(tag: string, node: YogaNode, props: YogaNodeProps) {
   if (tag === "text") {
     // FIXME Calculate proper text bounds from font
     const s = props.fontSize ?? 1;
-    node.setHeight(props.height ?? s * 190);
-    const fakePerCharWidth = 60;
+    node.setHeight(props.height ?? s * 95);
+    const fakePerCharWidth = 30;
     node.setWidth(
       props.width ?? s * fakePerCharWidth * (props.text ?? "").length
     );
@@ -286,8 +299,8 @@ function updateInstance(tag: string, node: YogaNode, props: YogaNodeProps) {
   node.setIsReferenceBaseline(props.isReferenceBaseline);
 
   node.setGap(Y.Gutter.All, props.gap);
-  node.setGap(Y.Gutter.Column, props.rowGap);
-  node.setGap(Y.Gutter.Row, props.columnGap);
+  node.setGap(Y.Gutter.Row, props.rowGap);
+  node.setGap(Y.Gutter.Column, props.columnGap);
 
   node.setJustifyContent(props.justifyContent);
 
@@ -381,6 +394,7 @@ const HostConfig: HostConfig<
     if (child) {
       parent.node.insertChild(child.node, parent.node.getChildCount());
       child.parent = parent;
+      parent.children!.push(child);
     }
   },
   removeChild(parent: NodeWrapper, child: NodeWrapper) {
@@ -389,6 +403,7 @@ const HostConfig: HostConfig<
       parent.node.removeChild(child.node);
       child.node.free();
       child.parent = null;
+      parent.children!.splice(parent.children?.indexOf(child)!, 1);
       if (child.object) child.object.destroy();
 
       child.ctx?.removeNodeWrapper(child);
@@ -398,6 +413,7 @@ const HostConfig: HostConfig<
     debug("appendChild", parent, child);
     if (child) {
       parent.node.insertChild(child.node, parent.node.getChildCount());
+      parent.children!.push(child);
       child.parent = parent;
       if (child.object) child.object.active = true;
 
@@ -526,22 +542,18 @@ export abstract class ReactUiBase extends Component implements ReactComp {
 
     const topLeft = vec3.create();
     const bottomRight = vec3.create();
-    vec3.transformMat4(topLeft, [-1, -1, -1], invProj);
-    vec3.transformMat4(bottomRight, [1, 1, -1], invProj);
+    vec3.transformMat4(topLeft, [-1, -1, -0.9], invProj);
+    vec3.transformMat4(bottomRight, [1, 1, -0.9], invProj);
 
     const s = bottomRight[0] - topLeft[0];
     this.object.setScalingLocal([s, s, s]);
     /* Convert from yoga units to 0-1 */
     const h = bottomRight[1] - topLeft[1];
-    this.scaling = [1 / this.engine.canvas.width, 1 / this.engine.canvas.width];
-    this.object.setPositionLocal([
-      topLeft[0],
-      bottomRight[1],
-      -1.01 * activeView.near,
-    ]);
+    this.width = this.engine.canvas.clientWidth;
+    this.height = this.engine.canvas.clientHeight;
+    this.scaling = [1 / this.width, 1 / this.width];
+    this.object.setPositionLocal([topLeft[0], bottomRight[1], topLeft[2]]);
 
-    this.width = this.engine.canvas.width;
-    this.height = this.engine.canvas.height;
     if (this.ctx?.root) this.updateLayout();
   };
 
@@ -550,6 +562,8 @@ export abstract class ReactUiBase extends Component implements ReactComp {
   renderer?: WonderlandRenderer;
 
   ctx: Context | null = null;
+
+  protected _viewComponent?: ViewComponent;
 
   setContext(c: Context): void {
     this.ctx = c;
@@ -572,10 +586,10 @@ export abstract class ReactUiBase extends Component implements ReactComp {
 
   async start() {
     if (this.space == UISpace.Screen) {
-      const activeView = this.engine.scene.activeViews[0];
+      this._viewComponent = this.engine.scene.activeViews[0];
       /* Reparent to main view */
-      this.object.parent = activeView.object;
-      this.object.setPositionLocal([0, 0, -2 * activeView.near]);
+      this.object.parent = this._viewComponent.object;
+      this.object.setPositionLocal([0, 0, -2 * this._viewComponent.near]);
       this.object.resetRotation();
 
       /* Calculate size of the UI */
@@ -587,6 +601,118 @@ export abstract class ReactUiBase extends Component implements ReactComp {
     this.renderer.render(this.render(), this);
   }
 
+  onActivate(): void {
+    if (!this._viewComponent) return;
+    const canvas = this.engine.canvas!;
+
+    canvas.addEventListener("click", this.onClick);
+    canvas.addEventListener("pointermove", this.onPointerMove);
+    canvas.addEventListener("pointerdown", this.onPointerDown);
+    canvas.addEventListener("pointerup", this.onPointerUp);
+  }
+
+  onDeactivate(): void {
+    if (!this._viewComponent) return;
+    const canvas = this.engine.canvas!;
+
+    canvas.removeEventListener("click", this.onClick);
+    canvas.removeEventListener("pointermove", this.onPointerMove);
+    canvas.removeEventListener("pointerdown", this.onPointerDown);
+    canvas.removeEventListener("pointerup", this.onPointerUp);
+  }
+
+  forEachElementUnderneath(
+    node: NodeWrapper | null,
+    x: number,
+    y: number,
+    callback: (node: NodeWrapper) => boolean
+  ): NodeWrapper | null {
+    if (node === null) return null;
+
+    const pl = node.node.getComputedLeft();
+    const pt = node.node.getComputedTop();
+    for (let n of node.children!) {
+      const yn = n.node;
+      const t = yn.getComputedTop();
+      const l = yn.getComputedLeft();
+      const w = yn.getComputedWidth();
+      const h = yn.getComputedHeight();
+
+      if (x > l + w || x < l) continue;
+      if (y > t + h || y < t) continue;
+
+      if (callback(n)) return n;
+
+      return this.forEachElementUnderneath(n, x - pl, y - pt, callback);
+    }
+
+    return node;
+  }
+
+  emitEvent(eventName: string, x: number, y: number, e: Event) {
+    if (!this.ctx?.root) return;
+    this.forEachElementUnderneath(this.ctx.root, x, y, (w) => {
+      w.hovering![this.curGen] = true;
+      if (w?.props[eventName] !== undefined) {
+        w.props[eventName]({ x, y, e });
+        return true;
+      }
+      return false;
+    });
+  }
+
+  /** 'pointermove' event listener */
+  curGen = 0;
+  onPointerMove = (e: PointerEvent) => {
+    /* Don't care about secondary pointers */
+    if (!e.isPrimary || !this.ctx) return;
+    const x = e.clientX;
+    const y = e.clientY;
+
+    const cur = this.curGen ^ 1;
+    /* Clear hovering flag */
+    this.ctx.wrappers.forEach((w) => (w.hovering![cur] = false));
+    this.curGen = cur;
+    console.log("move", x, y);
+    this.emitEvent("onMove", x, y, e);
+
+    const other = this.curGen ^ 0x1;
+    this.ctx.wrappers.forEach((w) => {
+      const hovering = w.hovering![cur];
+      if (hovering != w.hovering![other]) {
+        const eventName = hovering ? "onHover" : "onUnhover";
+        if (w?.props[eventName] !== undefined) {
+          w.props[eventName]({ x: 0, y: 0, e });
+          return true;
+        }
+      }
+    });
+  };
+
+  /** 'click' event listener */
+  onClick = (e: MouseEvent) => {
+    const x = e.clientX;
+    const y = e.clientY;
+    this.emitEvent("onClick", x, y, e);
+  };
+
+  /** 'pointerdown' event listener */
+  onPointerDown = (e: PointerEvent) => {
+    /* Don't care about secondary pointers or non-left clicks */
+    if (!e.isPrimary || e.button !== 0) return;
+    const x = e.clientX;
+    const y = e.clientY;
+    this.emitEvent("onDown", x, y, e);
+  };
+
+  /** 'pointerup' event listener */
+  onPointerUp = (e: PointerEvent) => {
+    /* Don't care about secondary pointers or non-left clicks */
+    if (!e.isPrimary || e.button !== 0) return;
+    const x = e.clientX;
+    const y = e.clientY;
+    this.emitEvent("onUp", x, y, e);
+  };
   renderCallback = () => {
     this.updateLayout();
   };

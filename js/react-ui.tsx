@@ -1,14 +1,8 @@
 import { Material, WonderlandEngine } from "@wonderlandengine/api";
 import { property } from "@wonderlandengine/api/decorators.js";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
-import {
-  Align,
-  Display,
-  Justify,
-  ReactUiBase,
-  YogaNodeProps,
-} from "./renderer.js";
+import { Display, ReactUiBase, YogaNodeProps } from "./renderer.js";
 
 const Panel = (
   props: {
@@ -20,42 +14,48 @@ const Panel = (
   return <rounded-rectangle {...props}>{props.children}</rounded-rectangle>;
 };
 
+const HoverThing = (
+  props: {
+    engine: WonderlandEngine;
+    material: Material;
+    materialHovered: Material;
+  } & YogaNodeProps &
+    React.PropsWithChildren
+) => {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <Panel
+      {...props}
+      material={hovered ? props.material : props.materialHovered}
+      onHover={() => setHovered(true)}
+      onUnhover={() => setHovered(false)}
+    >
+      {props.children}
+    </Panel>
+  );
+};
 const App = (props: { comp: ReactUi }) => {
-  const [textVisible, setTextVisible] = useState(true);
-  useEffect(() => {
-    const i = setInterval(() => {
-      setTextVisible(!textVisible);
-    }, 2000);
-
-    return () => clearInterval(i);
-  }, [textVisible]);
   return (
     <Panel
       material={props.comp.panelMaterial}
       engine={props.comp.engine}
       marginRight={0}
-      marginLeft={100}
       rounding={100}
       resolution={8}
       display={Display.Flex}
     >
-      <column padding={"8%"}>
-        <row>
-          <text text={textVisible ? "Top left" : "Pot left"} />
-          <text text="Top right" />
-        </row>
-        <row>
-          <Panel
+      <column padding={"8%"} width={"100%"} rowGap={20}>
+        {["Element 1", "Element 2", "Element 3", "Element 4"].map((label) => (
+          <HoverThing
+            width={"100%"}
             material={props.comp.panelMaterialSecondary}
+            materialHovered={props.comp.panelMaterialSecondaryHovered}
+            padding={30}
             flexGrow={1}
-            padding={10}
           >
-            <row>
-              {textVisible && <text text="Bot left" fontSize={0.75}></text>}
-            </row>
-          </Panel>
-          <text text="Bot right" />
-        </row>
+            <text width={"100%"} text={label} />
+          </HoverThing>
+        ))}
       </column>
     </Panel>
   );
@@ -73,6 +73,9 @@ export class ReactUi extends ReactUiBase {
 
   @property.material({ required: true })
   panelMaterialSecondary!: Material;
+
+  @property.material({ required: true })
+  panelMaterialSecondaryHovered!: Material;
 
   render() {
     return <App comp={this} />;

@@ -177,7 +177,8 @@
                         "textMaterial": "DefaultFontMaterial",
                         "space": "screen",
                         "panelMaterial": "20",
-                        "panelMaterialSecondary": "22"
+                        "panelMaterialSecondary": "22",
+                        "panelMaterialSecondaryHovered": "77"
                     }
                 }
             ]
@@ -310,6 +311,30 @@
                     0.0,
                     0.2352941,
                     0.1437908,
+                    1.0
+                ]
+            }
+        },
+        "77": {
+            "name": "PinkHovered",
+            "Phong": {
+                "diffuseColor": [
+                    1.0,
+                    0.3686274,
+                    0.7441853,
+                    1.0
+                ],
+                "specularColor": [
+                    9.999899930335232e-7,
+                    9.999911299019004e-7,
+                    9.999999974752427e-7,
+                    1.0
+                ],
+                "shininess": 10,
+                "ambientColor": [
+                    0.317647,
+                    0.0,
+                    0.2165777,
                     1.0
                 ]
             }
