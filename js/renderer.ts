@@ -232,7 +232,6 @@ function applyLayout(n: NodeWrapper, context: Context) {
     t.text = n.props.text;
   } else {
     /* "mesh" and everything else */
-    console.log(n.tag, n.node.getComputedLeft(), n.node.getComputedRight());
     setPositionLeft(o, n, context.comp.scaling);
   }
 
