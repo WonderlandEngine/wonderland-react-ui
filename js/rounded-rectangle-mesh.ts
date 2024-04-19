@@ -64,10 +64,10 @@ export function roundedRectangle(
 
   const pos = mesh.attribute(MeshAttribute.Position)!;
 
-  const h = height * 0.5;
   const w = width * 0.5;
-  const ih = h - roundness;
+  const h = height * 0.5;
   const iw = w - roundness;
+  const ih = h - roundness;
   // prettier-ignore
   pos?.set(0, [
         /* 0 */

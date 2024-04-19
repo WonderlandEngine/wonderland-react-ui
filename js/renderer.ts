@@ -176,7 +176,6 @@ function setPositionLeft(o: Object3D, n: YogaNode, s: number) {
 }
 
 function setPositionRight(o: Object3D, n: YogaNode, s: number) {
-  console.log(-n.node.getComputedTop());
   o.setPositionLocal([
     n.node.getComputedRight() * s[0],
     -n.node.getComputedTop() * s[1],
@@ -220,7 +219,7 @@ function applyLayout(n: NodeWrapper, context: Context) {
       setPositionLeft(o, n, context.comp.scaling);
     }
 
-    const s = n.props.fontSize ?? 1;
+    const s = 14 * (n.props.fontSize ?? 50) * context.comp.scaling[1];
     o.setScalingLocal([s, s, s]);
 
     const t =
@@ -233,7 +232,7 @@ function applyLayout(n: NodeWrapper, context: Context) {
     t.text = n.props.text;
   } else {
     /* "mesh" and everything else */
-    console.log(n.tag, n.node.getComputedTop());
+    console.log(n.tag, n.node.getComputedLeft(), n.node.getComputedRight());
     setPositionLeft(o, n, context.comp.scaling);
   }
 
@@ -248,8 +247,10 @@ function applyLayout(n: NodeWrapper, context: Context) {
         return child;
       })();
 
-    const centerX = 0.5 * n.node.getComputedWidth() * context.comp.scaling[0];
-    const centerY = -0.5 * n.node.getComputedHeight() * context.comp.scaling[1];
+    const sw = n.node.getComputedWidth() * context.comp.scaling[0];
+    const sh = n.node.getComputedHeight() * context.comp.scaling[1];
+    const centerX = 0.5 * sw;
+    const centerY = -0.5 * sh;
     child.setPositionLocal([centerX, centerY, Z_INC]);
 
     const m = child.getComponent("mesh") ?? child.addComponent("mesh", {});
@@ -260,8 +261,8 @@ function applyLayout(n: NodeWrapper, context: Context) {
       if (mesh) mesh.destroy();
       mesh = roundedRectangle(
         n.props.engine,
-        n.node.getComputedWidth() * context.comp.scaling[0],
-        n.node.getComputedHeight() * context.comp.scaling[1],
+        sw,
+        sh,
         (n.props.rounding ?? 30) * context.comp.scaling[0],
         n.props.resolution ?? 4
       );
@@ -271,16 +272,23 @@ function applyLayout(n: NodeWrapper, context: Context) {
 }
 
 function updateInstance(tag: string, node: YogaNode, props: YogaNodeProps) {
-  node.setWidth(props.width);
-  node.setHeight(props.height);
+  if (tag == "row") {
+    node.setDisplay(Y.Display.Flex);
+    node.setFlexDirection(Y.FlexDirection.Row);
+  } else if (tag == "column") {
+    node.setDisplay(Y.Display.Flex);
+    node.setFlexDirection(Y.FlexDirection.Column);
+  }
+
   if (tag === "text") {
     // FIXME Calculate proper text bounds from font
-    const s = props.fontSize ?? 1;
-    node.setHeight(props.height ?? s * 95);
-    const fakePerCharWidth = 30;
-    node.setWidth(
-      props.width ?? s * fakePerCharWidth * (props.text ?? "").length
-    );
+    const s = props.fontSize ?? 50;
+    node.setHeight(props.height ?? s);
+    const fakePerCharWidth = 0.7 * s;
+    node.setWidth(props.width ?? fakePerCharWidth * (props.text ?? "").length);
+  } else {
+    node.setWidth(props.width);
+    node.setHeight(props.height);
   }
 
   node.setAlignContent(props.alignContent);
@@ -374,14 +382,6 @@ const HostConfig: HostConfig<
   createInstance(tag: string, props: YogaNodeProps, ctx: Context) {
     debug("createInstance", tag, props, ctx);
     const node = Y.default.Node.create(ctx.config);
-
-    if (tag == "row") {
-      node.setDisplay(Y.Display.Flex);
-      node.setFlexDirection(Y.FlexDirection.Row);
-    } else if (tag == "column") {
-      node.setDisplay(Y.Display.Flex);
-      node.setFlexDirection(Y.FlexDirection.Column);
-    }
 
     updateInstance(tag, node, props);
 
@@ -542,17 +542,16 @@ export abstract class ReactUiBase extends Component implements ReactComp {
 
     const topLeft = vec3.create();
     const bottomRight = vec3.create();
-    vec3.transformMat4(topLeft, [-1, -1, -0.9], invProj);
-    vec3.transformMat4(bottomRight, [1, 1, -0.9], invProj);
+    vec3.transformMat4(topLeft, [-1, 1, -0.9], invProj);
+    vec3.transformMat4(bottomRight, [1, -1, -0.9], invProj);
 
     const s = bottomRight[0] - topLeft[0];
     this.object.setScalingLocal([s, s, s]);
     /* Convert from yoga units to 0-1 */
-    const h = bottomRight[1] - topLeft[1];
     this.width = this.engine.canvas.clientWidth;
     this.height = this.engine.canvas.clientHeight;
     this.scaling = [1 / this.width, 1 / this.width];
-    this.object.setPositionLocal([topLeft[0], bottomRight[1], topLeft[2]]);
+    this.object.setPositionLocal(topLeft);
 
     if (this.ctx?.root) this.updateLayout();
   };
@@ -576,7 +575,9 @@ export abstract class ReactUiBase extends Component implements ReactComp {
     this.ctx.root.node.calculateLayout(
       this.width ?? 100,
       this.height ?? 100,
-      Y.Direction.LTR
+      /* FIXME: It seems this should be LTR, but then we get a right-to-left layout.
+       * Something must be off, but it works this way for now. */
+      Y.Direction.RTL
     );
 
     this.ctx.wrappers.reverse();

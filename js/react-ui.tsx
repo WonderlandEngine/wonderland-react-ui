@@ -43,17 +43,17 @@ const App = (props: { comp: ReactUi }) => {
       rounding={100}
       resolution={8}
       display={Display.Flex}
+      width={"80%"}
     >
-      <column padding={"8%"} width={"100%"} rowGap={20}>
+      <column padding={"8%"} width={"80%"} rowGap={20}>
         {["Element 1", "Element 2", "Element 3", "Element 4"].map((label) => (
           <HoverThing
             width={"100%"}
             material={props.comp.panelMaterialSecondary}
             materialHovered={props.comp.panelMaterialSecondaryHovered}
-            padding={30}
-            flexGrow={1}
+            padding={20}
           >
-            <text width={"100%"} text={label} />
+            <text text={label} left={0} />
           </HoverThing>
         ))}
       </column>
