@@ -1,4 +1,5 @@
 import {
+  Alignment,
   Component,
   Material,
   Object3D,
@@ -11,7 +12,6 @@ import Reconciler, { HostConfig } from "react-reconciler";
 import type Yoga from "yoga-layout";
 
 import type {
-  Display,
   Overflow,
   PositionType,
   Wrap,
@@ -37,6 +37,11 @@ export enum Align {
   SpaceBetween = 6,
   SpaceAround = 7,
   SpaceEvenly = 8,
+}
+
+export enum Display {
+  Flex = 0,
+  None = 1,
 }
 
 let Y: typeof Yoga | null = null;
@@ -167,7 +172,6 @@ function setPositionRight(o: Object3D, n: YogaNode, s: number) {
     -n.node.getComputedTop() * s[1],
     Z_INC,
   ]);
-  console.log(-n.node.getComputedTop());
 }
 
 interface NodeWrapper {
@@ -192,17 +196,24 @@ function applyLayout(n: NodeWrapper, context: Context) {
 
   if (n.tag === "text") {
     const align = n.props.alignment;
+    let alignment = Alignment.Left;
     if (align === "center") {
       setPositionCenter(o, n, context.comp.scaling);
+      alignment = Alignment.Center;
     } else if (align === "right") {
       setPositionRight(o, n, context.comp.scaling);
+      alignment = Alignment.Right;
     } else {
       setPositionLeft(o, n, context.comp.scaling);
     }
 
+    const s = n.props.fontSize ?? 1;
+    o.setScalingLocal([s, s, s]);
+
     const t =
       o.getComponent("text") ??
       o.addComponent("text", {
+        alignment: alignment,
         verticalAlignment: VerticalAlignment.Top,
       });
     t.material = n.props.material ?? context.comp.textMaterial;
@@ -236,7 +247,7 @@ function applyLayout(n: NodeWrapper, context: Context) {
         n.props.engine,
         n.node.getComputedWidth() * context.comp.scaling[0],
         n.node.getComputedHeight() * context.comp.scaling[1],
-        0.05,
+        (n.props.rounding ?? 30) * context.comp.scaling[0],
         n.props.resolution ?? 4
       );
     }
@@ -250,9 +261,13 @@ function updateInstance(tag: string, node: YogaNode, props: YogaNodeProps) {
   node.setWidth(props.width);
   node.setHeight(props.height);
   if (tag === "text") {
-    // FIXME Calculate proper text bounds
-    node.setHeight(props.height ?? 170);
-    node.setWidth(props.width ?? 10 * (props.text ?? "").length);
+    // FIXME Calculate proper text bounds from font
+    const s = props.fontSize ?? 1;
+    node.setHeight(props.height ?? s * 190);
+    const fakePerCharWidth = 60;
+    node.setWidth(
+      props.width ?? s * fakePerCharWidth * (props.text ?? "").length
+    );
   }
 
   node.setAlignContent(props.alignContent);
@@ -348,8 +363,10 @@ const HostConfig: HostConfig<
     const node = Y.default.Node.create(ctx.config);
 
     if (tag == "row") {
+      node.setDisplay(Y.Display.Flex);
       node.setFlexDirection(Y.FlexDirection.Row);
     } else if (tag == "column") {
+      node.setDisplay(Y.Display.Flex);
       node.setFlexDirection(Y.FlexDirection.Column);
     }
 
@@ -512,18 +529,11 @@ export abstract class ReactUiBase extends Component implements ReactComp {
     vec3.transformMat4(topLeft, [-1, -1, -1], invProj);
     vec3.transformMat4(bottomRight, [1, 1, -1], invProj);
 
-    const larger = Math.max(
-      this.engine.canvas.height,
-      this.engine.canvas.width
-    );
     const s = bottomRight[0] - topLeft[0];
     this.object.setScalingLocal([s, s, s]);
     /* Convert from yoga units to 0-1 */
     const h = bottomRight[1] - topLeft[1];
-    this.scaling = [
-      1 / this.engine.canvas.width,
-      1 / (this.engine.canvas.height * (s / h)),
-    ];
+    this.scaling = [1 / this.engine.canvas.width, 1 / this.engine.canvas.width];
     this.object.setPositionLocal([
       topLeft[0],
       bottomRight[1],

@@ -2,7 +2,13 @@ import { Material, WonderlandEngine } from "@wonderlandengine/api";
 import { property } from "@wonderlandengine/api/decorators.js";
 import { useEffect, useState } from "react";
 
-import { Align, Justify, ReactUiBase, YogaNodeProps } from "./renderer.js";
+import {
+  Align,
+  Display,
+  Justify,
+  ReactUiBase,
+  YogaNodeProps,
+} from "./renderer.js";
 
 const Panel = (
   props: {
@@ -27,28 +33,28 @@ const App = (props: { comp: ReactUi }) => {
     <Panel
       material={props.comp.panelMaterial}
       engine={props.comp.engine}
-      width={"auto"}
-      height={"50%"}
-      margin={"10%"}
       marginRight={0}
+      marginLeft={100}
+      rounding={100}
+      resolution={8}
+      display={Display.Flex}
     >
-      <column width={"100%"} height={"100%"} padding={"10%"}>
-        <row width={"100%"} flexGrow={1}>
-          <text text={textVisible ? "Top left" : "Pot left"} flexGrow={1} />
-          <text text="Top right" flexGrow={1} />
+      <column padding={"8%"}>
+        <row>
+          <text text={textVisible ? "Top left" : "Pot left"} />
+          <text text="Top right" />
         </row>
-        <row width={"100%"} flexGrow={1}>
+        <row>
           <Panel
-            height={"auto"}
             material={props.comp.panelMaterialSecondary}
             flexGrow={1}
             padding={10}
           >
-            <row width={"100%"}>
-              {textVisible && <text text="Bot left"></text>}
+            <row>
+              {textVisible && <text text="Bot left" fontSize={0.75}></text>}
             </row>
           </Panel>
-          <text text="Bot right" flexGrow={1} />
+          <text text="Bot right" />
         </row>
       </column>
     </Panel>
