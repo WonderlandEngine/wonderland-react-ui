@@ -14,3 +14,8 @@
 }
 ```
 2. Ensure you have `--external:yoga-layout` in "Views > Project Settings > esbuildFlagsEditor"
+
+
+## Notes
+
+Make sure to add `--minify` in your `edbuildFlags` when building production applications.
