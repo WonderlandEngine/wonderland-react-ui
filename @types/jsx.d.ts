@@ -1,8 +1,8 @@
-import { YogaNodeProps } from "./renderer.js";
+import { YogaNodeProps } from "../js/renderer.jsx";
 
 declare namespace JSX {
   interface IntrinsicElements {
-    "rounded-rectangle": YogaNodeProps & {
+    roundedRectangle: YogaNodeProps & {
       /* Rounding in pixel-like units */
       rounding?: number;
       /* Rounding resolution */

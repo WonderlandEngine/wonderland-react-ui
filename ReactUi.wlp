@@ -153,7 +153,7 @@
             ]
         },
         "76": {
-            "name": "Empty",
+            "name": "ReactUI",
             "translation": [
                 -1.5764961,
                 1.6956918,
@@ -174,9 +174,9 @@
                 {
                     "type": "react-ui",
                     "react-ui": {
-                        "textMaterial": "DefaultFontMaterial",
+                        "textMaterial": "80",
                         "space": "screen",
-                        "panelMaterial": "20",
+                        "panelMaterial": "26",
                         "panelMaterialSecondary": "22",
                         "panelMaterialSecondaryHovered": "77"
                     }
@@ -267,6 +267,15 @@
                     0.2165777,
                     1.0
                 ]
+            },
+            "pipeline": "79",
+            "Flat": {
+                "color": [
+                    0.317647,
+                    0.0,
+                    0.2165777,
+                    1.0
+                ]
             }
         },
         "25": {
@@ -313,6 +322,15 @@
                     0.1437908,
                     1.0
                 ]
+            },
+            "pipeline": "79",
+            "Flat": {
+                "color": [
+                    0.0745097,
+                    0.0745097,
+                    0.0745097,
+                    1.0
+                ]
             }
         },
         "77": {
@@ -337,7 +355,26 @@
                     0.2165777,
                     1.0
                 ]
+            },
+            "pipeline": "79",
+            "Flat": {
+                "color": [
+                    0.4862744,
+                    0.0,
+                    0.3315511,
+                    1.0
+                ]
             }
+        },
+        "80": {
+            "link": {
+                "name": "DefaultFontMaterial",
+                "file": "default"
+            },
+            "Text": {
+                "font": "55"
+            },
+            "pipeline": "78"
         }
     },
     "shaders": {
@@ -595,6 +632,22 @@
     "animations": {},
     "skins": {},
     "pipelines": {
+        "79": {
+            "link": {
+                "name": "Flat Opaque",
+                "file": "default"
+            },
+            "name": "UI Color"
+        },
+        "78": {
+            "link": {
+                "name": "Text",
+                "file": "default"
+            },
+            "name": "UI Text",
+            "depthTest": true,
+            "depthFunction": "always"
+        },
         "33": {
             "link": {
                 "name": "DistanceFieldVector",
