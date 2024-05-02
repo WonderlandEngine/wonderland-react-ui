@@ -600,6 +600,29 @@ const HostConfig: HostConfig<
 
     ctx.comp.needsUpdate = true;
   },
+  insertBefore(parent: NodeWrapper, child: NodeWrapper, before: NodeWrapper) {
+    debug('insertBefore', parent, child, before);
+
+    applyToYogaNode(child.tag, child.node, child.props);
+
+    // Find the index of the 'before' node to determine the position at which to insert the new node
+    const beforeIndex = parent.children.findIndex((childNode) => childNode === before);
+    if (beforeIndex !== -1) {
+        parent.node.insertChild(child.node, beforeIndex);
+    }
+
+    child.parent = parent;
+
+    // We also need to insert the child in the correct position in the parent's children array
+    if (beforeIndex !== -1) {
+        parent.children.splice(beforeIndex, 0, child);
+    } else {
+        // If the 'before' node is not found, we will append the child by default.
+        parent.children.push(child);
+    }
+
+    parent.ctx!.comp.needsUpdate = true;
+  },
   removeChild(parent: NodeWrapper, child: NodeWrapper) {
     debug("removeChild", parent, child);
     destroyTreeForNode(child, parent.ctx);
