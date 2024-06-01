@@ -285,7 +285,7 @@ function applyLayoutToSceneGraph(
   n.object = o;
   o.parent = n.parent?.object ?? context.comp.object;
 
-  if (n.tag === "text") {
+  if (n.tag === "text3d") {
     const align = n.props.alignment;
     let alignment = Alignment.Left;
     if (align === "center") {
@@ -398,7 +398,7 @@ function applyToYogaNode(
   wrapper?: NodeWrapper,
   ctx?: Context
 ) {
-  if (tag === "text") {
+  if (tag === "text3d") {
     const p = props as TextProps;
     const s = p.fontSize ?? DEFAULT_FONT_SIZE;
 
