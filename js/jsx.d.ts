@@ -1,3 +1,4 @@
+import { Object3D } from "@wonderlandengine/api";
 import {
   MeshProps,
   RoundedRectangleProps,
@@ -14,7 +15,7 @@ declare module "react" {
       roundedRectangle: PropsWithChildren<RoundedRectangleProps>;
 
       /* 'text' is SVG text, so we need a different name*/
-      text3d: PropsWithRef<TextProps>;
+      text3d: TextProps & React.RefAttributes<Object3D>;
     }
   }
 }

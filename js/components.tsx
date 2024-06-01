@@ -1,5 +1,10 @@
-import { Material, Mesh } from "@wonderlandengine/api";
-import React, { PropsWithChildren, useState } from "react";
+import { Material, Mesh, Object3D } from "@wonderlandengine/api";
+import React, {
+  forwardRef,
+  PropsWithChildren,
+  useState,
+  PropsWithRef,
+} from "react";
 
 import {
   YogaNodeProps,
@@ -46,9 +51,9 @@ export const Row = (props: React.PropsWithChildren<YogaNodeProps>) => {
   );
 };
 
-export const Text = (props: React.PropsWithoutRef<TextProps>) => {
-  return <text3d {...props} />;
-};
+export const Text = forwardRef<Object3D, TextProps>((props, ref) => {
+  return <text3d ref={ref} {...props} />;
+});
 
 export const Button = (
   props: PropsWithChildren<

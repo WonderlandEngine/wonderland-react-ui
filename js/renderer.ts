@@ -548,8 +548,8 @@ const HostConfig: HostConfig<
   void,
   null,
   null,
-  any,
-  any,
+  Object3D,
+  Context,
   any,
   any,
   any,
@@ -568,10 +568,10 @@ const HostConfig: HostConfig<
   createTextInstance(
     text: string,
     ctx: Context,
-    x: undefined,
+    hostContext: Context,
     node: ReactNode
   ) {
-    debug("createTextInstance", text, ctx, x, node);
+    debug("createTextInstance", text, ctx, hostContext, node);
   },
   createInstance(tag: string, props: YogaNodeProps, ctx: Context) {
     debug("createInstance", tag, props, ctx);
@@ -690,8 +690,8 @@ const HostConfig: HostConfig<
     if (propsEqual(oldProps, newProps)) return null;
     return {};
   },
-  getPublicInstance(...args: any[]) {
-    debug("getPublicInstance", ...args);
+  getPublicInstance(instance: NodeWrapper) {
+    return instance.object!;
   },
   afterActiveInstanceBlur() {},
   beforeActiveInstanceBlur() {},
@@ -870,8 +870,7 @@ export abstract class ReactUiBase extends Component implements ReactComp {
     let target = null;
     if (inside) {
       node.hovering![this.curGen] = true;
-      callback(node);
-      target = node;
+      if (callback(node)) target = node;
     }
 
     for (let n of node.children!) {
@@ -882,8 +881,13 @@ export abstract class ReactUiBase extends Component implements ReactComp {
     return target;
   }
 
-  emitEvent(eventName: string, x: number, y: number, e: Event) {
-    if (!this.ctx?.root) return;
+  emitEvent(
+    eventName: string,
+    x: number,
+    y: number,
+    e: Event
+  ): NodeWrapper | null {
+    if (!this.ctx?.root) return null;
     const target = this.forEachElementUnderneath(this.ctx.root, x, y, (w) => {
       const event = w?.props[eventName];
       if (event !== undefined) {
@@ -903,7 +907,7 @@ export abstract class ReactUiBase extends Component implements ReactComp {
   curGen = 0;
   onPointerMove(e: PointerEvent) {
     /* Don't care about secondary pointers */
-    if (!e.isPrimary || !this.ctx) return;
+    if (!e.isPrimary || !this.ctx) return null;
     const x = e.clientX;
     const y = e.clientY;
 
@@ -947,9 +951,9 @@ export abstract class ReactUiBase extends Component implements ReactComp {
   }
 
   /** 'pointerdown' event listener */
-  onPointerDown(e: PointerEvent) {
+  onPointerDown(e: PointerEvent): NodeWrapper | null {
     /* Don't care about secondary pointers or non-left clicks */
-    if (!e.isPrimary || e.button !== 0) return;
+    if (!e.isPrimary || e.button !== 0) return null;
     const x = e.clientX;
     const y = e.clientY;
     const t = this.emitEvent("onDown", x, y, e);
@@ -957,9 +961,9 @@ export abstract class ReactUiBase extends Component implements ReactComp {
   }
 
   /** 'pointerup' event listener */
-  onPointerUp(e: PointerEvent) {
+  onPointerUp(e: PointerEvent): NodeWrapper | null {
     /* Don't care about secondary pointers or non-left clicks */
-    if (!e.isPrimary || e.button !== 0) return;
+    if (!e.isPrimary || e.button !== 0) return null;
     const x = e.clientX;
     const y = e.clientY;
     const t = this.emitEvent("onUp", x, y, e);
