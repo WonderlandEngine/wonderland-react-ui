@@ -11,7 +11,8 @@ import {
 } from "@wonderlandengine/api";
 import { property } from "@wonderlandengine/api/decorators.js";
 import { mat4, vec3 } from "gl-matrix";
-import { ReactNode } from "react";
+import { ReactNode, useCallback } from "react";
+
 import Reconciler, { HostConfig } from "react-reconciler";
 import type {
   Yoga,
@@ -269,6 +270,7 @@ function applyLayoutToSceneGraph(
   context: Context,
   force?: boolean
 ) {
+  debug("applyLayoutToSceneGraph");
   if (!force && !n.dirty && !n.node.hasNewLayout()) return;
   n.node.markLayoutSeen();
 
@@ -611,6 +613,10 @@ const HostConfig: HostConfig<
 
     ctx.comp.needsUpdate = true;
   },
+
+  insertInContainerBefore(container, child, beforeChild) {
+    debug("insertContainerBefore", parent, child, beforeChild);
+  },
   insertBefore(parent: NodeWrapper, child: NodeWrapper, before: NodeWrapper) {
     debug("insertBefore", parent, child, before);
 
@@ -702,10 +708,14 @@ const HostConfig: HostConfig<
   getInstanceFromNode(node: any) {
     return null;
   },
-  clearContainer(container) {
-    debug("clearContainer", container);
+  clearContainer(ctx) {
+    debug("clearContainer", ctx);
+    if (!ctx.root) return;
+    destroyTreeForNode(ctx.root, ctx);
+    ctx.root = null;
   },
   getInstanceFromScope(scopeInstance: any) {
+    debug("getInstanceFromScope", scopeInstance);
     return null;
   },
   scheduleTimeout: setTimeout,
@@ -725,6 +735,7 @@ type ReactComp = Component & {
   textMaterial: Material;
   scaling: number[];
   renderCallback: () => void;
+  callbacks: Record<string, any>;
 
   setContext(c: Context): void;
   updateLayout(): void;
@@ -838,10 +849,6 @@ export abstract class ReactUiBase extends Component implements ReactComp {
       pointerdown: this.onPointerDown.bind(this),
       pointerup: this.onPointerUp.bind(this),
     };
-
-    for (const [k, v] of Object.entries(this.callbacks)) {
-      canvas.addEventListener(k, v);
-    }
   }
 
   onDeactivate(): void {
@@ -997,6 +1004,14 @@ export async function initializeRenderer() {
         null
       );
       reactComp.setContext(container.containerInfo);
+
+      /* Set up callbacks here, since we need to ensure React defers re-renders
+       * to after the callbacks were called */
+      for (const [k, v] of Object.entries(reactComp.callbacks)) {
+        reactComp.engine.canvas.addEventListener(k, (e) =>
+          reconcilerInstance.batchedUpdates(v, e)
+        );
+      }
 
       const parentComponent = null;
       reconcilerInstance.updateContainer(
