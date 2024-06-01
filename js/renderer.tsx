@@ -75,7 +75,7 @@ type YogaConfig = typeof Yoga.Config;
 type ValueType = number | "auto" | `${number}%`;
 type ValueTypeNoAuto = number | "auto" | `${number}%`;
 
-const Z_INC = 0.001;
+const Z_INC = 0.01;
 const TEXT_BASE_SIZE = 14;
 const DEFAULT_FONT_SIZE = 50;
 
@@ -749,8 +749,8 @@ export abstract class ReactUiBase extends Component implements ReactComp {
 
     const topLeft = vec3.create();
     const bottomRight = vec3.create();
-    vec3.transformMat4(topLeft, [-1, 1, -0.75], invProj);
-    vec3.transformMat4(bottomRight, [1, -1, -0.75], invProj);
+    vec3.transformMat4(topLeft, [-1, 1, 0], invProj);
+    vec3.transformMat4(bottomRight, [1, -1, 0], invProj);
 
     const s = bottomRight[0] - topLeft[0];
     this.object.setScalingLocal([s, s, s]);
@@ -764,7 +764,7 @@ export abstract class ReactUiBase extends Component implements ReactComp {
     this.viewportChanged = true;
   };
 
-  scaling = [0.01, 0.01];
+  scaling = [1, 1];
 
   renderer?: WonderlandRenderer;
 
