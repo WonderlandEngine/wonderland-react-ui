@@ -1,9 +1,14 @@
-import { Material, WonderlandEngine } from "@wonderlandengine/api";
+import { Material } from "@wonderlandengine/api";
 import { property } from "@wonderlandengine/api/decorators.js";
 
-import { Column, Display, Panel, Text, ReactUiBase } from "./renderer.js";
+import { ReactUiBase } from "@wonderlandengine/react-ui";
+import {
+  Column,
+  Panel,
+  Text,
+  Button,
+} from "@wonderlandengine/react-ui/components";
 import React, { useState } from "react";
-import { Button } from "./components.js";
 
 const App = (props: { comp: ReactUi }) => {
   const [list, setList] = useState([] as string[]);
@@ -20,7 +25,6 @@ const App = (props: { comp: ReactUi }) => {
       material={props.comp.panelMaterial}
       rounding={100}
       resolution={8}
-      display={Display.Flex}
       width={"80%"}
     >
       <Column padding="8%" width="100%" rowGap={20}>

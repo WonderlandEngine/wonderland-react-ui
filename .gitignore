@@ -4,6 +4,9 @@
 # Packaged project files
 **/deploy/
 
+# Package build
+**/dist/
+
 # Local editor data
 **/.editor/
 
