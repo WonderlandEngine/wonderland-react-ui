@@ -65,6 +65,9 @@
                 },
                 {
                     "type": "mouse-look"
+                },
+                {
+                    "type": "cursor"
                 }
             ]
         },
@@ -156,29 +159,31 @@
             "name": "ReactUI",
             "translation": [
                 -1.5764961,
-                1.6956918,
-                0.6550897
+                3.0037891,
+                0.6550889
             ],
             "rotation": [
                 0.0,
-                -0.4789529,
+                -0.4789528,
                 0.0,
                 0.8778405
             ],
             "scaling": [
-                0.9999998,
-                1.0,
-                0.9999998
+                0.25,
+                0.25,
+                0.25
             ],
             "components": [
                 {
                     "type": "react-ui",
                     "react-ui": {
                         "textMaterial": "80",
-                        "space": "screen",
+                        "space": "world",
                         "panelMaterial": "26",
                         "panelMaterialSecondary": "22",
-                        "panelMaterialSecondaryHovered": "77"
+                        "panelMaterialSecondaryHovered": "77",
+                        "width": 600,
+                        "height": 900
                     }
                 }
             ]
@@ -631,6 +636,14 @@
             "hdr": {
                 "exposure": 1.5
             }
+        },
+        "runtime": {
+            "visualizeColliders": true,
+            "webxr": {
+                "requiredFeatures": {
+                    "local": true
+                }
+            }
         }
     },
     "animations": {},
@@ -641,7 +654,8 @@
                 "name": "Flat Opaque",
                 "file": "default"
             },
-            "name": "UI Color"
+            "name": "UI Color",
+            "depthFunction": "less or equal"
         },
         "78": {
             "link": {
