@@ -111,3 +111,7 @@ Simple plane mesh:
 <Plane width={100} height={100} material={coinIconTextureMat} mesh={planeMesh}>
 </Plane>
 ```
+
+[npm]: https://img.shields.io/npm/v/@wonderlandengine/react-ui
+[npm-downloads]: https://img.shields.io/npm/dw/@wonderlandengine/react-ui
+[discord]: https://img.shields.io/discord/669166325456699392
