@@ -1,56 +1,56 @@
 import {
-  Alignment,
-  Component,
-  Material,
-  Mesh,
-  Object3D,
-  TextComponent,
-  TextEffect,
-  VerticalAlignment,
-  ViewComponent,
-} from "@wonderlandengine/api";
-import { property } from "@wonderlandengine/api/decorators.js";
-import { mat4, vec3 } from "gl-matrix";
-import { ReactNode } from "react";
+    Alignment,
+    Component,
+    Material,
+    Mesh,
+    Object3D,
+    TextComponent,
+    TextEffect,
+    VerticalAlignment,
+    ViewComponent,
+} from '@wonderlandengine/api';
+import {property} from '@wonderlandengine/api/decorators.js';
+import {mat4, vec3} from 'gl-matrix';
+import {ReactNode} from 'react';
 
-import Reconciler, { HostConfig } from "react-reconciler";
+import Reconciler, {HostConfig} from 'react-reconciler';
 import type {
-  Yoga,
-  Config,
-  Node as YogaNode,
-  /* We want to defer initializing the web assembly until
-   * the renderer is initialized. The only way we found was
-   * to import the files directly */
-} from "../node_modules/yoga-layout/dist/src/wrapAssembly.js";
+    Yoga,
+    Config,
+    Node as YogaNode,
+    /* We want to defer initializing the web assembly until
+     * the renderer is initialized. The only way we found was
+     * to import the files directly */
+} from '../node_modules/yoga-layout/dist/src/wrapAssembly.js';
 
 /* These are used by props */
 export {
-  Align,
-  Display,
-  FlexDirection,
-  Justify,
-  Overflow,
-  PositionType,
-  Wrap,
-} from "../node_modules/yoga-layout/dist/src/generated/YGEnums.js";
+    Align,
+    Display,
+    FlexDirection,
+    Justify,
+    Overflow,
+    PositionType,
+    Wrap,
+} from '../node_modules/yoga-layout/dist/src/generated/YGEnums.js';
 
 /* These are used by the renderer only */
 import {
-  Align,
-  Display,
-  Edge,
-  Direction,
-  FlexDirection,
-  Gutter,
-  Justify,
-  Overflow,
-  PositionType,
-  Wrap,
-} from "../node_modules/yoga-layout/dist/src/generated/YGEnums.js";
+    Align,
+    Display,
+    Edge,
+    Direction,
+    FlexDirection,
+    Gutter,
+    Justify,
+    Overflow,
+    PositionType,
+    Wrap,
+} from '../node_modules/yoga-layout/dist/src/generated/YGEnums.js';
 
-import { roundedRectangle } from "./rounded-rectangle-mesh.js";
+import {roundedRectangle} from './rounded-rectangle-mesh.js';
 
-type ValueType = number | "auto" | `${number}%`;
+type ValueType = number | 'auto' | `${number}%`;
 type ValueTypeNoAuto = number | `${number}%`;
 
 const Z_INC = 0.001;
@@ -60,468 +60,450 @@ const DEFAULT_FONT_SIZE = 50;
 let Y: Yoga | null = null;
 
 export interface YogaNodeProps {
-  height?: ValueType;
-  width?: ValueType;
+    height?: ValueType;
+    width?: ValueType;
 
-  alignContent?: Align;
-  alignItems?: Align;
-  alignSelf?: Align;
-  justifyContent?: Justify;
+    alignContent?: Align;
+    alignItems?: Align;
+    alignSelf?: Align;
+    justifyContent?: Justify;
 
-  aspectRatio?: number;
-  display?: Display;
+    aspectRatio?: number;
+    display?: Display;
 
-  flex?: number;
-  flexDirection?: FlexDirection;
-  flexGrow?: number;
-  flexBasis?: ValueType;
-  flexShrink?: number;
-  flexWrap?: Wrap;
+    flex?: number;
+    flexDirection?: FlexDirection;
+    flexGrow?: number;
+    flexBasis?: ValueType;
+    flexShrink?: number;
+    flexWrap?: Wrap;
 
-  isReferenceBaseline?: boolean;
+    isReferenceBaseline?: boolean;
 
-  gap?: number;
-  columnGap?: number;
-  rowGap?: number;
+    gap?: number;
+    columnGap?: number;
+    rowGap?: number;
 
-  border?: number;
-  borderTop?: number;
-  borderBottom?: number;
-  borderLeft?: number;
-  borderRight?: number;
+    border?: number;
+    borderTop?: number;
+    borderBottom?: number;
+    borderLeft?: number;
+    borderRight?: number;
 
-  margin?: ValueType;
-  marginTop?: ValueType;
-  marginBottom?: ValueType;
-  marginLeft?: ValueType;
-  marginRight?: ValueType;
+    margin?: ValueType;
+    marginTop?: ValueType;
+    marginBottom?: ValueType;
+    marginLeft?: ValueType;
+    marginRight?: ValueType;
 
-  maxHeight?: ValueTypeNoAuto;
-  maxWidth?: ValueTypeNoAuto;
+    maxHeight?: ValueTypeNoAuto;
+    maxWidth?: ValueTypeNoAuto;
 
-  minHeight?: ValueTypeNoAuto;
-  minWidth?: ValueTypeNoAuto;
+    minHeight?: ValueTypeNoAuto;
+    minWidth?: ValueTypeNoAuto;
 
-  overflow?: Overflow;
+    overflow?: Overflow;
 
-  padding?: ValueTypeNoAuto;
-  paddingTop?: ValueTypeNoAuto;
-  paddingBottom?: ValueTypeNoAuto;
-  paddingLeft?: ValueTypeNoAuto;
-  paddingRight?: ValueTypeNoAuto;
+    padding?: ValueTypeNoAuto;
+    paddingTop?: ValueTypeNoAuto;
+    paddingBottom?: ValueTypeNoAuto;
+    paddingLeft?: ValueTypeNoAuto;
+    paddingRight?: ValueTypeNoAuto;
 
-  top?: ValueTypeNoAuto;
-  left?: ValueTypeNoAuto;
-  right?: ValueTypeNoAuto;
-  bottom?: ValueTypeNoAuto;
-  position?: PositionType;
+    top?: ValueTypeNoAuto;
+    left?: ValueTypeNoAuto;
+    right?: ValueTypeNoAuto;
+    bottom?: ValueTypeNoAuto;
+    position?: PositionType;
 
-  onClick?: (e: { x: number; y: number; e: MouseEvent }) => void;
-  onUp?: (e: { x: number; y: number; e: PointerEvent }) => void;
-  onDown?: (e: { x: number; y: number; e: PointerEvent }) => void;
-  onMove?: (e: { x: number; y: number; e: PointerEvent }) => void;
-  onHover?: (e: { x: number; y: number; e: PointerEvent }) => void;
-  onUnhover?: (e: { x: number; y: number; e: PointerEvent }) => void;
+    onClick?: (e: {x: number; y: number; e: MouseEvent}) => void;
+    onUp?: (e: {x: number; y: number; e: PointerEvent}) => void;
+    onDown?: (e: {x: number; y: number; e: PointerEvent}) => void;
+    onMove?: (e: {x: number; y: number; e: PointerEvent}) => void;
+    onHover?: (e: {x: number; y: number; e: PointerEvent}) => void;
+    onUnhover?: (e: {x: number; y: number; e: PointerEvent}) => void;
 }
 
 export interface TextProps extends YogaNodeProps {
-  text: string;
-  fontSize?: number;
+    text: string;
+    fontSize?: number;
 }
 
 export interface RoundedRectangleProps extends YogaNodeProps {
-  /* Material for the rounded rectangle mesh */
-  material?: Material;
-  /* Rounding in pixel-like units */
-  rounding?: number;
-  /* Rounding resolution */
-  resolution?: number;
-  roundTopLeft?: boolean;
-  roundTopRight?: boolean;
-  roundBottomLeft?: boolean;
-  roundBottomRight?: boolean;
+    /* Material for the rounded rectangle mesh */
+    material?: Material;
+    /* Rounding in pixel-like units */
+    rounding?: number;
+    /* Rounding resolution */
+    resolution?: number;
+    roundTopLeft?: boolean;
+    roundTopRight?: boolean;
+    roundBottomLeft?: boolean;
+    roundBottomRight?: boolean;
 }
 
 export interface MeshProps extends YogaNodeProps {
-  material?: Material;
-  mesh?: Mesh;
+    material?: Material;
+    mesh?: Mesh;
 }
 
 function destroyTreeForNode(child: NodeWrapper, ctx: Context) {
-  const childCount = child.children.length ?? 0;
-  for (let c = childCount - 1; c >= 0; --c) {
-    destroyTreeForNode(child.children[c], ctx);
-  }
+    const childCount = child.children.length ?? 0;
+    for (let c = childCount - 1; c >= 0; --c) {
+        destroyTreeForNode(child.children[c], ctx);
+    }
 
-  if (child.parent) {
-    const parent = child.parent;
-    parent.node.removeChild(child.node);
-    parent.children.splice(parent.children.indexOf(child)!, 1);
-    child.parent = null;
-  }
-  child.node.free();
+    if (child.parent) {
+        const parent = child.parent;
+        parent.node.removeChild(child.node);
+        parent.children.splice(parent.children.indexOf(child)!, 1);
+        child.parent = null;
+    }
+    child.node.free();
 
-  if (child.object && !child.object.isDestroyed) {
-    child.object.destroy();
-  }
-  child.object = null;
+    if (child.object && !child.object.isDestroyed) {
+        child.object.destroy();
+    }
+    child.object = null;
 
-  child.ctx?.removeNodeWrapper(child);
+    child.ctx?.removeNodeWrapper(child);
 }
 
 function propsEqual(oldProps: any, newProps: any) {
-  const oldKeys = Object.keys(oldProps as any);
-  const newKeys = Object.keys(newProps as any);
-  if (oldKeys.length !== newKeys.length) return false;
+    const oldKeys = Object.keys(oldProps as any);
+    const newKeys = Object.keys(newProps as any);
+    if (oldKeys.length !== newKeys.length) return false;
 
-  for (const k of oldKeys) {
-    if (oldProps[k] != newProps[k]) {
-      return false;
+    for (const k of oldKeys) {
+        if (oldProps[k] != newProps[k]) {
+            return false;
+        }
     }
-  }
-  return true;
+    return true;
 }
 
 class NodeWrapper {
-  node: YogaNode;
-  tag: string;
-  /* Applied properties cache */
-  props: any = {};
-  object: Object3D | null = null;
-  parent: NodeWrapper | null = null;
-  children: NodeWrapper[] = [];
-  ctx: Context;
-  hovering = [false, false];
-  dirty = true;
+    node: YogaNode;
+    tag: string;
+    /* Applied properties cache */
+    props: any = {};
+    object: Object3D | null = null;
+    parent: NodeWrapper | null = null;
+    children: NodeWrapper[] = [];
+    ctx: Context;
+    hovering = [false, false];
+    dirty = true;
 
-  constructor(ctx: Context, node: YogaNode, tag: string) {
-    this.ctx = ctx;
-    this.tag = tag;
-    this.node = node;
-  }
+    constructor(ctx: Context, node: YogaNode, tag: string) {
+        this.ctx = ctx;
+        this.tag = tag;
+        this.node = node;
+    }
 }
 
 class Context {
-  root: NodeWrapper | null;
-  config: Config;
-  comp: ReactComp;
-  wrappers: NodeWrapper[] = [];
-  constructor(c: ReactComp) {
-    this.root = null;
-    this.comp = c;
+    root: NodeWrapper | null;
+    config: Config;
+    comp: ReactComp;
+    wrappers: NodeWrapper[] = [];
+    constructor(c: ReactComp) {
+        this.root = null;
+        this.comp = c;
 
-    this.config = Y!.Config.create();
-    this.config.setUseWebDefaults(false);
-    this.config.setPointScaleFactor(1);
-  }
-
-  addNodeWrapper(w: NodeWrapper) {
-    this.wrappers.push(w);
-    w.ctx = this;
-  }
-  removeNodeWrapper(w: NodeWrapper) {
-    const i = this.wrappers.indexOf(w);
-    this.wrappers.splice(i, 1);
-  }
-
-  printTree(node?: NodeWrapper, prefix?: string) {
-    node = node ?? this.root!;
-    prefix = prefix ?? "";
-
-    const yn = node.node;
-    debug(
-      prefix + node.tag,
-      `{${yn.getComputedLeft()}, ${yn.getComputedTop()}, ${yn.getComputedWidth()}, ${yn.getComputedHeight()}}`,
-      node.props
-    );
-    if (!node.children) return;
-    for (let n of node.children) {
-      this.printTree(n, prefix + "--");
+        this.config = Y!.Config.create();
+        this.config.setUseWebDefaults(false);
+        this.config.setPointScaleFactor(1);
     }
-  }
+
+    addNodeWrapper(w: NodeWrapper) {
+        this.wrappers.push(w);
+        w.ctx = this;
+    }
+    removeNodeWrapper(w: NodeWrapper) {
+        const i = this.wrappers.indexOf(w);
+        this.wrappers.splice(i, 1);
+    }
+
+    printTree(node?: NodeWrapper, prefix?: string) {
+        node = node ?? this.root!;
+        prefix = prefix ?? '';
+
+        const yn = node.node;
+        debug(
+            prefix + node.tag,
+            `{${yn.getComputedLeft()}, ${yn.getComputedTop()}, ${yn.getComputedWidth()}, ${yn.getComputedHeight()}}`,
+            node.props
+        );
+        if (!node.children) return;
+        for (let n of node.children) {
+            this.printTree(n, prefix + '--');
+        }
+    }
 }
 
 function setPositionCenter(o: Object3D, n: NodeWrapper, s: number[]) {
-  o.setPositionLocal([
-    (n.node.getComputedLeft() + 0.5 * n.node.getComputedWidth()) * s[0],
-    -(n.node.getComputedTop() + 0.5 * n.node.getComputedHeight()) * s[1],
-    Z_INC,
-  ]);
+    o.setPositionLocal([
+        (n.node.getComputedLeft() + 0.5 * n.node.getComputedWidth()) * s[0],
+        -(n.node.getComputedTop() + 0.5 * n.node.getComputedHeight()) * s[1],
+        Z_INC,
+    ]);
 }
 
 function setPositionLeft(o: Object3D, n: NodeWrapper, s: number[]) {
-  o.setPositionLocal([
-    n.node.getComputedLeft() * s[0],
-    -n.node.getComputedTop() * s[1],
-    Z_INC,
-  ]);
+    o.setPositionLocal([
+        n.node.getComputedLeft() * s[0],
+        -n.node.getComputedTop() * s[1],
+        Z_INC,
+    ]);
 }
 
 function setPositionRight(o: Object3D, n: NodeWrapper, s: number[]) {
-  o.setPositionLocal([
-    n.node.getComputedRight() * s[0],
-    -n.node.getComputedTop() * s[1],
-    Z_INC,
-  ]);
+    o.setPositionLocal([
+        n.node.getComputedRight() * s[0],
+        -n.node.getComputedTop() * s[1],
+        Z_INC,
+    ]);
 }
 
-function applyLayoutToSceneGraph(
-  n: NodeWrapper,
-  context: Context,
-  force?: boolean
-) {
-  debug("applyLayoutToSceneGraph");
-  if (!force && !n.dirty && !n.node.hasNewLayout()) return;
-  n.node.markLayoutSeen();
+function applyLayoutToSceneGraph(n: NodeWrapper, context: Context, force?: boolean) {
+    debug('applyLayoutToSceneGraph');
+    if (!force && !n.dirty && !n.node.hasNewLayout()) return;
+    n.node.markLayoutSeen();
 
-  if (n.object?.isDestroyed) n.object = null;
-  const o =
-    n.object ??
-    (() => {
-      if (n.parent?.object?.isDestroyed) n.parent.object = null;
-      const o = context.comp.engine.scene.addObject(
-        n.parent?.object ?? context.comp.object
-      );
-      return o;
-    })();
-  n.object = o;
-  o.parent = n.parent?.object ?? context.comp.object;
-  o.resetPositionRotation();
-  o.resetScaling();
+    if (n.object?.isDestroyed) n.object = null;
+    const o =
+        n.object ??
+        (() => {
+            if (n.parent?.object?.isDestroyed) n.parent.object = null;
+            const o = context.comp.engine.scene.addObject(
+                n.parent?.object ?? context.comp.object
+            );
+            return o;
+        })();
+    n.object = o;
+    o.parent = n.parent?.object ?? context.comp.object;
+    o.resetPositionRotation();
+    o.resetScaling();
 
-  if (n.tag === "text3d") {
-    const align = n.props.alignment;
-    let alignment = Alignment.Left;
-    if (align === "center") {
-      setPositionCenter(o, n, context.comp.scaling);
-      alignment = Alignment.Center;
-    } else if (align === "right") {
-      setPositionRight(o, n, context.comp.scaling);
-      alignment = Alignment.Right;
+    if (n.tag === 'text3d') {
+        const align = n.props.alignment;
+        let alignment = Alignment.Left;
+        if (align === 'center') {
+            setPositionCenter(o, n, context.comp.scaling);
+            alignment = Alignment.Center;
+        } else if (align === 'right') {
+            setPositionRight(o, n, context.comp.scaling);
+            alignment = Alignment.Right;
+        } else {
+            setPositionLeft(o, n, context.comp.scaling);
+        }
+
+        const s =
+            TEXT_BASE_SIZE *
+            (n.props.fontSize ?? DEFAULT_FONT_SIZE) *
+            context.comp.scaling[1];
+        o.setScalingLocal([s, s, s]);
+
+        const t =
+            o.getComponent('text') ??
+            o.addComponent('text', {
+                alignment,
+                effect: TextEffect.Outline,
+                verticalAlignment: VerticalAlignment.Top,
+            });
+        t.material = n.props.material ?? context.comp.textMaterial;
+        if (t.text !== n.props.text) t.text = n.props.text;
     } else {
-      setPositionLeft(o, n, context.comp.scaling);
+        /* "mesh" and everything else */
+        setPositionLeft(o, n, context.comp.scaling);
     }
 
-    const s =
-      TEXT_BASE_SIZE *
-      (n.props.fontSize ?? DEFAULT_FONT_SIZE) *
-      context.comp.scaling[1];
-    o.setScalingLocal([s, s, s]);
+    if (n.tag === 'mesh' || n.tag === 'roundedRectangle') {
+        /* To offset the mesh, but avoid offsetting the children,
+         * we need to add a child object */
+        const child =
+            o.findByNameDirect('mesh')[0] ??
+            (() => {
+                const child = context.comp.engine.scene.addObject(o);
+                child.name = 'mesh';
+                return child;
+            })();
 
-    const t =
-      o.getComponent("text") ??
-      o.addComponent("text", {
-        alignment,
-        effect: TextEffect.Outline,
-        verticalAlignment: VerticalAlignment.Top,
-      });
-    t.material = n.props.material ?? context.comp.textMaterial;
-    if (t.text !== n.props.text) t.text = n.props.text;
-  } else {
-    /* "mesh" and everything else */
-    setPositionLeft(o, n, context.comp.scaling);
-  }
+        const sw = n.node.getComputedWidth() * context.comp.scaling[0];
+        const sh = n.node.getComputedHeight() * context.comp.scaling[1];
+        const centerX = 0.5 * sw;
+        const centerY = -0.5 * sh;
 
-  if (n.tag === "mesh" || n.tag === "roundedRectangle") {
-    /* To offset the mesh, but avoid offsetting the children,
-     * we need to add a child object */
-    const child =
-      o.findByNameDirect("mesh")[0] ??
-      (() => {
-        const child = context.comp.engine.scene.addObject(o);
-        child.name = "mesh";
-        return child;
-      })();
+        const m = child.getComponent('mesh') ?? child.addComponent('mesh', {});
+        m.material = n.props.material;
 
-    const sw = n.node.getComputedWidth() * context.comp.scaling[0];
-    const sh = n.node.getComputedHeight() * context.comp.scaling[1];
-    const centerX = 0.5 * sw;
-    const centerY = -0.5 * sh;
+        let mesh = m.mesh;
+        if (n.tag === 'roundedRectangle') {
+            const p = {
+                sw,
+                sh,
+                rounding: (n.props.rounding ?? 30) * context.comp.scaling[0],
+                resolution: n.props.resolution ?? 4,
+                tl: n.props.roundTopLeft ?? true,
+                tr: n.props.roundTopRight ?? true,
+                bl: n.props.roundBottomLeft ?? true,
+                br: n.props.roundBottomRight ?? true,
+            };
+            const props = (m as any).roundedRectangleProps ?? {};
+            const needsUpdate = !propsEqual(props, p);
 
-    const m = child.getComponent("mesh") ?? child.addComponent("mesh", {});
-    m.material = n.props.material;
+            if (needsUpdate) {
+                if (mesh && !mesh.isDestroyed) mesh.destroy();
+                mesh = roundedRectangle(
+                    context.comp.engine,
+                    p.sw,
+                    p.sh,
+                    p.rounding,
+                    p.resolution,
+                    {
+                        tl: p.tl,
+                        tr: p.tr,
+                        bl: p.bl,
+                        br: p.br,
+                    }
+                );
+                (m as any).roundedRectangleProps = p;
+            }
 
-    let mesh = m.mesh;
-    if (n.tag === "roundedRectangle") {
-      const p = {
-        sw,
-        sh,
-        rounding: (n.props.rounding ?? 30) * context.comp.scaling[0],
-        resolution: n.props.resolution ?? 4,
-        tl: n.props.roundTopLeft ?? true,
-        tr: n.props.roundTopRight ?? true,
-        bl: n.props.roundBottomLeft ?? true,
-        br: n.props.roundBottomRight ?? true,
-      };
-      const props = (m as any).roundedRectangleProps ?? {};
-      const needsUpdate = !propsEqual(props, p);
-
-      if (needsUpdate) {
-        if (mesh && !mesh.isDestroyed) mesh.destroy();
-        mesh = roundedRectangle(
-          context.comp.engine,
-          p.sw,
-          p.sh,
-          p.rounding,
-          p.resolution,
-          {
-            tl: p.tl,
-            tr: p.tr,
-            bl: p.bl,
-            br: p.br,
-          }
-        );
-        (m as any).roundedRectangleProps = p;
-      }
-
-      child.setPositionLocal([centerX, centerY, Z_INC]);
-      child.resetScaling();
-    } else {
-      /* Planes are diameter of 2 */
-      child.setPositionLocal([centerX, centerY, Z_INC]);
-      child.setScalingLocal([0.5 * sw, 0.5 * sh, 1]);
+            child.setPositionLocal([centerX, centerY, Z_INC]);
+            child.resetScaling();
+        } else {
+            /* Planes are diameter of 2 */
+            child.setPositionLocal([centerX, centerY, Z_INC]);
+            child.setScalingLocal([0.5 * sw, 0.5 * sh, 1]);
+        }
+        m.mesh = n.props.mesh ?? mesh;
     }
-    m.mesh = n.props.mesh ?? mesh;
-  }
 
-  /* For children created earlier  */
-  n.children?.forEach((c) => {
-    applyLayoutToSceneGraph(c, context, force);
-    if (c.object && !c.object.isDestroyed) {
-      c.object.parent = n.object;
-    }
-  });
+    /* For children created earlier  */
+    n.children?.forEach((c) => {
+        applyLayoutToSceneGraph(c, context, force);
+        if (c.object && !c.object.isDestroyed) {
+            c.object.parent = n.object;
+        }
+    });
 }
 
 const tempVec4 = new Float32Array(4);
 
 function applyToYogaNode(
-  tag: string,
-  node: YogaNode,
-  props: YogaNodeProps | TextProps | RoundedRectangleProps | MeshProps,
-  wrapper: NodeWrapper,
-  ctx?: Context
+    tag: string,
+    node: YogaNode,
+    props: YogaNodeProps | TextProps | RoundedRectangleProps | MeshProps,
+    wrapper: NodeWrapper,
+    ctx?: Context
 ) {
-  if (tag === "text3d") {
-    const p = props as TextProps;
-    const s = TEXT_BASE_SIZE * (p.fontSize ?? DEFAULT_FONT_SIZE);
+    if (tag === 'text3d') {
+        const p = props as TextProps;
+        const s = TEXT_BASE_SIZE * (p.fontSize ?? DEFAULT_FONT_SIZE);
 
-    let t = wrapper.object?.getComponent(TextComponent);
-    if (!t) {
-      /* Apply properties relevant to text component here */
-      wrapper.props.text = p.text;
-      applyLayoutToSceneGraph(wrapper, ctx!, true);
-      t = wrapper.object?.getComponent(TextComponent)!;
+        let t = wrapper.object?.getComponent(TextComponent);
+        if (!t) {
+            /* Apply properties relevant to text component here */
+            wrapper.props.text = p.text;
+            applyLayoutToSceneGraph(wrapper, ctx!, true);
+            t = wrapper.object?.getComponent(TextComponent)!;
+        }
+        const b = t.getBoundingBoxForText(p.text.toString() ?? '', tempVec4);
+
+        // TODO: Avoid all the computation when width and height is set
+        let w = props.height ?? s * (b[2] - b[0]);
+        let h = props.width ?? s * (b[3] - b[1]);
+        node.setHeight(h);
+        node.setWidth(w);
+    } else {
+        node.setWidth(props.width);
+        node.setHeight(props.height);
     }
-    const b = t.getBoundingBoxForText(p.text.toString() ?? "", tempVec4);
 
-    // TODO: Avoid all the computation when width and height is set
-    let w = props.height ?? s * (b[2] - b[0]);
-    let h = props.width ?? s * (b[3] - b[1]);
-    node.setHeight(h);
-    node.setWidth(w);
-  } else {
-    node.setWidth(props.width);
-    node.setHeight(props.height);
-  }
+    /* Properties that allow undefined should be assigned to `undefined`,
+     *
+     * Properties that have a default value and do not allow `undefined` should be
+     * assigned the default value if props.value is `undefined`. */
 
-  /* Properties that allow undefined should be assigned to `undefined`,
-   *
-   * Properties that have a default value and do not allow `undefined` should be
-   * assigned the default value if props.value is `undefined`. */
+    if (wrapper.props.alignContent !== props.alignContent)
+        node.setAlignContent(props.alignContent ?? Align.FlexStart);
+    if (wrapper.props.alignItems !== props.alignItems)
+        node.setAlignItems(props.alignItems ?? Align.Stretch);
+    if (wrapper.props.alignSelf !== props.alignSelf)
+        // TODO This default was not documented!
+        node.setAlignSelf(props.alignSelf ?? Align.FlexStart);
+    if (wrapper.props.aspectRatio !== props.aspectRatio)
+        node.setAspectRatio(props.aspectRatio);
 
-  if (wrapper.props.alignContent !== props.alignContent)
-    node.setAlignContent(props.alignContent ?? Align.FlexStart);
-  if (wrapper.props.alignItems !== props.alignItems)
-    node.setAlignItems(props.alignItems ?? Align.Stretch);
-  if (wrapper.props.alignSelf !== props.alignSelf)
-    // TODO This default was not documented!
-    node.setAlignSelf(props.alignSelf ?? Align.FlexStart);
-  if (wrapper.props.aspectRatio !== props.aspectRatio)
-    node.setAspectRatio(props.aspectRatio);
+    if (wrapper.props.display !== props.display)
+        node.setDisplay(props.display ?? Display.Flex);
 
-  if (wrapper.props.display !== props.display)
-    node.setDisplay(props.display ?? Display.Flex);
+    if (wrapper.props.flex !== props.flex) node.setFlex(props.flex);
+    if (wrapper.props.flexDirection !== props.flexDirection)
+        node.setFlexDirection(props.flexDirection ?? FlexDirection.Column);
+    if (wrapper.props.flexBasis !== props.flexBasis) node.setFlexBasis(props.flexBasis);
+    if (wrapper.props.flexGrow !== props.flexGrow) node.setFlexGrow(props.flexGrow);
+    if (wrapper.props.flexShrink !== props.flexShrink) node.setFlexShrink(props.flexShrink);
+    if (wrapper.props.flexWrap !== props.flexWrap)
+        node.setFlexWrap(props.flexWrap ?? Wrap.NoWrap);
 
-  if (wrapper.props.flex !== props.flex) node.setFlex(props.flex);
-  if (wrapper.props.flexDirection !== props.flexDirection)
-    node.setFlexDirection(props.flexDirection ?? FlexDirection.Column);
-  if (wrapper.props.flexBasis !== props.flexBasis)
-    node.setFlexBasis(props.flexBasis);
-  if (wrapper.props.flexGrow !== props.flexGrow)
-    node.setFlexGrow(props.flexGrow);
-  if (wrapper.props.flexShrink !== props.flexShrink)
-    node.setFlexShrink(props.flexShrink);
-  if (wrapper.props.flexWrap !== props.flexWrap)
-    node.setFlexWrap(props.flexWrap ?? Wrap.NoWrap);
+    if (wrapper.props.isReferenceBaseline !== props.isReferenceBaseline)
+        node.setIsReferenceBaseline(props.isReferenceBaseline ?? false);
 
-  if (wrapper.props.isReferenceBaseline !== props.isReferenceBaseline)
-    node.setIsReferenceBaseline(props.isReferenceBaseline ?? false);
+    if (wrapper.props.gap !== props.gap) node.setGap(Gutter.All, props.gap);
+    if (wrapper.props.rowGap !== props.rowGap) node.setGap(Gutter.Row, props.rowGap);
+    if (wrapper.props.columnGap !== props.columnGap)
+        node.setGap(Gutter.Column, props.columnGap);
 
-  if (wrapper.props.gap !== props.gap) node.setGap(Gutter.All, props.gap);
-  if (wrapper.props.rowGap !== props.rowGap)
-    node.setGap(Gutter.Row, props.rowGap);
-  if (wrapper.props.columnGap !== props.columnGap)
-    node.setGap(Gutter.Column, props.columnGap);
+    if (wrapper.props.justifyContent !== props.justifyContent)
+        node.setJustifyContent(props.justifyContent ?? Justify.FlexStart);
 
-  if (wrapper.props.justifyContent !== props.justifyContent)
-    node.setJustifyContent(props.justifyContent ?? Justify.FlexStart);
+    if (wrapper.props.border !== props.border) node.setBorder(Edge.All, props.border);
+    if (wrapper.props.borderTop !== props.borderTop)
+        node.setBorder(Edge.Top, props.borderTop);
+    if (wrapper.props.borderBottom !== props.borderBottom)
+        node.setBorder(Edge.Bottom, props.borderBottom);
+    if (wrapper.props.borderLeft !== props.borderLeft)
+        node.setBorder(Edge.Left, props.borderLeft);
+    if (wrapper.props.borderRight !== props.borderRight)
+        node.setBorder(Edge.Right, props.borderRight);
 
-  if (wrapper.props.border !== props.border)
-    node.setBorder(Edge.All, props.border);
-  if (wrapper.props.borderTop !== props.borderTop)
-    node.setBorder(Edge.Top, props.borderTop);
-  if (wrapper.props.borderBottom !== props.borderBottom)
-    node.setBorder(Edge.Bottom, props.borderBottom);
-  if (wrapper.props.borderLeft !== props.borderLeft)
-    node.setBorder(Edge.Left, props.borderLeft);
-  if (wrapper.props.borderRight !== props.borderRight)
-    node.setBorder(Edge.Right, props.borderRight);
+    if (wrapper.props.margin !== props.margin) node.setMargin(Edge.All, props.margin);
+    if (wrapper.props.marginTop !== props.marginTop)
+        node.setMargin(Edge.Top, props.marginTop);
+    if (wrapper.props.marginBottom !== props.marginBottom)
+        node.setMargin(Edge.Bottom, props.marginBottom);
+    if (wrapper.props.marginLeft !== props.marginLeft)
+        node.setMargin(Edge.Left, props.marginLeft);
+    if (wrapper.props.marginRight !== props.marginRight)
+        node.setMargin(Edge.Right, props.marginRight);
 
-  if (wrapper.props.margin !== props.margin)
-    node.setMargin(Edge.All, props.margin);
-  if (wrapper.props.marginTop !== props.marginTop)
-    node.setMargin(Edge.Top, props.marginTop);
-  if (wrapper.props.marginBottom !== props.marginBottom)
-    node.setMargin(Edge.Bottom, props.marginBottom);
-  if (wrapper.props.marginLeft !== props.marginLeft)
-    node.setMargin(Edge.Left, props.marginLeft);
-  if (wrapper.props.marginRight !== props.marginRight)
-    node.setMargin(Edge.Right, props.marginRight);
+    if (wrapper.props.maxHeight !== props.maxHeight) node.setMaxHeight(props.maxHeight);
+    if (wrapper.props.maxWidth !== props.maxWidth) node.setMaxWidth(props.maxWidth);
+    if (wrapper.props.minHeight !== props.minHeight) node.setMinHeight(props.minHeight);
+    if (wrapper.props.minWidth !== props.minWidth) node.setMinWidth(props.minWidth);
+    if (wrapper.props.overflow !== props.overflow)
+        node.setOverflow(props.overflow ?? Overflow.Hidden);
 
-  if (wrapper.props.maxHeight !== props.maxHeight)
-    node.setMaxHeight(props.maxHeight);
-  if (wrapper.props.maxWidth !== props.maxWidth)
-    node.setMaxWidth(props.maxWidth);
-  if (wrapper.props.minHeight !== props.minHeight)
-    node.setMinHeight(props.minHeight);
-  if (wrapper.props.minWidth !== props.minWidth)
-    node.setMinWidth(props.minWidth);
-  if (wrapper.props.overflow !== props.overflow)
-    node.setOverflow(props.overflow ?? Overflow.Hidden);
+    if (wrapper.props.padding !== props.padding) node.setPadding(Edge.All, props.padding);
+    if (wrapper.props.paddingTop !== props.paddingTop)
+        node.setPadding(Edge.Top, props.paddingTop);
+    if (wrapper.props.paddingBottom !== props.paddingBottom)
+        node.setPadding(Edge.Bottom, props.paddingBottom);
+    if (wrapper.props.paddingLeft !== props.paddingLeft)
+        node.setPadding(Edge.Left, props.paddingLeft);
+    if (wrapper.props.paddingRight !== props.paddingRight)
+        node.setPadding(Edge.Right, props.paddingRight);
 
-  if (wrapper.props.padding !== props.padding)
-    node.setPadding(Edge.All, props.padding);
-  if (wrapper.props.paddingTop !== props.paddingTop)
-    node.setPadding(Edge.Top, props.paddingTop);
-  if (wrapper.props.paddingBottom !== props.paddingBottom)
-    node.setPadding(Edge.Bottom, props.paddingBottom);
-  if (wrapper.props.paddingLeft !== props.paddingLeft)
-    node.setPadding(Edge.Left, props.paddingLeft);
-  if (wrapper.props.paddingRight !== props.paddingRight)
-    node.setPadding(Edge.Right, props.paddingRight);
+    if (wrapper.props.position !== props.position)
+        node.setPositionType(props.position ?? PositionType.Relative);
+    if (wrapper.props.top !== props.top) node.setPosition(Edge.Top, props.top);
+    if (wrapper.props.bottom !== props.bottom) node.setPosition(Edge.Bottom, props.bottom);
+    if (wrapper.props.left !== props.left) node.setPosition(Edge.Left, props.left);
+    if (wrapper.props.right !== props.right) node.setPosition(Edge.Right, props.right);
 
-  if (wrapper.props.position !== props.position)
-    node.setPositionType(props.position ?? PositionType.Relative);
-  if (wrapper.props.top !== props.top) node.setPosition(Edge.Top, props.top);
-  if (wrapper.props.bottom !== props.bottom)
-    node.setPosition(Edge.Bottom, props.bottom);
-  if (wrapper.props.left !== props.left)
-    node.setPosition(Edge.Left, props.left);
-  if (wrapper.props.right !== props.right)
-    node.setPosition(Edge.Right, props.right);
-
-  if (wrapper) wrapper.props = props;
+    if (wrapper) wrapper.props = props;
 }
 
 const DEBUG_RENDERER = false;
@@ -529,485 +511,465 @@ const DEBUG_EVENTS = false;
 const debug = DEBUG_RENDERER ? console.log : () => {};
 
 const HostConfig: HostConfig<
-  string,
-  YogaNodeProps,
-  Context,
-  NodeWrapper,
-  void,
-  null,
-  null,
-  Object3D,
-  Context,
-  any,
-  any,
-  any,
-  any
+    string,
+    YogaNodeProps,
+    Context,
+    NodeWrapper,
+    void,
+    null,
+    null,
+    Object3D,
+    Context,
+    any,
+    any,
+    any,
+    any
 > = {
-  //now: Date.now,
-  getRootHostContext(context: Context) {
-    return context;
-  },
-  getChildHostContext(parentHostContext: Context) {
-    return parentHostContext;
-  },
-  shouldSetTextContent() {
-    return false;
-  },
-  createTextInstance(
-    text: string,
-    ctx: Context,
-    hostContext: Context,
-    node: ReactNode
-  ) {
-    debug("createTextInstance", text, ctx, hostContext, node);
-  },
-  createInstance(tag: string, props: YogaNodeProps, ctx: Context) {
-    debug("createInstance", tag, props, ctx);
-    const node = Y!.Node.create(ctx.config);
-    const w = new NodeWrapper(ctx, node, tag);
-    ctx.addNodeWrapper(w);
+    //now: Date.now,
+    getRootHostContext(context: Context) {
+        return context;
+    },
+    getChildHostContext(parentHostContext: Context) {
+        return parentHostContext;
+    },
+    shouldSetTextContent() {
+        return false;
+    },
+    createTextInstance(text: string, ctx: Context, hostContext: Context, node: ReactNode) {
+        debug('createTextInstance', text, ctx, hostContext, node);
+    },
+    createInstance(tag: string, props: YogaNodeProps, ctx: Context) {
+        debug('createInstance', tag, props, ctx);
+        const node = Y!.Node.create(ctx.config);
+        const w = new NodeWrapper(ctx, node, tag);
+        ctx.addNodeWrapper(w);
 
-    applyToYogaNode(tag, node, props, w, ctx);
+        applyToYogaNode(tag, node, props, w, ctx);
 
-    return w;
-  },
-  appendInitialChild(parent: NodeWrapper, child: NodeWrapper) {
-    debug("appendInitialChild", child, parent);
+        return w;
+    },
+    appendInitialChild(parent: NodeWrapper, child: NodeWrapper) {
+        debug('appendInitialChild', child, parent);
 
-    applyToYogaNode(child.tag, child.node, child.props, child);
-    parent.node.insertChild(child.node, parent.node.getChildCount());
+        applyToYogaNode(child.tag, child.node, child.props, child);
+        parent.node.insertChild(child.node, parent.node.getChildCount());
 
-    child.parent = parent;
-    parent.children!.push(child);
+        child.parent = parent;
+        parent.children!.push(child);
 
-    parent.ctx!.comp.needsUpdate = true;
-  },
-  appendChild(parent: NodeWrapper, child: NodeWrapper) {
-    debug("appendChild", parent, child);
+        parent.ctx!.comp.needsUpdate = true;
+    },
+    appendChild(parent: NodeWrapper, child: NodeWrapper) {
+        debug('appendChild', parent, child);
 
-    applyToYogaNode(child.tag, child.node, child.props, child);
-    parent.node.insertChild(child.node, parent.node.getChildCount());
+        applyToYogaNode(child.tag, child.node, child.props, child);
+        parent.node.insertChild(child.node, parent.node.getChildCount());
 
-    child.parent = parent;
-    parent.children!.push(child);
+        child.parent = parent;
+        parent.children!.push(child);
 
-    parent.ctx!.comp.needsUpdate = true;
-  },
-  appendChildToContainer(ctx: Context, child: NodeWrapper) {
-    debug("appendChildToContainer", ctx, child);
-    ctx.root = child;
+        parent.ctx!.comp.needsUpdate = true;
+    },
+    appendChildToContainer(ctx: Context, child: NodeWrapper) {
+        debug('appendChildToContainer', ctx, child);
+        ctx.root = child;
 
-    ctx.comp.needsUpdate = true;
-  },
+        ctx.comp.needsUpdate = true;
+    },
 
-  insertInContainerBefore(container, child, beforeChild) {
-    debug("insertContainerBefore", parent, child, beforeChild);
-  },
-  insertBefore(parent: NodeWrapper, child: NodeWrapper, before: NodeWrapper) {
-    debug("insertBefore", parent, child, before);
+    insertInContainerBefore(container, child, beforeChild) {
+        debug('insertContainerBefore', parent, child, beforeChild);
+    },
+    insertBefore(parent: NodeWrapper, child: NodeWrapper, before: NodeWrapper) {
+        debug('insertBefore', parent, child, before);
 
-    applyToYogaNode(child.tag, child.node, child.props, child);
+        applyToYogaNode(child.tag, child.node, child.props, child);
 
-    // Find the index of the 'before' node to determine the position at which to insert the new node
-    const beforeIndex = parent.children.findIndex(
-      (childNode) => childNode === before
-    );
-    if (beforeIndex !== -1) {
-      parent.node.insertChild(child.node, beforeIndex);
-    }
+        // Find the index of the 'before' node to determine the position at which to insert the new node
+        const beforeIndex = parent.children.findIndex((childNode) => childNode === before);
+        if (beforeIndex !== -1) {
+            parent.node.insertChild(child.node, beforeIndex);
+        }
 
-    child.parent = parent;
+        child.parent = parent;
 
-    // We also need to insert the child in the correct position in the parent's children array
-    if (beforeIndex !== -1) {
-      parent.children.splice(beforeIndex, 0, child);
-    } else {
-      // If the 'before' node is not found, we will append the child by default.
-      parent.children.push(child);
-    }
+        // We also need to insert the child in the correct position in the parent's children array
+        if (beforeIndex !== -1) {
+            parent.children.splice(beforeIndex, 0, child);
+        } else {
+            // If the 'before' node is not found, we will append the child by default.
+            parent.children.push(child);
+        }
 
-    parent.ctx!.comp.needsUpdate = true;
-  },
-  removeChild(parent: NodeWrapper, child: NodeWrapper) {
-    debug("removeChild", parent, child);
-    destroyTreeForNode(child, parent.ctx!);
+        parent.ctx!.comp.needsUpdate = true;
+    },
+    removeChild(parent: NodeWrapper, child: NodeWrapper) {
+        debug('removeChild', parent, child);
+        destroyTreeForNode(child, parent.ctx!);
 
-    parent.ctx!.comp.needsUpdate = true;
-  },
-  removeChildFromContainer(ctx: Context, child: NodeWrapper) {
-    debug("removeChildFromContainer", ctx, child);
-    destroyTreeForNode(child, ctx);
-  },
-  finalizeInitialChildren(
-    instance: NodeWrapper,
-    tag: string,
-    props: YogaNodeProps,
-    ctx: Context,
-    hostContext: Context
-  ) {
-    debug("finalizeInitialChildren", instance, tag);
-    return false;
-  },
-  prepareForCommit(ctx: Context) {
-    debug("prepareForCommit");
-    return null;
-  },
-  resetAfterCommit(containerInfo: Context) {
-    debug("resetAfterCommit", containerInfo);
-  },
-  commitUpdate(
-    instance: NodeWrapper,
-    updatePayload: null,
-    type: string,
-    prevProps: YogaNodeProps,
-    nextProps: YogaNodeProps,
-    internalHandle
-  ) {
-    debug("commitUpdate");
-    instance.props = nextProps;
-    instance.dirty = true;
-    applyToYogaNode(instance.tag, instance.node, instance.props, instance);
+        parent.ctx!.comp.needsUpdate = true;
+    },
+    removeChildFromContainer(ctx: Context, child: NodeWrapper) {
+        debug('removeChildFromContainer', ctx, child);
+        destroyTreeForNode(child, ctx);
+    },
+    finalizeInitialChildren(
+        instance: NodeWrapper,
+        tag: string,
+        props: YogaNodeProps,
+        ctx: Context,
+        hostContext: Context
+    ) {
+        debug('finalizeInitialChildren', instance, tag);
+        return false;
+    },
+    prepareForCommit(ctx: Context) {
+        debug('prepareForCommit');
+        return null;
+    },
+    resetAfterCommit(containerInfo: Context) {
+        debug('resetAfterCommit', containerInfo);
+    },
+    commitUpdate(
+        instance: NodeWrapper,
+        updatePayload: null,
+        type: string,
+        prevProps: YogaNodeProps,
+        nextProps: YogaNodeProps,
+        internalHandle
+    ) {
+        debug('commitUpdate');
+        instance.props = nextProps;
+        instance.dirty = true;
+        applyToYogaNode(instance.tag, instance.node, instance.props, instance);
 
-    instance.ctx!.comp.needsUpdate = true;
-  },
-  prepareUpdate(
-    instance: NodeWrapper,
-    tag: string,
-    oldProps: YogaNodeProps,
-    newProps: YogaNodeProps,
-    rootContainer: Context,
-    hostContext: Context
-  ) {
-    debug("prepareUpdate", oldProps, newProps);
-    if (propsEqual(oldProps, newProps)) return null;
-    return {};
-  },
-  getPublicInstance(instance: NodeWrapper) {
-    return instance.object!;
-  },
-  afterActiveInstanceBlur() {},
-  beforeActiveInstanceBlur() {},
-  detachDeletedInstance(node: any) {},
-  getCurrentEventPriority() {
-    return 0;
-  },
-  getInstanceFromNode(node: any) {
-    return null;
-  },
-  clearContainer(ctx) {
-    debug("clearContainer", ctx);
-    if (!ctx.root) return;
-    destroyTreeForNode(ctx.root, ctx);
-    ctx.root = null;
-  },
-  getInstanceFromScope(scopeInstance: any) {
-    debug("getInstanceFromScope", scopeInstance);
-    return null;
-  },
-  scheduleTimeout: setTimeout,
-  cancelTimeout: clearTimeout,
-  supportsMutation: true,
-  supportsHydration: false,
-  supportsPersistence: false,
-  isPrimaryRenderer: false,
-  noTimeout: -1,
-  preparePortalMount(containerInfo: any) {},
-  prepareScopeUpdate(scopeInstance: any, instance: any) {},
+        instance.ctx!.comp.needsUpdate = true;
+    },
+    prepareUpdate(
+        instance: NodeWrapper,
+        tag: string,
+        oldProps: YogaNodeProps,
+        newProps: YogaNodeProps,
+        rootContainer: Context,
+        hostContext: Context
+    ) {
+        debug('prepareUpdate', oldProps, newProps);
+        if (propsEqual(oldProps, newProps)) return null;
+        return {};
+    },
+    getPublicInstance(instance: NodeWrapper) {
+        return instance.object!;
+    },
+    afterActiveInstanceBlur() {},
+    beforeActiveInstanceBlur() {},
+    detachDeletedInstance(node: any) {},
+    getCurrentEventPriority() {
+        return 0;
+    },
+    getInstanceFromNode(node: any) {
+        return null;
+    },
+    clearContainer(ctx) {
+        debug('clearContainer', ctx);
+        if (!ctx.root) return;
+        destroyTreeForNode(ctx.root, ctx);
+        ctx.root = null;
+    },
+    getInstanceFromScope(scopeInstance: any) {
+        debug('getInstanceFromScope', scopeInstance);
+        return null;
+    },
+    scheduleTimeout: setTimeout,
+    cancelTimeout: clearTimeout,
+    supportsMutation: true,
+    supportsHydration: false,
+    supportsPersistence: false,
+    isPrimaryRenderer: false,
+    noTimeout: -1,
+    preparePortalMount(containerInfo: any) {},
+    prepareScopeUpdate(scopeInstance: any, instance: any) {},
 };
 const reconcilerInstance = Reconciler(HostConfig);
 
 type ReactComp = Component & {
-  needsUpdate: boolean;
-  textMaterial: Material;
-  scaling: number[];
-  renderCallback: () => void;
-  callbacks: Record<string, any>;
+    needsUpdate: boolean;
+    textMaterial: Material;
+    scaling: number[];
+    renderCallback: () => void;
+    callbacks: Record<string, any>;
 
-  setContext(c: Context): void;
-  updateLayout(): void;
-  render(): ReactNode;
+    setContext(c: Context): void;
+    updateLayout(): void;
+    render(): ReactNode;
 };
 
 export enum UISpace {
-  World = 0,
-  Screen = 1,
+    World = 0,
+    Screen = 1,
 }
 
 export abstract class ReactUiBase extends Component implements ReactComp {
-  static TypeName = "react-ui-base";
+    static TypeName = 'react-ui-base';
 
-  @property.enum(["world", "screen"])
-  space = 0;
+    @property.enum(['world', 'screen'])
+    space = 0;
 
-  @property.material({ required: true })
-  textMaterial!: Material;
+    @property.material({required: true})
+    textMaterial!: Material;
 
-  width = 100;
-  height = 100;
+    width = 100;
+    height = 100;
 
-  _onViewportResize = () => {
-    /* This callback is only added if space is "screen" */
+    _onViewportResize = () => {
+        /* This callback is only added if space is "screen" */
 
-    const activeView = this.engine.scene.activeViews[0];
-    if (!activeView) return;
-    /* Projection matrix will change if the viewport is resized, which will affect the
-     * projection matrix because of the aspect ratio. */
-    const invProj = new Float32Array(16);
-    mat4.invert(invProj, activeView.projectionMatrix);
+        const activeView = this.engine.scene.activeViews[0];
+        if (!activeView) return;
+        /* Projection matrix will change if the viewport is resized, which will affect the
+         * projection matrix because of the aspect ratio. */
+        const invProj = new Float32Array(16);
+        mat4.invert(invProj, activeView.projectionMatrix);
 
-    const topLeft = vec3.create();
-    const bottomRight = vec3.create();
-    vec3.transformMat4(topLeft, [-1, 1, 0], invProj);
-    vec3.transformMat4(bottomRight, [1, -1, 0], invProj);
+        const topLeft = vec3.create();
+        const bottomRight = vec3.create();
+        vec3.transformMat4(topLeft, [-1, 1, 0], invProj);
+        vec3.transformMat4(bottomRight, [1, -1, 0], invProj);
 
-    const s = bottomRight[0] - topLeft[0];
-    this.object.setScalingLocal([s, s, s]);
-    /* Convert from yoga units to 0-1 */
-    this.width = this.engine.canvas.clientWidth;
-    this.height = this.engine.canvas.clientHeight;
-    this.scaling = [1 / this.width, 1 / this.width];
-    this.object.setPositionLocal(topLeft);
+        const s = bottomRight[0] - topLeft[0];
+        this.object.setScalingLocal([s, s, s]);
+        /* Convert from yoga units to 0-1 */
+        this.width = this.engine.canvas.clientWidth;
+        this.height = this.engine.canvas.clientHeight;
+        this.scaling = [1 / this.width, 1 / this.width];
+        this.object.setPositionLocal(topLeft);
 
-    this.needsUpdate = true;
-    this.viewportChanged = true;
-  };
-
-  scaling = [1, 1];
-
-  renderer?: any;
-
-  ctx: Context | null = null;
-
-  protected _viewComponent?: ViewComponent;
-
-  needsUpdate = true;
-  viewportChanged = true;
-
-  setContext(c: Context): void {
-    this.ctx = c;
-  }
-
-  updateLayout() {
-    if (!this.ctx?.root) return;
-
-    debug("updateLayout", this.width, this.height);
-    this.ctx.wrappers.forEach((w) =>
-      applyToYogaNode(w.tag, w.node, w.props, w)
-    );
-    this.ctx.root.node.calculateLayout(
-      this.width ?? 100,
-      this.height ?? 100,
-      Direction.LTR
-    );
-
-    applyLayoutToSceneGraph(this.ctx.root, this.ctx!, this.viewportChanged);
-    this.needsUpdate = false;
-  }
-
-  init() {
-    this.callbacks = {
-      click: this.onClick.bind(this),
-      pointermove: this.onPointerMove.bind(this),
-      pointerdown: this.onPointerDown.bind(this),
-      pointerup: this.onPointerUp.bind(this),
+        this.needsUpdate = true;
+        this.viewportChanged = true;
     };
 
-    for (const [k, v] of Object.entries(this.callbacks)) {
-      this.callbacks[k] = (e: any) => reconcilerInstance.batchedUpdates(v, e);
-    }
-  }
+    scaling = [1, 1];
 
-  async start() {
-    if (this.space == UISpace.Screen) {
-      this._viewComponent = this.engine.scene.activeViews[0];
-      /* Reparent to main view */
-      this.object.parent = this._viewComponent.object;
-      this.object.setPositionLocal([0, 0, -2 * this._viewComponent.near]);
-      this.object.resetRotation();
+    renderer?: any;
 
-      /* Calculate size of the UI */
-      this._onViewportResize();
-      this.engine.onResize.add(this._onViewportResize);
-    }
-    this.renderer = await initializeRenderer();
+    ctx: Context | null = null;
 
-    this.renderer.render(this.render(), this);
-  }
+    protected _viewComponent?: ViewComponent;
 
-  update() {
-    if (this.needsUpdate) this.updateLayout();
-  }
+    needsUpdate = true;
+    viewportChanged = true;
 
-  callbacks: Record<string, any> = {};
-
-  onActivate(): void {
-    /* We need to ensure React defers re-renders to after the callbacks were called */
-    for (const [k, v] of Object.entries(this.callbacks)) {
-      this.engine.canvas.addEventListener(k, v);
-    }
-  }
-
-  onDeactivate(): void {
-    if (!this._viewComponent) return;
-    const canvas = this.engine.canvas!;
-
-    for (const [k, v] of Object.entries(this.callbacks)) {
-      canvas.removeEventListener(k, v);
-    }
-  }
-
-  forEachElementUnderneath(
-    node: NodeWrapper | null,
-    x: number,
-    y: number,
-    callback: (node: NodeWrapper) => boolean
-  ): NodeWrapper | null {
-    if (node === null) return null;
-
-    const t = node.node.getComputedTop();
-    const l = node.node.getComputedLeft();
-    const w = node.node.getComputedWidth();
-    const h = node.node.getComputedHeight();
-
-    const inside = !(x > l + w || x < l || y > t + h || y < t);
-    let target = null;
-    if (inside) {
-      node.hovering![this.curGen] = true;
-      if (callback(node)) target = node;
+    setContext(c: Context): void {
+        this.ctx = c;
     }
 
-    for (let n of node.children!) {
-      target =
-        this.forEachElementUnderneath(n, x - l, y - t, callback) ?? target;
+    updateLayout() {
+        if (!this.ctx?.root) return;
+
+        debug('updateLayout', this.width, this.height);
+        this.ctx.wrappers.forEach((w) => applyToYogaNode(w.tag, w.node, w.props, w));
+        this.ctx.root.node.calculateLayout(
+            this.width ?? 100,
+            this.height ?? 100,
+            Direction.LTR
+        );
+
+        applyLayoutToSceneGraph(this.ctx.root, this.ctx!, this.viewportChanged);
+        this.needsUpdate = false;
     }
 
-    return target;
-  }
+    init() {
+        this.callbacks = {
+            click: this.onClick.bind(this),
+            pointermove: this.onPointerMove.bind(this),
+            pointerdown: this.onPointerDown.bind(this),
+            pointerup: this.onPointerUp.bind(this),
+        };
 
-  emitEvent(
-    eventName: string,
-    x: number,
-    y: number,
-    e: Event
-  ): NodeWrapper | null {
-    if (!this.ctx?.root) return null;
-    const target = this.forEachElementUnderneath(this.ctx.root, x, y, (w) => {
-      const event = w?.props[eventName];
-      if (event !== undefined) {
-        event({ x, y, e });
-        return true;
-      }
-      return false;
-    });
-    if (DEBUG_EVENTS) {
-      debug(eventName, `{${x}, ${y}}`, target);
-      this.ctx!.printTree();
-    }
-    return target;
-  }
-
-  /** 'pointermove' event listener */
-  curGen = 0;
-  onPointerMove(e: PointerEvent) {
-    /* Don't care about secondary pointers */
-    if (!e.isPrimary || !this.ctx) return null;
-    const x = e.clientX;
-    const y = e.clientY;
-
-    const cur = (this.curGen = this.curGen ^ 0x1);
-    /* Clear hovering flag */
-    this.ctx.wrappers.forEach((w) => (w.hovering![cur] = false));
-    const target = this.emitEvent("onMove", x, y, e);
-    this.updateHoverState(x, y, e, target!);
-  }
-
-  updateHoverState(
-    x: number,
-    y: number,
-    e: PointerEvent,
-    node?: NodeWrapper | null
-  ) {
-    const cur = this.curGen;
-    const other = cur ^ 0x1;
-    while (node) {
-      node.hovering![cur] = true;
-      node = node.parent;
-    }
-    this.ctx!.wrappers.forEach((w) => {
-      const hovering = w.hovering![cur];
-      if (hovering != w.hovering![other]) {
-        const event = hovering ? w?.props.onHover : w?.props.onUnhover;
-        if (event !== undefined) {
-          event({ x, y, e });
-          return true;
+        for (const [k, v] of Object.entries(this.callbacks)) {
+            this.callbacks[k] = (e: any) => reconcilerInstance.batchedUpdates(v, e);
         }
-      }
-    });
-  }
+    }
 
-  /** 'click' event listener */
-  onClick(e: MouseEvent) {
-    const x = e.clientX;
-    const y = e.clientY;
-    const t = this.emitEvent("onClick", x, y, e);
-    return t;
-  }
+    async start() {
+        if (this.space == UISpace.Screen) {
+            this._viewComponent = this.engine.scene.activeViews[0];
+            /* Reparent to main view */
+            this.object.parent = this._viewComponent.object;
+            this.object.setPositionLocal([0, 0, -2 * this._viewComponent.near]);
+            this.object.resetRotation();
 
-  /** 'pointerdown' event listener */
-  onPointerDown(e: PointerEvent): NodeWrapper | null {
-    /* Don't care about secondary pointers or non-left clicks */
-    if (!e.isPrimary || e.button !== 0) return null;
-    const x = e.clientX;
-    const y = e.clientY;
-    const t = this.emitEvent("onDown", x, y, e);
-    return t;
-  }
+            /* Calculate size of the UI */
+            this._onViewportResize();
+            this.engine.onResize.add(this._onViewportResize);
+        }
+        this.renderer = await initializeRenderer();
 
-  /** 'pointerup' event listener */
-  onPointerUp(e: PointerEvent): NodeWrapper | null {
-    /* Don't care about secondary pointers or non-left clicks */
-    if (!e.isPrimary || e.button !== 0) return null;
-    const x = e.clientX;
-    const y = e.clientY;
-    const t = this.emitEvent("onUp", x, y, e);
-    return t;
-  }
+        this.renderer.render(this.render(), this);
+    }
 
-  renderCallback() {
-    // FIXME: Never called
-    this.needsUpdate = true;
-  }
+    update() {
+        if (this.needsUpdate) this.updateLayout();
+    }
 
-  abstract render(): ReactNode;
+    callbacks: Record<string, any> = {};
+
+    onActivate(): void {
+        /* We need to ensure React defers re-renders to after the callbacks were called */
+        for (const [k, v] of Object.entries(this.callbacks)) {
+            this.engine.canvas.addEventListener(k, v);
+        }
+    }
+
+    onDeactivate(): void {
+        if (!this._viewComponent) return;
+        const canvas = this.engine.canvas!;
+
+        for (const [k, v] of Object.entries(this.callbacks)) {
+            canvas.removeEventListener(k, v);
+        }
+    }
+
+    forEachElementUnderneath(
+        node: NodeWrapper | null,
+        x: number,
+        y: number,
+        callback: (node: NodeWrapper) => boolean
+    ): NodeWrapper | null {
+        if (node === null) return null;
+
+        const t = node.node.getComputedTop();
+        const l = node.node.getComputedLeft();
+        const w = node.node.getComputedWidth();
+        const h = node.node.getComputedHeight();
+
+        const inside = !(x > l + w || x < l || y > t + h || y < t);
+        let target = null;
+        if (inside) {
+            node.hovering![this.curGen] = true;
+            if (callback(node)) target = node;
+        }
+
+        for (let n of node.children!) {
+            target = this.forEachElementUnderneath(n, x - l, y - t, callback) ?? target;
+        }
+
+        return target;
+    }
+
+    emitEvent(eventName: string, x: number, y: number, e: Event): NodeWrapper | null {
+        if (!this.ctx?.root) return null;
+        const target = this.forEachElementUnderneath(this.ctx.root, x, y, (w) => {
+            const event = w?.props[eventName];
+            if (event !== undefined) {
+                event({x, y, e});
+                return true;
+            }
+            return false;
+        });
+        if (DEBUG_EVENTS) {
+            debug(eventName, `{${x}, ${y}}`, target);
+            this.ctx!.printTree();
+        }
+        return target;
+    }
+
+    /** 'pointermove' event listener */
+    curGen = 0;
+    onPointerMove(e: PointerEvent) {
+        /* Don't care about secondary pointers */
+        if (!e.isPrimary || !this.ctx) return null;
+        const x = e.clientX;
+        const y = e.clientY;
+
+        const cur = (this.curGen = this.curGen ^ 0x1);
+        /* Clear hovering flag */
+        this.ctx.wrappers.forEach((w) => (w.hovering![cur] = false));
+        const target = this.emitEvent('onMove', x, y, e);
+        this.updateHoverState(x, y, e, target!);
+    }
+
+    updateHoverState(x: number, y: number, e: PointerEvent, node?: NodeWrapper | null) {
+        const cur = this.curGen;
+        const other = cur ^ 0x1;
+        while (node) {
+            node.hovering![cur] = true;
+            node = node.parent;
+        }
+        this.ctx!.wrappers.forEach((w) => {
+            const hovering = w.hovering![cur];
+            if (hovering != w.hovering![other]) {
+                const event = hovering ? w?.props.onHover : w?.props.onUnhover;
+                if (event !== undefined) {
+                    event({x, y, e});
+                    return true;
+                }
+            }
+        });
+    }
+
+    /** 'click' event listener */
+    onClick(e: MouseEvent) {
+        const x = e.clientX;
+        const y = e.clientY;
+        const t = this.emitEvent('onClick', x, y, e);
+        return t;
+    }
+
+    /** 'pointerdown' event listener */
+    onPointerDown(e: PointerEvent): NodeWrapper | null {
+        /* Don't care about secondary pointers or non-left clicks */
+        if (!e.isPrimary || e.button !== 0) return null;
+        const x = e.clientX;
+        const y = e.clientY;
+        const t = this.emitEvent('onDown', x, y, e);
+        return t;
+    }
+
+    /** 'pointerup' event listener */
+    onPointerUp(e: PointerEvent): NodeWrapper | null {
+        /* Don't care about secondary pointers or non-left clicks */
+        if (!e.isPrimary || e.button !== 0) return null;
+        const x = e.clientX;
+        const y = e.clientY;
+        const t = this.emitEvent('onUp', x, y, e);
+        return t;
+    }
+
+    renderCallback() {
+        // FIXME: Never called
+        this.needsUpdate = true;
+    }
+
+    abstract render(): ReactNode;
 }
 
 export async function initializeRenderer() {
-  if (!Y) {
-    Y = (await import("yoga-layout")).default;
-  }
-  return {
-    render(element: ReactNode, reactComp: ReactComp, callback?: () => void) {
-      // element: This is the react element for App component
-      // renderDom: This is the host root element to which the rendered app will be attached.
-      const container = reconcilerInstance.createContainer(
-        new Context(reactComp),
-        0,
-        null,
-        false,
-        null,
-        "root",
-        (e: Error) => console.error(e),
-        null
-      );
-      reactComp.setContext(container.containerInfo);
+    if (!Y) {
+        Y = (await import('yoga-layout')).default;
+    }
+    return {
+        render(element: ReactNode, reactComp: ReactComp, callback?: () => void) {
+            // element: This is the react element for App component
+            // renderDom: This is the host root element to which the rendered app will be attached.
+            const container = reconcilerInstance.createContainer(
+                new Context(reactComp),
+                0,
+                null,
+                false,
+                null,
+                'root',
+                (e: Error) => console.error(e),
+                null
+            );
+            reactComp.setContext(container.containerInfo);
 
-      const parentComponent = null;
-      reconcilerInstance.updateContainer(
-        element,
-        container,
-        parentComponent,
-        reactComp.renderCallback.bind(reactComp)
-      );
-    },
-  };
+            const parentComponent = null;
+            reconcilerInstance.updateContainer(
+                element,
+                container,
+                parentComponent,
+                reactComp.renderCallback.bind(reactComp)
+            );
+        },
+    };
 }
