@@ -28,9 +28,9 @@ jobs:
     - name: Gzip
       run: find ./public/ -type f ! -name '*.gz' -exec gzip -k "{}" \;
     - name: Upload artifact
-        uses: actions/upload-pages-artifact@v1
-        with:
-          path: ./public
+      uses: actions/upload-pages-artifact@v1
+      with:
+        path: ./public
   deploy-pages:
     needs: package
     runs-on: ubuntu-latest
