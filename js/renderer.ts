@@ -11,7 +11,7 @@ import {
 } from "@wonderlandengine/api";
 import { property } from "@wonderlandengine/api/decorators.js";
 import { mat4, vec3 } from "gl-matrix";
-import { ReactNode, useCallback } from "react";
+import { ReactNode } from "react";
 
 import Reconciler, { HostConfig } from "react-reconciler";
 import type {
@@ -53,8 +53,8 @@ import { roundedRectangle } from "./rounded-rectangle-mesh.js";
 type ValueType = number | "auto" | `${number}%`;
 type ValueTypeNoAuto = number | `${number}%`;
 
-const Z_INC = 0.01;
-const TEXT_BASE_SIZE = 14;
+const Z_INC = 0.001;
+const TEXT_BASE_SIZE = 12;
 const DEFAULT_FONT_SIZE = 50;
 
 let Y: Yoga | null = null;
@@ -182,6 +182,25 @@ function propsEqual(oldProps: any, newProps: any) {
   return true;
 }
 
+class NodeWrapper {
+  node: YogaNode;
+  tag: string;
+  /* Applied properties cache */
+  props: any = {};
+  object: Object3D | null = null;
+  parent: NodeWrapper | null = null;
+  children: NodeWrapper[] = [];
+  ctx: Context;
+  hovering = [false, false];
+  dirty = true;
+
+  constructor(ctx: Context, node: YogaNode, tag: string) {
+    this.ctx = ctx;
+    this.tag = tag;
+    this.node = node;
+  }
+}
+
 class Context {
   root: NodeWrapper | null;
   config: Config;
@@ -246,25 +265,6 @@ function setPositionRight(o: Object3D, n: NodeWrapper, s: number[]) {
   ]);
 }
 
-class NodeWrapper {
-  node: YogaNode;
-  tag: string;
-  props: any;
-  object: Object3D | null = null;
-  parent: NodeWrapper | null = null;
-  children: NodeWrapper[] = [];
-  ctx: Context;
-  hovering = [false, false];
-  dirty = true;
-
-  constructor(ctx: Context, node: YogaNode, tag: string, props: any) {
-    this.ctx = ctx;
-    this.tag = tag;
-    this.node = node;
-    this.props = props;
-  }
-}
-
 function applyLayoutToSceneGraph(
   n: NodeWrapper,
   context: Context,
@@ -286,6 +286,8 @@ function applyLayoutToSceneGraph(
     })();
   n.object = o;
   o.parent = n.parent?.object ?? context.comp.object;
+  o.resetPositionRotation();
+  o.resetScaling();
 
   if (n.tag === "text3d") {
     const align = n.props.alignment;
@@ -397,43 +399,27 @@ function applyToYogaNode(
   tag: string,
   node: YogaNode,
   props: YogaNodeProps | TextProps | RoundedRectangleProps | MeshProps,
-  wrapper?: NodeWrapper,
+  wrapper: NodeWrapper,
   ctx?: Context
 ) {
   if (tag === "text3d") {
     const p = props as TextProps;
-    const s = p.fontSize ?? DEFAULT_FONT_SIZE;
+    const s = TEXT_BASE_SIZE * (p.fontSize ?? DEFAULT_FONT_SIZE);
 
-    let w = 0;
-    let h = 0;
-    if (wrapper) {
-      let t = wrapper.object?.getComponent(TextComponent);
-      if (!t) {
-        applyLayoutToSceneGraph(wrapper, ctx!, true);
-        t = wrapper.object?.getComponent(TextComponent)!;
-      }
-      const b = t.getBoundingBoxForText(p.text.toString() ?? "", tempVec4);
-      w = TEXT_BASE_SIZE * s * (b[2] - b[0]);
-      h = TEXT_BASE_SIZE * s * (b[3] - b[1]);
-    } else {
-      const fakePerCharWidth = 0.7 * s;
-      let lines = 1;
-      let maxLine = 0;
-      let lastLineStart = 0;
-      const t = p.text.toString();
-      for (let i = 0; i < t.length; ++i) {
-        if (t.charAt(i) == "\n") {
-          ++lines;
-          maxLine = Math.max(maxLine, i - lastLineStart);
-          lastLineStart = i + 1;
-        }
-      }
-      maxLine = Math.max(maxLine, t.length - lastLineStart);
-      w = fakePerCharWidth * maxLine;
-      h = s * lines + (lines - 1) * 15;
+    let t = wrapper.object?.getComponent(TextComponent);
+    if (!t) {
+      /* Apply properties relevant to text component here */
+      wrapper.props.text = p.text;
+      applyLayoutToSceneGraph(wrapper, ctx!, true);
+      t = wrapper.object?.getComponent(TextComponent)!;
     }
-    node.setHeight(props.height ?? h);
-    node.setWidth(props.width ?? w);
+    const b = t.getBoundingBoxForText(p.text.toString() ?? "", tempVec4);
+
+    // TODO: Avoid all the computation when width and height is set
+    let w = props.height ?? s * (b[2] - b[0]);
+    let h = props.width ?? s * (b[3] - b[1]);
+    node.setHeight(h);
+    node.setWidth(w);
   } else {
     node.setWidth(props.width);
     node.setHeight(props.height);
@@ -444,95 +430,95 @@ function applyToYogaNode(
    * Properties that have a default value and do not allow `undefined` should be
    * assigned the default value if props.value is `undefined`. */
 
-  if (wrapper?.props.alignContent !== props.alignContent)
+  if (wrapper.props.alignContent !== props.alignContent)
     node.setAlignContent(props.alignContent ?? Align.FlexStart);
-  if (wrapper?.props.alignItems !== props.alignItems)
+  if (wrapper.props.alignItems !== props.alignItems)
     node.setAlignItems(props.alignItems ?? Align.Stretch);
-  if (wrapper?.props.alignSelf !== props.alignSelf)
+  if (wrapper.props.alignSelf !== props.alignSelf)
     // TODO This default was not documented!
     node.setAlignSelf(props.alignSelf ?? Align.FlexStart);
-  if (wrapper?.props.aspectRatio !== props.aspectRatio)
+  if (wrapper.props.aspectRatio !== props.aspectRatio)
     node.setAspectRatio(props.aspectRatio);
 
-  if (wrapper?.props.display !== props.display)
+  if (wrapper.props.display !== props.display)
     node.setDisplay(props.display ?? Display.Flex);
 
-  if (wrapper?.props.flex !== props.flex) node.setFlex(props.flex);
-  if (wrapper?.props.flexDirection !== props.flexDirection)
+  if (wrapper.props.flex !== props.flex) node.setFlex(props.flex);
+  if (wrapper.props.flexDirection !== props.flexDirection)
     node.setFlexDirection(props.flexDirection ?? FlexDirection.Column);
-  if (wrapper?.props.flexBasis !== props.flexBasis)
+  if (wrapper.props.flexBasis !== props.flexBasis)
     node.setFlexBasis(props.flexBasis);
-  if (wrapper?.props.flexGrow !== props.flexGrow)
+  if (wrapper.props.flexGrow !== props.flexGrow)
     node.setFlexGrow(props.flexGrow);
-  if (wrapper?.props.flexShrink !== props.flexShrink)
+  if (wrapper.props.flexShrink !== props.flexShrink)
     node.setFlexShrink(props.flexShrink);
-  if (wrapper?.props.flexWrap !== props.flexWrap)
+  if (wrapper.props.flexWrap !== props.flexWrap)
     node.setFlexWrap(props.flexWrap ?? Wrap.NoWrap);
 
-  if (wrapper?.props.isReferenceBaseline !== props.isReferenceBaseline)
+  if (wrapper.props.isReferenceBaseline !== props.isReferenceBaseline)
     node.setIsReferenceBaseline(props.isReferenceBaseline ?? false);
 
-  if (wrapper?.props.gap !== props.gap) node.setGap(Gutter.All, props.gap);
-  if (wrapper?.props.rowGap !== props.rowGap)
+  if (wrapper.props.gap !== props.gap) node.setGap(Gutter.All, props.gap);
+  if (wrapper.props.rowGap !== props.rowGap)
     node.setGap(Gutter.Row, props.rowGap);
-  if (wrapper?.props.columnGap !== props.columnGap)
+  if (wrapper.props.columnGap !== props.columnGap)
     node.setGap(Gutter.Column, props.columnGap);
 
-  if (wrapper?.props.justifyContent !== props.justifyContent)
+  if (wrapper.props.justifyContent !== props.justifyContent)
     node.setJustifyContent(props.justifyContent ?? Justify.FlexStart);
 
-  if (wrapper?.props.border !== props.border)
+  if (wrapper.props.border !== props.border)
     node.setBorder(Edge.All, props.border);
-  if (wrapper?.props.borderTop !== props.borderTop)
+  if (wrapper.props.borderTop !== props.borderTop)
     node.setBorder(Edge.Top, props.borderTop);
-  if (wrapper?.props.borderBottom !== props.borderBottom)
+  if (wrapper.props.borderBottom !== props.borderBottom)
     node.setBorder(Edge.Bottom, props.borderBottom);
-  if (wrapper?.props.borderLeft !== props.borderLeft)
+  if (wrapper.props.borderLeft !== props.borderLeft)
     node.setBorder(Edge.Left, props.borderLeft);
-  if (wrapper?.props.borderRight !== props.borderRight)
+  if (wrapper.props.borderRight !== props.borderRight)
     node.setBorder(Edge.Right, props.borderRight);
 
-  if (wrapper?.props.margin !== props.margin)
+  if (wrapper.props.margin !== props.margin)
     node.setMargin(Edge.All, props.margin);
-  if (wrapper?.props.marginTop !== props.marginTop)
+  if (wrapper.props.marginTop !== props.marginTop)
     node.setMargin(Edge.Top, props.marginTop);
-  if (wrapper?.props.marginBottom !== props.marginBottom)
+  if (wrapper.props.marginBottom !== props.marginBottom)
     node.setMargin(Edge.Bottom, props.marginBottom);
-  if (wrapper?.props.marginLeft !== props.marginLeft)
+  if (wrapper.props.marginLeft !== props.marginLeft)
     node.setMargin(Edge.Left, props.marginLeft);
-  if (wrapper?.props.marginRight !== props.marginRight)
+  if (wrapper.props.marginRight !== props.marginRight)
     node.setMargin(Edge.Right, props.marginRight);
 
-  if (wrapper?.props.maxHeight !== props.maxHeight)
+  if (wrapper.props.maxHeight !== props.maxHeight)
     node.setMaxHeight(props.maxHeight);
-  if (wrapper?.props.maxWidth !== props.maxWidth)
+  if (wrapper.props.maxWidth !== props.maxWidth)
     node.setMaxWidth(props.maxWidth);
-  if (wrapper?.props.minHeight !== props.minHeight)
+  if (wrapper.props.minHeight !== props.minHeight)
     node.setMinHeight(props.minHeight);
-  if (wrapper?.props.minWidth !== props.minWidth)
+  if (wrapper.props.minWidth !== props.minWidth)
     node.setMinWidth(props.minWidth);
-  if (wrapper?.props.overflow !== props.overflow)
+  if (wrapper.props.overflow !== props.overflow)
     node.setOverflow(props.overflow ?? Overflow.Hidden);
 
-  if (wrapper?.props.padding !== props.padding)
+  if (wrapper.props.padding !== props.padding)
     node.setPadding(Edge.All, props.padding);
-  if (wrapper?.props.paddingTop !== props.paddingTop)
+  if (wrapper.props.paddingTop !== props.paddingTop)
     node.setPadding(Edge.Top, props.paddingTop);
-  if (wrapper?.props.paddingBottom !== props.paddingBottom)
+  if (wrapper.props.paddingBottom !== props.paddingBottom)
     node.setPadding(Edge.Bottom, props.paddingBottom);
-  if (wrapper?.props.paddingLeft !== props.paddingLeft)
+  if (wrapper.props.paddingLeft !== props.paddingLeft)
     node.setPadding(Edge.Left, props.paddingLeft);
-  if (wrapper?.props.paddingRight !== props.paddingRight)
+  if (wrapper.props.paddingRight !== props.paddingRight)
     node.setPadding(Edge.Right, props.paddingRight);
 
-  if (wrapper?.props.position !== props.position)
+  if (wrapper.props.position !== props.position)
     node.setPositionType(props.position ?? PositionType.Relative);
-  if (wrapper?.props.top !== props.top) node.setPosition(Edge.Top, props.top);
-  if (wrapper?.props.bottom !== props.bottom)
+  if (wrapper.props.top !== props.top) node.setPosition(Edge.Top, props.top);
+  if (wrapper.props.bottom !== props.bottom)
     node.setPosition(Edge.Bottom, props.bottom);
-  if (wrapper?.props.left !== props.left)
+  if (wrapper.props.left !== props.left)
     node.setPosition(Edge.Left, props.left);
-  if (wrapper?.props.right !== props.right)
+  if (wrapper.props.right !== props.right)
     node.setPosition(Edge.Right, props.right);
 
   if (wrapper) wrapper.props = props;
@@ -578,7 +564,7 @@ const HostConfig: HostConfig<
   createInstance(tag: string, props: YogaNodeProps, ctx: Context) {
     debug("createInstance", tag, props, ctx);
     const node = Y!.Node.create(ctx.config);
-    const w = new NodeWrapper(ctx, node, tag, props);
+    const w = new NodeWrapper(ctx, node, tag);
     ctx.addNodeWrapper(w);
 
     applyToYogaNode(tag, node, props, w, ctx);
@@ -588,7 +574,7 @@ const HostConfig: HostConfig<
   appendInitialChild(parent: NodeWrapper, child: NodeWrapper) {
     debug("appendInitialChild", child, parent);
 
-    applyToYogaNode(child.tag, child.node, child.props);
+    applyToYogaNode(child.tag, child.node, child.props, child);
     parent.node.insertChild(child.node, parent.node.getChildCount());
 
     child.parent = parent;
@@ -599,7 +585,7 @@ const HostConfig: HostConfig<
   appendChild(parent: NodeWrapper, child: NodeWrapper) {
     debug("appendChild", parent, child);
 
-    applyToYogaNode(child.tag, child.node, child.props);
+    applyToYogaNode(child.tag, child.node, child.props, child);
     parent.node.insertChild(child.node, parent.node.getChildCount());
 
     child.parent = parent;
@@ -620,7 +606,7 @@ const HostConfig: HostConfig<
   insertBefore(parent: NodeWrapper, child: NodeWrapper, before: NodeWrapper) {
     debug("insertBefore", parent, child, before);
 
-    applyToYogaNode(child.tag, child.node, child.props);
+    applyToYogaNode(child.tag, child.node, child.props, child);
 
     // Find the index of the 'before' node to determine the position at which to insert the new node
     const beforeIndex = parent.children.findIndex(
@@ -680,7 +666,7 @@ const HostConfig: HostConfig<
     debug("commitUpdate");
     instance.props = nextProps;
     instance.dirty = true;
-    applyToYogaNode(instance.tag, instance.node, instance.props);
+    applyToYogaNode(instance.tag, instance.node, instance.props, instance);
 
     instance.ctx!.comp.needsUpdate = true;
   },
@@ -805,7 +791,9 @@ export abstract class ReactUiBase extends Component implements ReactComp {
     if (!this.ctx?.root) return;
 
     debug("updateLayout", this.width, this.height);
-    this.ctx.wrappers.forEach((w) => applyToYogaNode(w.tag, w.node, w.props));
+    this.ctx.wrappers.forEach((w) =>
+      applyToYogaNode(w.tag, w.node, w.props, w)
+    );
     this.ctx.root.node.calculateLayout(
       this.width ?? 100,
       this.height ?? 100,
@@ -814,6 +802,19 @@ export abstract class ReactUiBase extends Component implements ReactComp {
 
     applyLayoutToSceneGraph(this.ctx.root, this.ctx!, this.viewportChanged);
     this.needsUpdate = false;
+  }
+
+  init() {
+    this.callbacks = {
+      click: this.onClick.bind(this),
+      pointermove: this.onPointerMove.bind(this),
+      pointerdown: this.onPointerDown.bind(this),
+      pointerup: this.onPointerUp.bind(this),
+    };
+
+    for (const [k, v] of Object.entries(this.callbacks)) {
+      this.callbacks[k] = (e: any) => reconcilerInstance.batchedUpdates(v, e);
+    }
   }
 
   async start() {
@@ -840,15 +841,10 @@ export abstract class ReactUiBase extends Component implements ReactComp {
   callbacks: Record<string, any> = {};
 
   onActivate(): void {
-    if (!this._viewComponent) return;
-    const canvas = this.engine.canvas!;
-
-    this.callbacks = {
-      click: this.onClick.bind(this),
-      pointermove: this.onPointerMove.bind(this),
-      pointerdown: this.onPointerDown.bind(this),
-      pointerup: this.onPointerUp.bind(this),
-    };
+    /* We need to ensure React defers re-renders to after the callbacks were called */
+    for (const [k, v] of Object.entries(this.callbacks)) {
+      this.engine.canvas.addEventListener(k, v);
+    }
   }
 
   onDeactivate(): void {
@@ -1004,14 +1000,6 @@ export async function initializeRenderer() {
         null
       );
       reactComp.setContext(container.containerInfo);
-
-      /* Set up callbacks here, since we need to ensure React defers re-renders
-       * to after the callbacks were called */
-      for (const [k, v] of Object.entries(reactComp.callbacks)) {
-        reactComp.engine.canvas.addEventListener(k, (e) =>
-          reconcilerInstance.batchedUpdates(v, e)
-        );
-      }
 
       const parentComponent = null;
       reconcilerInstance.updateContainer(
