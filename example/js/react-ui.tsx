@@ -7,17 +7,25 @@ import {
   Panel,
   Text,
   Button,
+  Row,
 } from "@wonderlandengine/react-ui/components";
 import React, { useState } from "react";
 
 const App = (props: { comp: ReactUi }) => {
-  const [list, setList] = useState([] as string[]);
+  const [list, setList] = useState(["Element 0", "Element 1"]);
 
   const addListElement = () => {
-    console.log("Add");
     const newList = list.slice();
     newList.push("Element " + list.length.toString());
     setList(newList);
+    console.log("Add");
+  };
+
+  const removeListElement = (i: number) => {
+    const newList = list.slice();
+    newList.splice(i, 1);
+    setList(newList);
+    console.log("Remove");
   };
 
   return (
@@ -36,8 +44,20 @@ const App = (props: { comp: ReactUi }) => {
         >
           <Text text={"Add Item"} />
         </Button>
-        {list.map((label) => (
-          <Text key={label} text={label} fontSize={20} />
+        {list.map((label, i) => (
+          <Row key={i} width="100%" height={40} columnGap={20}>
+            <Text text={label} fontSize={20} />
+            <Button
+              width={100}
+              height="100%"
+              rounding={5}
+              onClick={(e) => removeListElement(i)}
+              material={props.comp.panelMaterialSecondary}
+              materialHovered={props.comp.panelMaterialSecondaryHovered}
+            >
+              <Text text={"Remove"} fontSize={16} />
+            </Button>
+          </Row>
         ))}
       </Column>
     </Panel>
