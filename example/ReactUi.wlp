@@ -621,7 +621,11 @@
                 "/js/lib/"
             ],
             "esbuildFlags": "--format=esm",
-            "esbuildFlagsEditor": "--external:yoga-layout"
+            "esbuildFlagsEditor": "--external:yoga-layout",
+            "sourcePaths": [
+                "js/",
+                "../js"
+            ]
         },
         "rendering": {
             "hdr": {
