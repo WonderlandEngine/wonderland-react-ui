@@ -27,11 +27,10 @@ jobs:
           WLE_CREDENTIALS: ${{ secrets.WLE_CREDENTIALS }}
     - name: Gzip
       run: find ./public/ -type f ! -name '*.gz' -exec gzip -k "{}" \;
-    - name: Upload package artifact
-      uses: actions/upload-artifact@v2
-      with:
-        name: wonderland-react-ui-deploy
-        path: public/
+    - name: Upload artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: ./public
   deploy-pages:
     needs: package
     runs-on: ubuntu-latest
