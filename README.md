@@ -42,7 +42,7 @@ The following widgets/components are currently available:
 
 ### Button
 
-```tsx
+```jsx
 <Button
     onClick={() => console.log("Clicked!")}
     material={panelMat}
@@ -55,7 +55,7 @@ The following widgets/components are currently available:
 
 ### Text
 
-```tsx
+```jsx
 <Text text={"Click Me!"} fontSize={20} />
 ```
 
@@ -63,7 +63,7 @@ The following widgets/components are currently available:
 
 Panel rendered as a rectangle with rounded corners:
 
-```tsx
+```jsx
 <Panel
     material={panelMat}
     rounding={10}
@@ -79,7 +79,7 @@ Panel rendered as a rectangle with rounded corners:
 
 Flex-box column:
 
-```tsx
+```jsx
 <Column rowGap={10}>
     {/* ... */}
 </Column>
@@ -89,7 +89,7 @@ Flex-box column:
 
 Flex-box row:
 
-```tsx
+```jsx
 <Row columnGap={10}>
     {/* ... */}
 </Row>
@@ -97,7 +97,7 @@ Flex-box row:
 
 ### ProgressBar
 
-```tsx
+```jsx
 <ProgressBar value={health/maxHealth}>
     <Text text={`Health: ${health} / ${maxHealth}`} />
 </ProgressBar>
@@ -107,7 +107,7 @@ Flex-box row:
 
 Simple plane mesh:
 
-```tsx
+```jsx
 <Plane width={100} height={100} material={coinIconTextureMat} mesh={planeMesh}>
 </Plane>
 ```
