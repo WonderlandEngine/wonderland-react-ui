@@ -1,10 +1,5 @@
 import { Material, Mesh, Object3D } from "@wonderlandengine/api";
-import React, {
-  forwardRef,
-  PropsWithChildren,
-  useState,
-  PropsWithRef,
-} from "react";
+import React, { forwardRef, PropsWithChildren, useState } from "react";
 
 import {
   YogaNodeProps,
@@ -52,7 +47,7 @@ export const Row = (props: React.PropsWithChildren<YogaNodeProps>) => {
 };
 
 export const Text = forwardRef<Object3D, TextProps>((props, ref) => {
-  return <text3d ref={ref} {...props} />;
+  return <text3d {...props} ref={ref} />;
 });
 
 export const Button = (
@@ -61,6 +56,8 @@ export const Button = (
       material: Material;
       materialHovered?: Material;
       materialActive?: Material;
+      rounding?: number;
+      resolution?: number;
     } & YogaNodeProps
   >
 ) => {
