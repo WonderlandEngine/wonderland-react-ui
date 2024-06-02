@@ -1,6 +1,9 @@
 name: Build
 on: [push]
 
+permissions:
+  contents: write
+
 jobs:
   package:
     runs-on: ubuntu-latest
