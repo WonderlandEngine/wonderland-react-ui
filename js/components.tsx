@@ -22,6 +22,13 @@ interface FlatMaterial {
     setColor(c: Float32Array): void;
 }
 
+export const MaterialContext = createContext(
+    {} as {
+        panelMaterial?: Material | null;
+        textMaterial?: Material | null;
+    }
+);
+
 export type Color = string | Float32Array | number;
 
 const tempColor = new Float32Array(4);
@@ -89,6 +96,7 @@ export const Panel = (
             resolution?: number;
             backgroundColor?: Color;
             borderColor?: Color;
+            borderSize?: number;
         } & YogaNodeProps
     >
 ) => {
@@ -142,14 +150,6 @@ export const Column = (props: React.PropsWithChildren<YogaNodeProps>) => {
     );
 };
 
-export const MaterialContext = createContext({
-    panelMaterial: null,
-    textMaterial: null,
-} as {
-    panelMaterial: Material | null;
-    textMaterial: Material | null;
-});
-
 export const Row = (props: React.PropsWithChildren<YogaNodeProps>) => {
     return (
         <Container flexDirection={FlexDirection.Row} {...props}>
@@ -192,14 +192,21 @@ export const Button = (
             rounding?: number;
             resolution?: number;
 
+            borderSize: number;
+            borderColor: Color;
+
             hovered: {
                 material?: Material;
                 backgroundColor?: Color;
+                borderSize?: number;
+                borderColor?: Color;
             };
 
             active: {
                 material?: Material;
                 backgroundColor?: Color;
+                borderSize?: number;
+                borderColor?: Color;
             };
         } & YogaNodeProps
     >

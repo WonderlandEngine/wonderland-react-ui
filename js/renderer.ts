@@ -357,7 +357,6 @@ function applyLayoutToSceneGraph(n: NodeWrapper, context: Context, force?: boole
                 br: n.props.roundBottomRight ?? true,
             };
             const props = (m as any).roundedRectangleProps ?? {};
-            const oldBorderSize = (m as any).borderSize ?? 0;
             const needsUpdate = !propsEqual(props, p);
 
             const borderSize = (n.props.borderSize ?? 0) * context.comp.scaling[0];
@@ -378,26 +377,31 @@ function applyLayoutToSceneGraph(n: NodeWrapper, context: Context, force?: boole
                 );
                 (m as any).roundedRectangleProps = p;
             }
-            const needsBorderUpdate = oldBorderSize != borderSize;
-            if (needsBorderUpdate) {
-                const m = child.getComponent('mesh', 1) ?? child.addComponent('mesh', {});
-                m.material = n.props.borderMaterial;
-                m.mesh = roundedRectangleOutline(
-                    context.comp.engine,
-                    p.sw,
-                    p.sh,
-                    p.rounding,
-                    p.resolution,
-                    borderSize,
-                    {
-                        tl: p.tl,
-                        tr: p.tr,
-                        bl: p.bl,
-                        br: p.br,
-                    },
-                    m.mesh
-                );
-                (m as any).borderSize = borderSize;
+
+            const oldBorderSize = (m as any).borderSize ?? 0;
+            const needsBorderMeshUpdate = oldBorderSize != borderSize;
+            const bm = child.getComponent('mesh', 1) ?? child.addComponent('mesh', {});
+            bm.active = borderSize != 0;
+            bm.material = n.props.borderMaterial;
+            if (needsBorderMeshUpdate) {
+                if (borderSize != 0) {
+                    bm.mesh = roundedRectangleOutline(
+                        context.comp.engine,
+                        p.sw,
+                        p.sh,
+                        p.rounding,
+                        p.resolution,
+                        borderSize,
+                        {
+                            tl: p.tl,
+                            tr: p.tr,
+                            bl: p.bl,
+                            br: p.br,
+                        },
+                        bm.mesh
+                    );
+                    (m as any).borderSize = borderSize;
+                }
             }
 
             child.setPositionLocal([centerX, centerY, Z_INC]);
