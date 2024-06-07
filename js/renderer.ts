@@ -1,13 +1,17 @@
 import {
     Alignment,
+    Collider,
+    CollisionComponent,
     Component,
     Material,
     Mesh,
     Object3D,
+    Shape,
     TextComponent,
     TextEffect,
     VerticalAlignment,
     ViewComponent,
+    WonderlandEngine,
 } from '@wonderlandengine/api';
 import {property} from '@wonderlandengine/api/decorators.js';
 import {mat4, vec3} from 'gl-matrix';
@@ -48,7 +52,8 @@ import {
     Wrap,
 } from '../node_modules/yoga-layout/dist/src/generated/YGEnums.js';
 
-import {roundedRectangle} from './rounded-rectangle-mesh.js';
+import {roundedRectangle, roundedRectangleOutline} from './rounded-rectangle-mesh.js';
+import {Cursor, CursorTarget, EventTypes} from '@wonderlandengine/components';
 
 type ValueType = number | 'auto' | `${number}%`;
 type ValueTypeNoAuto = number | `${number}%`;
@@ -132,6 +137,8 @@ export interface TextProps extends YogaNodeProps {
 export interface RoundedRectangleProps extends YogaNodeProps {
     /* Material for the rounded rectangle mesh */
     material?: Material;
+    /* Material for the rounded rectangle border */
+    borderMaterial?: Material;
     /* Rounding in pixel-like units */
     rounding?: number;
     /* Rounding resolution */
@@ -350,10 +357,11 @@ function applyLayoutToSceneGraph(n: NodeWrapper, context: Context, force?: boole
                 br: n.props.roundBottomRight ?? true,
             };
             const props = (m as any).roundedRectangleProps ?? {};
+            const oldBorderSize = (m as any).borderSize ?? 0;
             const needsUpdate = !propsEqual(props, p);
 
+            const borderSize = n.props.borderSize ?? 0.05;
             if (needsUpdate) {
-                if (mesh && !mesh.isDestroyed) mesh.destroy();
                 mesh = roundedRectangle(
                     context.comp.engine,
                     p.sw,
@@ -365,9 +373,31 @@ function applyLayoutToSceneGraph(n: NodeWrapper, context: Context, force?: boole
                         tr: p.tr,
                         bl: p.bl,
                         br: p.br,
-                    }
+                    },
+                    mesh
                 );
                 (m as any).roundedRectangleProps = p;
+            }
+            const needsBorderUpdate = oldBorderSize != borderSize;
+            if (needsBorderUpdate) {
+                const m = child.getComponent('mesh', 1) ?? child.addComponent('mesh', {});
+                m.material = n.props.borderMaterial;
+                m.mesh = roundedRectangleOutline(
+                    context.comp.engine,
+                    p.sw,
+                    p.sh,
+                    p.rounding,
+                    p.resolution,
+                    borderSize,
+                    {
+                        tl: p.tl,
+                        tr: p.tr,
+                        bl: p.bl,
+                        br: p.br,
+                    },
+                    m.mesh
+                );
+                (m as any).borderSize = borderSize;
             }
 
             child.setPositionLocal([centerX, centerY, Z_INC]);
@@ -717,8 +747,14 @@ export abstract class ReactUiBase extends Component implements ReactComp {
     @property.material({required: true})
     textMaterial!: Material;
 
+    @property.int(100)
     width = 100;
+    @property.int(100)
     height = 100;
+
+    static onRegister(engine: WonderlandEngine) {
+        engine.registerComponent(CursorTarget);
+    }
 
     _onViewportResize = () => {
         /* This callback is only added if space is "screen" */
@@ -747,7 +783,7 @@ export abstract class ReactUiBase extends Component implements ReactComp {
         this.viewportChanged = true;
     };
 
-    scaling = [1, 1];
+    scaling = [0.01, 0.01];
 
     renderer?: any;
 
@@ -778,16 +814,22 @@ export abstract class ReactUiBase extends Component implements ReactComp {
     }
 
     init() {
+        /* We need to ensure React defers re-renders to after the callbacks were called */
+        const onMove = this.onMove;
+        this.onMove = (e: any) => reconcilerInstance.batchedUpdates(onMove, e);
+        const onClick = this.onClick;
+        this.onClick = (e: any) => reconcilerInstance.batchedUpdates(onClick, e);
+        const onUp = this.onUp;
+        this.onUp = (e: any) => reconcilerInstance.batchedUpdates(onUp, e);
+        const onDown = this.onDown;
+        this.onDown = (e: any) => reconcilerInstance.batchedUpdates(onDown, e);
+
         this.callbacks = {
-            click: this.onClick.bind(this),
+            click: this.onPointerClick.bind(this),
             pointermove: this.onPointerMove.bind(this),
             pointerdown: this.onPointerDown.bind(this),
             pointerup: this.onPointerUp.bind(this),
         };
-
-        for (const [k, v] of Object.entries(this.callbacks)) {
-            this.callbacks[k] = (e: any) => reconcilerInstance.batchedUpdates(v, e);
-        }
     }
 
     async start() {
@@ -813,19 +855,92 @@ export abstract class ReactUiBase extends Component implements ReactComp {
 
     callbacks: Record<string, any> = {};
 
+    getCursorPosition(c: Cursor): [number, number] {
+        const pos = [0, 0, 0];
+        const scale = [0, 0, 0];
+        this.object.transformPointInverseWorld(pos, c.cursorPos);
+        this.object.getScalingWorld(scale);
+        return [pos[0] / this.scaling[0] / scale[0], -pos[1] / this.scaling[1] / scale[1]];
+    }
+
     onActivate(): void {
-        /* We need to ensure React defers re-renders to after the callbacks were called */
-        for (const [k, v] of Object.entries(this.callbacks)) {
-            this.engine.canvas.addEventListener(k, v);
+        if (this.space == UISpace.World) {
+            const colliderObject =
+                this.object.findByNameDirect('UIColliderObject')[0] ??
+                (() => {
+                    const o = this.engine.scene.addObject(this.object);
+                    o.name = 'UIColliderObject';
+                    o.addComponent(CursorTarget);
+                    o.addComponent(CollisionComponent, {
+                        collider: Collider.Box,
+                        group: 0xff,
+                    });
+                    return o;
+                })();
+            const target = colliderObject.getComponent(CursorTarget)!;
+            const collision = colliderObject.getComponent(CollisionComponent)!;
+            target.onClick.add(
+                (_, c, e) => {
+                    const [x, y] = this.getCursorPosition(c);
+                    this.onClick({x, y, e: e!});
+                },
+                {id: 'onClick'}
+            );
+            target.onMove.add(
+                (_, c, e) => {
+                    const [x, y] = this.getCursorPosition(c);
+                    this.onMove({x, y, e});
+                },
+                {id: 'onMove'}
+            );
+            target.onUp.add(
+                (_, c, e) => {
+                    const [x, y] = this.getCursorPosition(c);
+                    this.onUp({x, y, e: e!});
+                },
+                {id: 'onUp'}
+            );
+            target.onDown.add(
+                (_, c, e) => {
+                    const [x, y] = this.getCursorPosition(c);
+                    this.onDown({x, y, e: e!});
+                },
+                {id: 'onDown'}
+            );
+
+            const extents = this.object.getScalingWorld(new Float32Array(3));
+            extents[0] *= 0.5 * this.width * this.scaling[0];
+            extents[1] *= 0.5 * this.height * this.scaling[1];
+            extents[2] = 0.05;
+            collision.extents.set(extents);
+
+            colliderObject.setPositionLocal([
+                this.width * 0.5 * this.scaling[0],
+                -this.height * 0.5 * this.scaling[1],
+                0.025,
+            ]);
+        } else {
+            for (const [k, v] of Object.entries(this.callbacks)) {
+                this.engine.canvas.addEventListener(k, v);
+            }
         }
     }
 
     onDeactivate(): void {
-        if (!this._viewComponent) return;
-        const canvas = this.engine.canvas!;
+        if (this.space == UISpace.World) {
+            const target = this.object.getComponent(CursorTarget)!;
+            // FIXME: We might be able to just deactivate the target here instead?
+            target.onClick.remove('onClick');
+            target.onMove.remove('onMove');
+            target.onUp.remove('onUp');
+            target.onDown.remove('onDown');
+        } else {
+            if (!this._viewComponent) return;
+            const canvas = this.engine.canvas!;
 
-        for (const [k, v] of Object.entries(this.callbacks)) {
-            canvas.removeEventListener(k, v);
+            for (const [k, v] of Object.entries(this.callbacks)) {
+                canvas.removeEventListener(k, v);
+            }
         }
     }
 
@@ -877,16 +992,21 @@ export abstract class ReactUiBase extends Component implements ReactComp {
     curGen = 0;
     onPointerMove(e: PointerEvent) {
         /* Don't care about secondary pointers */
-        if (!e.isPrimary || !this.ctx) return null;
+        if (!e.isPrimary) return null;
         const x = e.clientX;
         const y = e.clientY;
+        this.onMove({x, y, e});
+    }
+
+    onMove = ({x, y, e}: {x: number; y: number; e: any}) => {
+        if (!this.ctx) return null;
 
         const cur = (this.curGen = this.curGen ^ 0x1);
         /* Clear hovering flag */
         this.ctx.wrappers.forEach((w) => (w.hovering![cur] = false));
         const target = this.emitEvent('onMove', x, y, e);
         this.updateHoverState(x, y, e, target!);
-    }
+    };
 
     updateHoverState(x: number, y: number, e: PointerEvent, node?: NodeWrapper | null) {
         const cur = this.curGen;
@@ -908,11 +1028,25 @@ export abstract class ReactUiBase extends Component implements ReactComp {
     }
 
     /** 'click' event listener */
-    onClick(e: MouseEvent) {
+    onClick = (e: {x: number; y: number; e: EventTypes}) => {
+        const t = this.emitEvent('onClick', e.x, e.y, e.e);
+        return t;
+    };
+
+    onDown = (e: {x: number; y: number; e: EventTypes}) => {
+        const t = this.emitEvent('onDown', e.x, e.y, e.e);
+        return t;
+    };
+
+    onUp = (e: {x: number; y: number; e: EventTypes}) => {
+        const t = this.emitEvent('onUp', e.x, e.y, e.e);
+        return t;
+    };
+
+    onPointerClick(e: PointerEvent) {
         const x = e.clientX;
         const y = e.clientY;
-        const t = this.emitEvent('onClick', x, y, e);
-        return t;
+        this.onClick({x, y, e});
     }
 
     /** 'pointerdown' event listener */
@@ -921,8 +1055,7 @@ export abstract class ReactUiBase extends Component implements ReactComp {
         if (!e.isPrimary || e.button !== 0) return null;
         const x = e.clientX;
         const y = e.clientY;
-        const t = this.emitEvent('onDown', x, y, e);
-        return t;
+        return this.onDown({x, y, e});
     }
 
     /** 'pointerup' event listener */
@@ -931,8 +1064,7 @@ export abstract class ReactUiBase extends Component implements ReactComp {
         if (!e.isPrimary || e.button !== 0) return null;
         const x = e.clientX;
         const y = e.clientY;
-        const t = this.emitEvent('onUp', x, y, e);
-        return t;
+        return this.onUp({x, y, e});
     }
 
     renderCallback() {

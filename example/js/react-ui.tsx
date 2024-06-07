@@ -34,6 +34,7 @@ const App = (props: {comp: ReactUi}) => {
             material={props.comp.panelMaterial}
             rounding={100}
             resolution={8}
+            borderMaterial={props.comp.borderMaterial}
             width={'80%'}
         >
             <Column padding="8%" width="100%" rowGap={20}>
@@ -90,6 +91,9 @@ export class ReactUi extends ReactUiBase {
 
     @property.material({required: true})
     panelMaterial!: Material;
+
+    @property.material({required: true})
+    borderMaterial!: Material;
 
     @property.material({required: true})
     panelMaterialSecondary!: Material;

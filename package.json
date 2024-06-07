@@ -22,8 +22,8 @@
   ],
   "homepage": "https://github.com/WonderlandEngine/wonderland-react-ui#readme",
   "repository": {
-      "type": "git",
-      "url": "https://github.com/WonderlandEngine/wonderland-react-ui"
+    "type": "git",
+    "url": "https://github.com/WonderlandEngine/wonderland-react-ui"
   },
   "bugs": {
     "url": "https://github.com/WonderlandEngine/wonderland-react-ui/issues"
@@ -41,6 +41,7 @@
   ],
   "peerDependencies": {
     "@wonderlandengine/api": "^1.2.2",
+    "@wonderlandengine/components": "^1.1.4",
     "gl-matrix": "^3.4.3",
     "react": "^18.2.0",
     "yoga-layout": "^3.0.2"
@@ -51,9 +52,9 @@
     "react-reconciler": "^0.29.0"
   },
   "devDependencies": {
+    "@wonderlandengine/prettier-config": "^1.0.0",
     "esbuild": "^0.21.4",
     "prettier": "3.2.5",
-    "typescript": "^5.4.5",
-    "@wonderlandengine/prettier-config": "^1.0.0"
+    "typescript": "^5.4.5"
   }
 }

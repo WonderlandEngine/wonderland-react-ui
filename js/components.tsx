@@ -117,7 +117,7 @@ export const ProgressBar = (
             </Container>
             {props.value > 0.1 && (
                 <roundedRectangle
-                    width={`${100 * props.value}%`}
+                    width={`${100 * Math.min(1, props.value)}%`}
                     height="100%"
                     material={props.fgMaterial}
                     alignItems={Align.Center}
