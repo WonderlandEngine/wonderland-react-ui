@@ -757,6 +757,11 @@ export abstract class ReactUiBase extends Component implements ReactComp {
     @property.material({required: true})
     panelMaterial!: Material;
 
+    /* Textured material from which all panel materials will be cloned,
+     * e.g. for Image */
+    @property.material({required: true})
+    panelMaterialTextured!: Material;
+
     @property.int(100)
     width = 100;
     @property.int(100)

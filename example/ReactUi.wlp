@@ -179,7 +179,7 @@
                     "type": "react-ui",
                     "react-ui": {
                         "textMaterial": "80",
-                        "space": "screen",
+                        "space": "world",
                         "panelMaterial": "26",
                         "panelMaterialSecondary": "22",
                         "panelMaterialSecondaryHovered": "77",
@@ -203,7 +203,8 @@
                             0.0,
                             0.3315511,
                             1.0
-                        ]
+                        ],
+                        "panelMaterialTextured": "7"
                     }
                 }
             ]
@@ -270,64 +271,8 @@
                 "shininess": 1
             }
         },
-        "22": {
-            "name": "Pink",
-            "Phong": {
-                "diffuseColor": [
-                    0.9098039,
-                    0.0,
-                    0.5411764,
-                    1.0
-                ],
-                "specularColor": [
-                    9.999899930335232e-7,
-                    9.999911299019004e-7,
-                    9.999999974752427e-7,
-                    1.0
-                ],
-                "shininess": 10,
-                "ambientColor": [
-                    0.317647,
-                    0.0,
-                    0.2165777,
-                    1.0
-                ]
-            },
-            "pipeline": "79",
-            "Flat": {
-                "color": [
-                    0.317647,
-                    0.0,
-                    0.2165777,
-                    1.0
-                ]
-            }
-        },
-        "25": {
-            "name": "Yellow",
-            "Phong": {
-                "diffuseColor": [
-                    1.0,
-                    0.8039215,
-                    0.0,
-                    1.0
-                ],
-                "specularColor": [
-                    9.999999974752427e-7,
-                    9.999899930335232e-7,
-                    9.999899930335232e-7,
-                    1.0
-                ],
-                "ambientColor": [
-                    0.3843137,
-                    0.3089579,
-                    0.0,
-                    1.0
-                ]
-            }
-        },
         "26": {
-            "name": "Green",
+            "name": "Panels",
             "Phong": {
                 "diffuseColor": [
                     0.1529411,
@@ -354,39 +299,6 @@
                     0.0745097,
                     0.0745097,
                     0.0745097,
-                    1.0
-                ]
-            }
-        },
-        "77": {
-            "name": "PinkHovered",
-            "Phong": {
-                "diffuseColor": [
-                    1.0,
-                    0.3686274,
-                    0.7441853,
-                    1.0
-                ],
-                "specularColor": [
-                    9.999899930335232e-7,
-                    9.999911299019004e-7,
-                    9.999999974752427e-7,
-                    1.0
-                ],
-                "shininess": 10,
-                "ambientColor": [
-                    0.317647,
-                    0.0,
-                    0.2165777,
-                    1.0
-                ]
-            },
-            "pipeline": "79",
-            "Flat": {
-                "color": [
-                    0.4862744,
-                    0.0,
-                    0.3315511,
                     1.0
                 ]
             }
@@ -432,6 +344,10 @@
                     1.0
                 ]
             }
+        },
+        "7": {
+            "name": "UI Textured",
+            "pipeline": "35"
         }
     },
     "shaders": {

@@ -139,13 +139,14 @@ export function roundedRectangle(
     }
 
     const texCoords = mesh.attribute(MeshAttribute.TextureCoordinate);
-    const temp = new Float32Array(2);
+    const tempPos = new Float32Array(3);
+    const tempUV = new Float32Array(2);
     if (texCoords) {
         for (let i = 0; i < vertexCount; ++i) {
-            pos.get(i, temp);
-            temp[0] = (temp[0] + w) / width;
-            temp[1] = (temp[1] + h) / height;
-            texCoords.set(i, temp);
+            pos.get(i, tempPos);
+            tempUV[0] = (tempPos[0] + w) / width;
+            tempUV[1] = (tempPos[1] + h) / height;
+            texCoords.set(i, tempUV);
         }
     }
 
@@ -249,13 +250,14 @@ export function roundedRectangleOutline(
     }
 
     const texCoords = mesh.attribute(MeshAttribute.TextureCoordinate);
-    const temp = new Float32Array(2);
+    const tempPos = new Float32Array(3);
+    const tempUV = new Float32Array(2);
     if (texCoords) {
         for (let i = 0; i < vertexCount; ++i) {
-            pos.get(i, temp);
-            temp[0] = (temp[0] + w) / width;
-            temp[1] = (temp[1] + h) / height;
-            texCoords.set(i, temp);
+            pos.get(i, tempPos);
+            tempUV[0] = (tempPos[0] + w) / width;
+            tempUV[1] = (tempPos[1] + h) / height;
+            texCoords.set(i, tempUV);
         }
     }
 

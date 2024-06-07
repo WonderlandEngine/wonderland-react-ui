@@ -18,16 +18,43 @@ import {
 } from './renderer.js';
 
 interface FlatMaterial {
-    setTexture(t: Texture): void;
+    flatTexture: Texture;
     setColor(c: Float32Array): void;
 }
 
 export const MaterialContext = createContext(
     {} as {
         panelMaterial?: Material | null;
+        panelMaterialTextured?: Material | null;
         textMaterial?: Material | null;
     }
 );
+
+export const ThemeContext = createContext(
+    {} as {
+        colors?: {
+            background?: Color;
+
+            primary?: Color;
+            primaryActive?: Color;
+            primaryHovered?: Color;
+            borderPrimary?: Color;
+            borderPrimaryActive?: Color;
+            borderPrimaryHovered?: Color;
+            text?: Color;
+        };
+    }
+);
+
+export interface PanelProps extends YogaNodeProps {
+    material?: Material | null;
+    borderMaterial?: Material | null;
+    rounding?: number;
+    resolution?: number;
+    backgroundColor?: Color;
+    borderColor?: Color;
+    borderSize?: number;
+}
 
 export type Color = string | Float32Array | number;
 
@@ -87,19 +114,7 @@ export const Container = (props: React.PropsWithChildren<YogaNodeProps>) => {
     return <container {...props}>{props.children}</container>;
 };
 
-export const Panel = (
-    props: React.PropsWithChildren<
-        {
-            material?: Material;
-            borderMaterial?: Material;
-            rounding?: number;
-            resolution?: number;
-            backgroundColor?: Color;
-            borderColor?: Color;
-            borderSize?: number;
-        } & YogaNodeProps
-    >
-) => {
+export const Panel = (props: React.PropsWithChildren<PanelProps>) => {
     const context = useContext(MaterialContext);
     const mat = useMemo(() => context.panelMaterial?.clone(), []);
     mat &&
@@ -126,16 +141,19 @@ export const Image = (
     props: React.PropsWithChildren<
         {
             src: string;
-            material: Material;
-            rounding?: number;
-            resolution?: number;
-        } & YogaNodeProps
+        } & PanelProps
     >
 ) => {
-    const texture = useMemo(() => props.material.engine.textures.load(props.src), []);
-    texture.then((t) => (props.material as unknown as FlatMaterial).setTexture(t));
+    const context = useContext(MaterialContext);
+    const mat = props.material ?? useMemo(() => context.panelMaterialTextured?.clone(), []);
+    const texture = useMemo(() => mat!.engine.textures.load(props.src), []);
+    texture.then((t) => ((mat as unknown as FlatMaterial).flatTexture = t));
 
-    return <roundedRectangle {...props}>{props.children}</roundedRectangle>;
+    return (
+        <Panel {...props} material={mat}>
+            {props.children}
+        </Panel>
+    );
 };
 
 export const Plane = (props: React.PropsWithChildren<MeshProps>) => {
@@ -248,6 +266,7 @@ export const ProgressBar = (
     >
 ) => {
     const rounding = props.rounding ?? 30;
+    const value = Math.min(1, props.value);
     return (
         <Panel
             material={props.bgMaterial}
@@ -269,9 +288,9 @@ export const ProgressBar = (
             >
                 {props.children}
             </Container>
-            {props.value > 0.05 && (
+            {value > 0.05 && (
                 <Panel
-                    width={`${100 * Math.min(1, props.value)}%`}
+                    width={`${100 * value}%`}
                     height="100%"
                     material={props.fgMaterial}
                     backgroundColor={props.fgColor}
