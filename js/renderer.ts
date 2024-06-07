@@ -825,10 +825,10 @@ export abstract class ReactUiBase extends Component implements ReactComp {
         this.onDown = (e: any) => reconcilerInstance.batchedUpdates(onDown, e);
 
         this.callbacks = {
-            click: this.onPointerClick,
-            pointermove: this.onPointerMove,
-            pointerdown: this.onPointerDown,
-            pointerup: this.onPointerUp,
+            click: this.onPointerClick.bind(this),
+            pointermove: this.onPointerMove.bind(this),
+            pointerdown: this.onPointerDown.bind(this),
+            pointerup: this.onPointerUp.bind(this),
         };
     }
 
