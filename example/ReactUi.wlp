@@ -179,13 +179,31 @@
                     "type": "react-ui",
                     "react-ui": {
                         "textMaterial": "80",
-                        "space": "world",
+                        "space": "screen",
                         "panelMaterial": "26",
                         "panelMaterialSecondary": "22",
                         "panelMaterialSecondaryHovered": "77",
                         "width": 600,
                         "height": 900,
-                        "borderMaterial": "81"
+                        "borderMaterial": "22",
+                        "panelSecondaryHovered": [
+                            0.4862744,
+                            0.0,
+                            0.3315511,
+                            1.0
+                        ],
+                        "panelSecondary": [
+                            0.317647,
+                            0.0,
+                            0.2165777,
+                            1.0
+                        ],
+                        "panelSecondaryActive": [
+                            0.4862744,
+                            0.0,
+                            0.3315511,
+                            1.0
+                        ]
                     }
                 }
             ]

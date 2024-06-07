@@ -6,7 +6,6 @@ import {
     Material,
     Mesh,
     Object3D,
-    Shape,
     TextComponent,
     TextEffect,
     VerticalAlignment,
@@ -130,15 +129,16 @@ export interface YogaNodeProps {
 }
 
 export interface TextProps extends YogaNodeProps {
-    text: string;
+    text?: string;
     fontSize?: number;
+    material?: Material | null;
 }
 
 export interface RoundedRectangleProps extends YogaNodeProps {
     /* Material for the rounded rectangle mesh */
-    material?: Material;
+    material?: Material | null;
     /* Material for the rounded rectangle border */
-    borderMaterial?: Material;
+    borderMaterial?: Material | null;
     /* Rounding in pixel-like units */
     rounding?: number;
     /* Rounding resolution */
@@ -360,7 +360,7 @@ function applyLayoutToSceneGraph(n: NodeWrapper, context: Context, force?: boole
             const oldBorderSize = (m as any).borderSize ?? 0;
             const needsUpdate = !propsEqual(props, p);
 
-            const borderSize = n.props.borderSize ?? 0.05;
+            const borderSize = (n.props.borderSize ?? 0) * context.comp.scaling[0];
             if (needsUpdate) {
                 mesh = roundedRectangle(
                     context.comp.engine,
@@ -439,7 +439,7 @@ function applyToYogaNode(
             applyLayoutToSceneGraph(wrapper, ctx!, true);
             t = wrapper.object?.getComponent(TextComponent)!;
         }
-        const b = t.getBoundingBoxForText(p.text.toString() ?? '', tempVec4);
+        const b = t.getBoundingBoxForText(p.text?.toString() ?? '', tempVec4);
 
         // TODO: Avoid all the computation when width and height is set
         let w = props.height ?? s * (b[2] - b[0]);
@@ -555,14 +555,13 @@ const HostConfig: HostConfig<
     any,
     any
 > = {
-    //now: Date.now,
     getRootHostContext(context: Context) {
         return context;
     },
     getChildHostContext(parentHostContext: Context) {
         return parentHostContext;
     },
-    shouldSetTextContent() {
+    shouldSetTextContent(tag: string) {
         return false;
     },
     createTextInstance(text: string, ctx: Context, hostContext: Context, node: ReactNode) {
@@ -579,6 +578,8 @@ const HostConfig: HostConfig<
         return w;
     },
     appendInitialChild(parent: NodeWrapper, child: NodeWrapper) {
+        if (child === undefined) return;
+
         debug('appendInitialChild', child, parent);
 
         applyToYogaNode(child.tag, child.node, child.props, child);
@@ -744,8 +745,13 @@ export abstract class ReactUiBase extends Component implements ReactComp {
     @property.enum(['world', 'screen'])
     space = 0;
 
+    /* Material from which all text materials will be cloned */
     @property.material({required: true})
     textMaterial!: Material;
+
+    /* Material from which all panel materials will be cloned */
+    @property.material({required: true})
+    panelMaterial!: Material;
 
     @property.int(100)
     width = 100;
