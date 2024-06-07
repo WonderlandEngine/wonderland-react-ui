@@ -41,7 +41,7 @@
   ],
   "peerDependencies": {
     "@wonderlandengine/api": "^1.2.2",
-    "@wonderlandengine/components": "^1.1.4",
+    "@wonderlandengine/components": "^1.1.5",
     "gl-matrix": "^3.4.3",
     "react": "^18.2.0",
     "yoga-layout": "^3.0.2"
