@@ -21,46 +21,55 @@ export function roundedRectangle(
         tr: true,
         br: true,
         bl: true,
-    }
+    },
+    oldMesh?: Mesh | null
 ): Mesh {
     const vertexCount = 4 + 8 + 4 * (resolution - 1);
-    const indexData = new Uint16Array(3 * 4 * resolution + 5 * 6);
 
-    /* Planes */
-    // prettier-ignore
-    indexData.set([
-        /* Center plane */
-        0, 2, 1, 2, 0, 3,
-        /* Top plane */
-        0, 1, 4, 1, 5, 4,
-        /* Right plane */
-        2, 6, 1, 6, 2, 7,
-        /* Bottom plane */
-        3, 8, 2, 8, 3, 9,
-        /* Left plane */
-        0, 10, 3, 10, 0, 11
-    ])
-
-    let offset = 30;
-    for (let c = 0; c < 4; ++c) {
-        const start = 4 + ((2 * c + 7) % 8);
-        const end = 4 + 2 * c;
-
-        let last = start;
-        for (let r = 1; r < resolution; ++r, offset += 3) {
-            const next = 11 + c * (resolution - 1) + r;
-            indexData.set([last, c, next], offset);
-            last = next;
-        }
-        indexData.set([last, c, end], offset);
-        offset += 3;
+    let mesh = oldMesh;
+    if (oldMesh && oldMesh.vertexCount != vertexCount) {
+        throw new Error(
+            'InvalidArgument: incorrect vertex count, needs ' + vertexCount.toString()
+        );
     }
 
-    const mesh = new Mesh(engine, {
-        indexData,
-        vertexCount,
-        indexType: MeshIndexType.UnsignedShort,
-    });
+    if (!mesh) {
+        const indexData = new Uint16Array(3 * 4 * resolution + 5 * 6);
+        /* Planes */
+        // prettier-ignore
+        indexData.set([
+            /* Center plane */
+            0, 2, 1, 2, 0, 3,
+            /* Top plane */
+            0, 1, 4, 1, 5, 4,
+            /* Right plane */
+            2, 6, 1, 6, 2, 7,
+            /* Bottom plane */
+            3, 8, 2, 8, 3, 9,
+            /* Left plane */
+            0, 10, 3, 10, 0, 11
+        ]);
+
+        let offset = 30;
+        for (let c = 0; c < 4; ++c) {
+            const start = 4 + ((2 * c + 7) % 8);
+            const end = 4 + 2 * c;
+
+            let last = start;
+            for (let r = 1; r < resolution; ++r, offset += 3) {
+                const next = 11 + c * (resolution - 1) + r;
+                indexData.set([last, c, next], offset);
+                last = next;
+            }
+            indexData.set([last, c, end], offset);
+            offset += 3;
+        }
+        mesh = engine.meshes.create({
+            indexData,
+            vertexCount,
+            indexType: MeshIndexType.UnsignedShort,
+        });
+    }
 
     const pos = mesh.attribute(MeshAttribute.Position)!;
 
@@ -135,6 +144,107 @@ export function roundedRectangle(
             norm.set(i, AxisZ);
         }
     }
+
+    mesh.update();
+    return mesh;
+}
+
+export function roundedRectangleOutline(
+    engine: WonderlandEngine,
+    width: number,
+    height: number,
+    roundness: number,
+    resolution: number,
+    borderSize: number,
+    corners: {tl: boolean; tr: boolean; br: boolean; bl: boolean} = {
+        tl: true,
+        tr: true,
+        br: true,
+        bl: true,
+    },
+    oldMesh?: Mesh | null
+): Mesh {
+    const vertexCount = 2 * 4 * (resolution + 1);
+
+    let mesh = oldMesh;
+    if (oldMesh && oldMesh.vertexCount != vertexCount) {
+        throw new Error(
+            'InvalidArgument: incorrect vertex count, needs ' + vertexCount.toString()
+        );
+    }
+
+    if (!mesh) {
+        const indexData = new Uint16Array(vertexCount * 3);
+        const quads = vertexCount / 2;
+        for (let q = 0; q < quads - 1; ++q) {
+            const o = q * 6;
+            indexData.set([q, q + 1, quads + q], o);
+            indexData.set([quads + q, q + 1, quads + q + 1], o + 3);
+        }
+
+        /* Final loop closing quad */
+        const o = quads * 6 - 6;
+        indexData.set([quads - 1, 0, quads + quads - 1], o);
+        indexData.set([quads + quads - 1, 0, quads], o + 3);
+
+        mesh = engine.meshes.create({
+            indexData,
+            vertexCount,
+            indexType: MeshIndexType.UnsignedShort,
+        });
+    }
+    const pos = mesh.attribute(MeshAttribute.Position)!;
+
+    const angleIncrement = Math.PI / 2 / resolution;
+    for (let b = 0; b < 2; ++b) {
+        const offset0 = b == 0 ? 0 : vertexCount / 2;
+        const offset1 = offset0 + 1 * (resolution + 1);
+        const offset2 = offset0 + 2 * (resolution + 1);
+        const offset3 = offset0 + 3 * (resolution + 1);
+
+        const bs = b * borderSize;
+        const w = width * 0.5;
+        const h = height * 0.5;
+        const iw = w - roundness;
+        const ih = h - roundness;
+
+        for (let i = 0; i <= resolution; ++i) {
+            const angle = angleIncrement * i;
+            const x = Math.sin(angle) * (roundness + bs);
+            const y = Math.cos(angle) * (roundness + bs);
+
+            const r = roundness;
+            if (corners.tl) {
+                pos.set(offset0 + i, [-iw - y, ih + x, 0]);
+            } else {
+                pos.set(offset0 + i, [-iw - r, ih + r, 0]);
+            }
+            if (corners.tr) {
+                pos.set(offset1 + i, [iw + x, ih + y, 0]);
+            } else {
+                pos.set(offset1 + i, [iw + r, ih + r, 0]);
+            }
+            if (corners.br) {
+                pos.set(offset2 + i, [iw + y, -ih - x, 0]);
+            } else {
+                pos.set(offset2 + i, [iw + r, -ih - r, 0]);
+            }
+            if (corners.bl) {
+                pos.set(offset3 + i, [-iw - x, -ih - y, 0]);
+            } else {
+                pos.set(offset3 + i, [-iw - r, -ih - r, 0]);
+            }
+        }
+    }
+
+    const norm = mesh.attribute(MeshAttribute.Normal);
+    if (norm) {
+        for (let i = 0; i < vertexCount; ++i) {
+            norm.set(i, AxisZ);
+        }
+    }
+
+    mesh.update();
 
     return mesh;
 }

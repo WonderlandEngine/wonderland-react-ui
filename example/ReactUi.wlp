@@ -6,7 +6,8 @@
                 {
                     "type": "wasd-controls",
                     "wasd-controls": {
-                        "headObject": "17"
+                        "headObject": "17",
+                        "speed": 0.05
                     }
                 },
                 null
@@ -183,7 +184,8 @@
                         "panelMaterialSecondary": "22",
                         "panelMaterialSecondaryHovered": "77",
                         "width": 600,
-                        "height": 900
+                        "height": 900,
+                        "borderMaterial": "81"
                     }
                 }
             ]
@@ -380,6 +382,38 @@
                 "font": "55"
             },
             "pipeline": "78"
+        },
+        "81": {
+            "name": "Border",
+            "Phong": {
+                "diffuseColor": [
+                    0.1529411,
+                    0.7882353,
+                    0.5411764,
+                    1.0
+                ],
+                "specularColor": [
+                    9.999999974752427e-7,
+                    9.999899930335232e-7,
+                    9.999899930335232e-7,
+                    1.0
+                ],
+                "ambientColor": [
+                    0.0,
+                    0.2352941,
+                    0.1437908,
+                    1.0
+                ]
+            },
+            "pipeline": "79",
+            "Flat": {
+                "color": [
+                    1.0,
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
         }
     },
     "shaders": {
@@ -638,7 +672,7 @@
             }
         },
         "runtime": {
-            "visualizeColliders": true,
+            "visualizeColliders": false,
             "webxr": {
                 "requiredFeatures": {
                     "local": true

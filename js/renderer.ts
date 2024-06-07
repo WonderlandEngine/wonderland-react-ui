@@ -52,7 +52,7 @@ import {
     Wrap,
 } from '../node_modules/yoga-layout/dist/src/generated/YGEnums.js';
 
-import {roundedRectangle} from './rounded-rectangle-mesh.js';
+import {roundedRectangle, roundedRectangleOutline} from './rounded-rectangle-mesh.js';
 import {Cursor, CursorTarget, EventTypes} from '@wonderlandengine/components';
 
 type ValueType = number | 'auto' | `${number}%`;
@@ -137,6 +137,8 @@ export interface TextProps extends YogaNodeProps {
 export interface RoundedRectangleProps extends YogaNodeProps {
     /* Material for the rounded rectangle mesh */
     material?: Material;
+    /* Material for the rounded rectangle border */
+    borderMaterial?: Material;
     /* Rounding in pixel-like units */
     rounding?: number;
     /* Rounding resolution */
@@ -355,10 +357,11 @@ function applyLayoutToSceneGraph(n: NodeWrapper, context: Context, force?: boole
                 br: n.props.roundBottomRight ?? true,
             };
             const props = (m as any).roundedRectangleProps ?? {};
+            const oldBorderSize = (m as any).borderSize ?? 0;
             const needsUpdate = !propsEqual(props, p);
 
+            const borderSize = n.props.borderSize ?? 0.05;
             if (needsUpdate) {
-                if (mesh && !mesh.isDestroyed) mesh.destroy();
                 mesh = roundedRectangle(
                     context.comp.engine,
                     p.sw,
@@ -370,9 +373,31 @@ function applyLayoutToSceneGraph(n: NodeWrapper, context: Context, force?: boole
                         tr: p.tr,
                         bl: p.bl,
                         br: p.br,
-                    }
+                    },
+                    mesh
                 );
                 (m as any).roundedRectangleProps = p;
+            }
+            const needsBorderUpdate = oldBorderSize != borderSize;
+            if (needsBorderUpdate) {
+                const m = child.getComponent('mesh', 1) ?? child.addComponent('mesh', {});
+                m.material = n.props.borderMaterial;
+                m.mesh = roundedRectangleOutline(
+                    context.comp.engine,
+                    p.sw,
+                    p.sh,
+                    p.rounding,
+                    p.resolution,
+                    borderSize,
+                    {
+                        tl: p.tl,
+                        tr: p.tr,
+                        bl: p.bl,
+                        br: p.br,
+                    },
+                    m.mesh
+                );
+                (m as any).borderSize = borderSize;
             }
 
             child.setPositionLocal([centerX, centerY, Z_INC]);
@@ -800,7 +825,7 @@ export abstract class ReactUiBase extends Component implements ReactComp {
         this.onDown = (e: any) => reconcilerInstance.batchedUpdates(onDown, e);
 
         this.callbacks = {
-            click: this.onClick,
+            click: this.onPointerClick,
             pointermove: this.onPointerMove,
             pointerdown: this.onPointerDown,
             pointerup: this.onPointerUp,
@@ -854,22 +879,34 @@ export abstract class ReactUiBase extends Component implements ReactComp {
                 })();
             const target = colliderObject.getComponent(CursorTarget)!;
             const collision = colliderObject.getComponent(CollisionComponent)!;
-            target.onClick.add((_, c, e) => {
-                const [x, y] = this.getCursorPosition(c);
-                this.onClick({x, y, e: e!});
-            });
-            target.onMove.add((_, c, e) => {
-                const [x, y] = this.getCursorPosition(c);
-                this.onMove({x, y, e});
-            });
-            target.onUp.add((_, c, e) => {
-                const [x, y] = this.getCursorPosition(c);
-                this.onUp({x, y, e: e!});
-            });
-            target.onDown.add((_, c, e) => {
-                const [x, y] = this.getCursorPosition(c);
-                this.onDown({x, y, e: e!});
-            });
+            target.onClick.add(
+                (_, c, e) => {
+                    const [x, y] = this.getCursorPosition(c);
+                    this.onClick({x, y, e: e!});
+                },
+                {id: 'onClick'}
+            );
+            target.onMove.add(
+                (_, c, e) => {
+                    const [x, y] = this.getCursorPosition(c);
+                    this.onMove({x, y, e});
+                },
+                {id: 'onMove'}
+            );
+            target.onUp.add(
+                (_, c, e) => {
+                    const [x, y] = this.getCursorPosition(c);
+                    this.onUp({x, y, e: e!});
+                },
+                {id: 'onUp'}
+            );
+            target.onDown.add(
+                (_, c, e) => {
+                    const [x, y] = this.getCursorPosition(c);
+                    this.onDown({x, y, e: e!});
+                },
+                {id: 'onDown'}
+            );
 
             const extents = this.object.getScalingWorld(new Float32Array(3));
             extents[0] *= 0.5 * this.width * this.scaling[0];
@@ -892,10 +929,11 @@ export abstract class ReactUiBase extends Component implements ReactComp {
     onDeactivate(): void {
         if (this.space == UISpace.World) {
             const target = this.object.getComponent(CursorTarget)!;
-            target.onClick.remove(this.callbacks.onClick);
-            target.onMove.remove(this.callbacks.pointermove);
-            target.onUp.remove(this.callbacks.pointerdown);
-            target.onDown.remove(this.callbacks.pointerup);
+            // FIXME: We might be able to just deactivate the target here instead?
+            target.onClick.remove('onClick');
+            target.onMove.remove('onMove');
+            target.onUp.remove('onUp');
+            target.onDown.remove('onDown');
         } else {
             if (!this._viewComponent) return;
             const canvas = this.engine.canvas!;
@@ -1004,6 +1042,12 @@ export abstract class ReactUiBase extends Component implements ReactComp {
         const t = this.emitEvent('onUp', e.x, e.y, e.e);
         return t;
     };
+
+    onPointerClick(e: PointerEvent) {
+        const x = e.clientX;
+        const y = e.clientY;
+        this.onClick({x, y, e});
+    }
 
     /** 'pointerdown' event listener */
     onPointerDown(e: PointerEvent): NodeWrapper | null {
