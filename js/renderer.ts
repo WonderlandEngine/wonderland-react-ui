@@ -24,7 +24,7 @@ import type {
     /* We want to defer initializing the web assembly until
      * the renderer is initialized. The only way we found was
      * to import the files directly */
-} from '../node_modules/yoga-layout/dist/src/wrapAssembly.js';
+} from 'yoga-layout/load';
 
 /* These are used by props */
 export {
@@ -35,7 +35,7 @@ export {
     Overflow,
     PositionType,
     Wrap,
-} from '../node_modules/yoga-layout/dist/src/generated/YGEnums.js';
+} from 'yoga-layout/load';
 
 /* These are used by the renderer only */
 import {
@@ -49,7 +49,8 @@ import {
     Overflow,
     PositionType,
     Wrap,
-} from '../node_modules/yoga-layout/dist/src/generated/YGEnums.js';
+    loadYoga,
+} from 'yoga-layout/load';
 
 import {roundedRectangle, roundedRectangleOutline} from './rounded-rectangle-mesh.js';
 import {Cursor, CursorTarget, EventTypes} from '@wonderlandengine/components';
@@ -1092,7 +1093,7 @@ export abstract class ReactUiBase extends Component implements ReactComp {
 
 export async function initializeRenderer() {
     if (!Y) {
-        Y = (await import('yoga-layout')).default;
+        Y = await loadYoga();
     }
     return {
         render(element: ReactNode, reactComp: ReactComp, callback?: () => void) {
