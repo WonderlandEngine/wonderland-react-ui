@@ -208,6 +208,93 @@
                     }
                 }
             ]
+        },
+        "83": {
+            "name": "RayRight",
+            "parent": "14",
+            "components": [
+                {
+                    "type": "input",
+                    "input": {
+                        "type": "ray right"
+                    }
+                },
+                {
+                    "type": "cursor",
+                    "cursor": {
+                        "cursorObject": "86"
+                    }
+                }
+            ]
+        },
+        "84": {
+            "name": "HandRight",
+            "parent": "14",
+            "components": [
+                {
+                    "type": "input",
+                    "input": {
+                        "type": "hand right"
+                    }
+                },
+                {
+                    "type": "input-profile",
+                    "input-profile": {
+                        "handedness": "right"
+                    }
+                }
+            ]
+        },
+        "85": {
+            "name": "HandLeft",
+            "parent": "14",
+            "components": [
+                {
+                    "type": "input",
+                    "input": {
+                        "type": "hand left"
+                    }
+                },
+                {
+                    "type": "input-profile",
+                    "input-profile": {
+                        "handedness": "left"
+                    }
+                }
+            ],
+            "translation": [
+                -2.384185791015625e-7,
+                0.0,
+                0.0
+            ],
+            "rotation": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "scaling": [
+                1.0000002,
+                1.0,
+                1.0000002
+            ]
+        },
+        "86": {
+            "name": "Mesh",
+            "components": [
+                {
+                    "type": "mesh",
+                    "mesh": {
+                        "material": "81",
+                        "mesh": "9"
+                    }
+                }
+            ],
+            "scaling": [
+                0.0099999,
+                0.0099999,
+                0.0099999
+            ]
         }
     },
     "meshes": {
@@ -586,7 +673,7 @@
         "vr": {
             "leftEyeObject": "18",
             "rightEyeObject": "19",
-            "enable": false
+            "enable": true
         },
         "scripting": {
             "bundlingType": "esbuild",
