@@ -5,17 +5,16 @@
   "main": "js/index.js",
   "type": "module",
   "module": "js/index.js",
-  "scripts": {
-  },
+  "scripts": {},
   "keywords": [
     "wonderland-engine"
   ],
   "dependencies": {
-    "@wonderlandengine/api": "^1.2.2",
     "@types/react-reconciler": "^0.28.8",
-    "@wonderlandengine/components": "^1.0.7",
+    "@wonderlandengine/api": "^1.2.2",
+    "@wonderlandengine/components": "^1.1.5",
     "@wonderlandengine/prettier-config": "^1.0.0",
-    "gl-matrix": "^3.4.3",
-    "@wonderlandengine/react-ui": "file:.."
+    "@wonderlandengine/react-ui": "file:..",
+    "gl-matrix": "^3.4.3"
   }
 }
