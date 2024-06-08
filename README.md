@@ -84,7 +84,7 @@ Pass this as context to your app code:
 ### Text
 
 ```jsx
-<Text fontSize={20}>{"Click Me!"}</Text>
+<Text fontSize={20}>Click Me!</Text>
 ```
 
 ### Panel
@@ -136,8 +136,7 @@ Flex-box row:
 Simple plane mesh:
 
 ```jsx
-<Plane width={100} height={100} material={coinIconTextureMat} mesh={planeMesh}>
-</Plane>
+<Plane width={100} height={100} material={coinIconTextureMat} mesh={planeMesh} />
 ```
 
 ### Image
