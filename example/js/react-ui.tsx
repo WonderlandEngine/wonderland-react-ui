@@ -129,16 +129,16 @@ export class ReactUi extends ReactUiBase {
     static TypeName = 'react-ui';
     static InheritProperties = true;
 
-    @property.color({required: true})
+    @property.color(1, 1, 1, 1)
     textColor!: Float32Array;
 
-    @property.color({required: true})
+    @property.color(1, 1, 1, 1)
     panelSecondary!: Float32Array;
 
-    @property.color({required: true})
+    @property.color(1, 1, 1, 1)
     panelSecondaryHovered!: Float32Array;
 
-    @property.color({required: true})
+    @property.color(1, 1, 1, 1)
     panelSecondaryActive!: Float32Array;
 
     render() {

@@ -347,7 +347,7 @@
         },
         "7": {
             "name": "UI Textured",
-            "pipeline": "35"
+            "pipeline": "82"
         }
     },
     "shaders": {
@@ -594,7 +594,7 @@
                 "/js/lib/"
             ],
             "esbuildFlags": "--format=esm",
-            "esbuildFlagsEditor": "--external:yoga-layout",
+            "esbuildFlagsEditor": " --bundle",
             "sourcePaths": [
                 "js/",
                 "../js"
@@ -624,6 +624,17 @@
             },
             "name": "UI Color",
             "depthFunction": "less or equal"
+        },
+        "82": {
+            "link": {
+                "name": "Flat Opaque",
+                "file": "default"
+            },
+            "name": "UI Color Textured",
+            "depthFunction": "less or equal",
+            "features": {
+                "TEXTURED": true
+            }
         },
         "78": {
             "link": {
