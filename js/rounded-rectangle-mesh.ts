@@ -26,11 +26,9 @@ export function roundedRectangle(
 ): Mesh {
     const vertexCount = 4 + 8 + 4 * (resolution - 1);
 
-    let mesh = oldMesh;
-    if (oldMesh && oldMesh.vertexCount != vertexCount) {
-        throw new Error(
-            'InvalidArgument: incorrect vertex count, needs ' + vertexCount.toString()
-        );
+    let mesh = null;
+    if (oldMesh && oldMesh.vertexCount == vertexCount) {
+        mesh = oldMesh;
     }
 
     if (!mesh) {
