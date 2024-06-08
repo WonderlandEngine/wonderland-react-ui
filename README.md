@@ -10,6 +10,8 @@ Performant react-based 3D UI. Write your UI code with declarative React-based Sy
 
 [Live Example](https://wonderlandengine.github.io/wonderland-react-ui)
 
+![demo-gif](https://github.com/WonderlandEngine/wonderland-react-ui/blob/main/images/react-ui-image-small.gif)
+
 ## Setup
 
 1. Ensure your project `tsconfig.json` includes:
@@ -40,23 +42,49 @@ We are grateful for contributions!
 
 The following widgets/components are currently available:
 
+### MaterialContext.Provider
+
+The ReactUIBase needs to know which materials/pipelines you would like to use as a base to create texts and panels.
+This material will be cloned and its color updated based on the color properties of each component:
+
+```ts
+const materials: {
+    panelMaterial?: Material | null;
+    panelMaterialTextured?: Material | null;
+    textMaterial?: Material | null;
+};
+```
+
+Pass this as context to your app code:
+
+```jsx
+    <MaterialContext.Provider value={materials}>
+        {/* You app code */}
+    </Button>
+)
+```
+
 ### Button
 
 ```jsx
 <Button
     onClick={() => console.log("Clicked!")}
-    material={panelMat}
-    materialHovered={panelMatHovered}
+    hovered={{
+        backgroundColor: 0xff0000ff
+    }}
+    active={{
+        backgroundColor: 0x00ff00ff
+    }}
     padding={20}
 >
-    <Text text={"Click Me!"} />
+    <Text>Click Me!</Text>
 </Button>
 ```
 
 ### Text
 
 ```jsx
-<Text text={"Click Me!"} fontSize={20} />
+<Text fontSize={20}>{"Click Me!"}</Text>
 ```
 
 ### Panel
@@ -65,7 +93,7 @@ Panel rendered as a rectangle with rounded corners:
 
 ```jsx
 <Panel
-    material={panelMat}
+    backgroundColor={0xff00ffff}
     rounding={10}
     resolution={8}
     width="80%"
@@ -99,7 +127,7 @@ Flex-box row:
 
 ```jsx
 <ProgressBar value={health/maxHealth}>
-    <Text text={`Health: ${health} / ${maxHealth}`} />
+    <Text>{`Health: ${health} / ${maxHealth}`}</Text>
 </ProgressBar>
 ```
 
@@ -110,6 +138,14 @@ Simple plane mesh:
 ```jsx
 <Plane width={100} height={100} material={coinIconTextureMat} mesh={planeMesh}>
 </Plane>
+```
+
+### Image
+
+A `Panel`, but with a `src` property to load an image from a URL and display:
+
+```jsx
+<Image width={100} height={100} src="grumpy-cat.jpg" />
 ```
 
 [npm]: https://img.shields.io/npm/v/@wonderlandengine/react-ui
