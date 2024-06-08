@@ -60,7 +60,7 @@ Pass this as context to your app code:
 ```jsx
     <MaterialContext.Provider value={materials}>
         {/* You app code */}
-    </Button>
+    </MaterialContext.Provider>
 )
 ```
 
