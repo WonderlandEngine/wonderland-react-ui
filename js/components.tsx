@@ -140,13 +140,16 @@ export const Panel = (props: React.PropsWithChildren<PanelProps>) => {
 export const Image = (
     props: React.PropsWithChildren<
         {
-            src: string;
+            src: string | Texture;
         } & PanelProps
     >
 ) => {
     const context = useContext(MaterialContext);
     const mat = props.material ?? useMemo(() => context.panelMaterialTextured?.clone(), []);
-    const texture = useMemo(() => mat!.engine.textures.load(props.src), []);
+    const texture =
+        typeof props.src === 'string'
+            ? useMemo(() => mat!.engine.textures.load(props.src as string), [])
+            : Promise.resolve(props.src);
     texture.then((t) => ((mat as unknown as FlatMaterial).flatTexture = t));
 
     return (
