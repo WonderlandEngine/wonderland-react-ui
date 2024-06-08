@@ -34,13 +34,13 @@ You need three pipelines:
 
 A `Text` pipeline with the following Depth settings:
 
-![demo-gif](https://github.com/WonderlandEngine/wonderland-react-ui/blob/main/images/pipeline-settings-text.png)
+![pipeline-settings-text](https://github.com/WonderlandEngine/wonderland-react-ui/blob/main/images/pipeline-settings-text.png)
 
 ### UI Color
 
 A `Flat` pipeline with the following Depth settings:
 
-![demo-gif](https://github.com/WonderlandEngine/wonderland-react-ui/blob/main/images/pipeline-settings.png)
+![pipeline-settings](https://github.com/WonderlandEngine/wonderland-react-ui/blob/main/images/pipeline-settings.png)
 
 ### UI Color Textured
 
