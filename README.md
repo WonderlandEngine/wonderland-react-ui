@@ -19,7 +19,7 @@ Performant react-based 3D UI. Write your UI code with declarative React-based Sy
 {
   "compilerOptions": {
     "jsx": "react"
-  },
+  }
 }
 ```
 2. Ensure you have `--bundle` in "Views > Project Settings > esbuildFlagsEditor"
