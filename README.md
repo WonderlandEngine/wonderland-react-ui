@@ -26,6 +26,26 @@ Performant react-based 3D UI. Write your UI code with declarative React-based Sy
 ```
 2. Ensure you have `--external:yoga-layout` in "Views > Project Settings > esbuildFlagsEditor"
 
+### Pipelines
+
+You need three pipelines:
+
+### UI Text
+
+A `Text` pipeline with the following Depth settings:
+
+![demo-gif](https://github.com/WonderlandEngine/wonderland-react-ui/blob/main/images/pipeline-settings-text.png)
+
+### UI Color
+
+A `Flat` pipeline with the following Depth settings:
+
+![demo-gif](https://github.com/WonderlandEngine/wonderland-react-ui/blob/main/images/pipeline-settings.png)
+
+### UI Color Textured
+
+A copy of `UI Color`, with the `TEXTURED` feature enabled.
+
 
 ## Production Notes
 
