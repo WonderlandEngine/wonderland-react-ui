@@ -57,7 +57,7 @@ import {Cursor, CursorTarget, EventTypes} from '@wonderlandengine/components';
 type ValueType = number | 'auto' | `${number}%`;
 type ValueTypeNoAuto = number | `${number}%`;
 
-const Z_INC = 0.001;
+const Z_INC = 0.0;
 const TEXT_BASE_SIZE = 12;
 const DEFAULT_FONT_SIZE = 50;
 
