@@ -257,11 +257,11 @@ export const ProgressBar = (
             value: number;
             rounding?: number;
 
-            fgMaterial: Material;
-            bgMaterial: Material;
+            fgMaterial?: Material;
+            bgMaterial?: Material;
 
-            fgColor: Color;
-            bgColor: Color;
+            fgColor?: Color;
+            bgColor?: Color;
         }
     >
 ) => {
