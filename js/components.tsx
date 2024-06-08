@@ -210,8 +210,8 @@ export const Button = (
             rounding?: number;
             resolution?: number;
 
-            borderSize: number;
-            borderColor: Color;
+            borderSize?: number;
+            borderColor?: Color;
 
             hovered: {
                 material?: Material;
