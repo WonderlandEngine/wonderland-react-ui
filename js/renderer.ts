@@ -582,9 +582,9 @@ const HostConfig: HostConfig<
 
         return w;
     },
-    appendInitialChild(parent: NodeWrapper, child: NodeWrapper) {
+    appendInitialChild(parent: NodeWrapper, child?: NodeWrapper) {
         debug('appendInitialChild', child, parent);
-        if (child === undefined) return;
+        if (!child) return;
 
         applyToYogaNode(child.tag, child.node, child.props, child);
         parent.node.insertChild(child.node, parent.node.getChildCount());
@@ -594,9 +594,9 @@ const HostConfig: HostConfig<
 
         parent.ctx!.comp.needsUpdate = true;
     },
-    appendChild(parent: NodeWrapper, child: NodeWrapper) {
+    appendChild(parent: NodeWrapper, child?: NodeWrapper) {
         debug('appendChild', parent, child);
-        if (child === undefined) return;
+        if (!child) return;
 
         applyToYogaNode(child.tag, child.node, child.props, child);
         parent.node.insertChild(child.node, parent.node.getChildCount());
@@ -606,21 +606,21 @@ const HostConfig: HostConfig<
 
         parent.ctx!.comp.needsUpdate = true;
     },
-    appendChildToContainer(ctx: Context, child: NodeWrapper) {
+    appendChildToContainer(ctx: Context, child?: NodeWrapper) {
         debug('appendChildToContainer', ctx, child);
-        if (child === undefined) return;
+        if (!child) return;
         ctx.root = child;
 
         ctx.comp.needsUpdate = true;
     },
 
-    insertInContainerBefore(container, child, beforeChild) {
+    insertInContainerBefore(container, child: NodeWrapper | undefined, beforeChild) {
         debug('insertContainerBefore', parent, child, beforeChild);
         if (child === undefined) return;
     },
-    insertBefore(parent: NodeWrapper, child: NodeWrapper, before: NodeWrapper) {
+    insertBefore(parent: NodeWrapper, child: NodeWrapper | undefined, before: NodeWrapper) {
         debug('insertBefore', parent, child, before);
-        if (child === undefined) return;
+        if (!child) return;
 
         applyToYogaNode(child.tag, child.node, child.props, child);
 
@@ -642,14 +642,16 @@ const HostConfig: HostConfig<
 
         parent.ctx!.comp.needsUpdate = true;
     },
-    removeChild(parent: NodeWrapper, child: NodeWrapper) {
+    removeChild(parent: NodeWrapper, child?: NodeWrapper) {
         debug('removeChild', parent, child);
+        if (!child) return;
         destroyTreeForNode(child, parent.ctx!);
 
         parent.ctx!.comp.needsUpdate = true;
     },
-    removeChildFromContainer(ctx: Context, child: NodeWrapper) {
+    removeChildFromContainer(ctx: Context, child?: NodeWrapper) {
         debug('removeChildFromContainer', ctx, child);
+        if (!child) return;
         destroyTreeForNode(child, ctx);
     },
     finalizeInitialChildren(
