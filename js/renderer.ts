@@ -583,9 +583,8 @@ const HostConfig: HostConfig<
         return w;
     },
     appendInitialChild(parent: NodeWrapper, child: NodeWrapper) {
-        if (child === undefined) return;
-
         debug('appendInitialChild', child, parent);
+        if (child === undefined) return;
 
         applyToYogaNode(child.tag, child.node, child.props, child);
         parent.node.insertChild(child.node, parent.node.getChildCount());
@@ -597,6 +596,7 @@ const HostConfig: HostConfig<
     },
     appendChild(parent: NodeWrapper, child: NodeWrapper) {
         debug('appendChild', parent, child);
+        if (child === undefined) return;
 
         applyToYogaNode(child.tag, child.node, child.props, child);
         parent.node.insertChild(child.node, parent.node.getChildCount());
@@ -608,6 +608,7 @@ const HostConfig: HostConfig<
     },
     appendChildToContainer(ctx: Context, child: NodeWrapper) {
         debug('appendChildToContainer', ctx, child);
+        if (child === undefined) return;
         ctx.root = child;
 
         ctx.comp.needsUpdate = true;
@@ -615,9 +616,11 @@ const HostConfig: HostConfig<
 
     insertInContainerBefore(container, child, beforeChild) {
         debug('insertContainerBefore', parent, child, beforeChild);
+        if (child === undefined) return;
     },
     insertBefore(parent: NodeWrapper, child: NodeWrapper, before: NodeWrapper) {
         debug('insertBefore', parent, child, before);
+        if (child === undefined) return;
 
         applyToYogaNode(child.tag, child.node, child.props, child);
 
