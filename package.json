@@ -14,7 +14,8 @@
   "scripts": {
     "build": "tsc",
     "watch": "tsc --watch",
-    "prepack": "npm run build"
+    "prepack": "npm run build",
+    "test": "npm run build && web-test-runner"
   },
   "files": [
     "dist/**/*.d.ts",
@@ -52,6 +53,8 @@
     "react-reconciler": "^0.29.0"
   },
   "devDependencies": {
+    "@esm-bundle/chai": "^4.3.4-fix.0",
+    "@web/test-runner": "^0.18.2",
     "@wonderlandengine/prettier-config": "^1.0.0",
     "esbuild": "^0.21.4",
     "prettier": "3.2.5",
