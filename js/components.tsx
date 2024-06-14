@@ -1,10 +1,18 @@
-import {Material, Object3D, Texture} from '@wonderlandengine/api';
+import {
+    Material,
+    Mesh,
+    MeshComponent,
+    Object3D,
+    Texture,
+    WonderlandEngine,
+} from '@wonderlandengine/api';
 import React, {
     createContext,
     forwardRef,
     PropsWithChildren,
     useContext,
     useMemo,
+    useRef,
     useState,
 } from 'react';
 
@@ -17,6 +25,7 @@ import {
     PositionType,
 } from './renderer.js';
 import {Color, parseColor} from './utils.js';
+import {nineSlice} from './nine-slice.js';
 
 interface FlatMaterial {
     flatTexture: Texture;
@@ -83,6 +92,21 @@ export const Panel = (props: React.PropsWithChildren<PanelProps>) => {
         >
             {props.children}
         </roundedRectangle>
+    );
+};
+
+export const Panel9Slice = (
+    props: React.PropsWithChildren<
+        PanelProps & {texture?: Texture | null; borderSize?: number}
+    >
+) => {
+    const context = useContext(MaterialContext);
+    const mat = useMemo(() => context.panelMaterialTextured?.clone(), []);
+    if (mat && props.texture) (mat as unknown as FlatMaterial).flatTexture = props.texture;
+    return (
+        <nineSlice {...props} material={props.material ?? mat}>
+            {props.children}
+        </nineSlice>
     );
 };
 

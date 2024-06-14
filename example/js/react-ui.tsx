@@ -1,3 +1,4 @@
+import {Texture} from '@wonderlandengine/api';
 import {property} from '@wonderlandengine/api/decorators.js';
 
 import {Align, Justify, ReactUiBase} from '@wonderlandengine/react-ui';
@@ -11,6 +12,7 @@ import {
     MaterialContext,
     ThemeContext,
     Image,
+    Panel9Slice,
 } from '@wonderlandengine/react-ui/components';
 import React, {useState} from 'react';
 
@@ -115,6 +117,17 @@ const App = (props: {comp: ReactUi}) => {
                             height={300}
                             borderSize={2}
                         />
+                        <Panel9Slice
+                            texture={props.comp.nineSliceTexture}
+                            width="100%"
+                            height={150}
+                            borderSize={30}
+                            padding={30}
+                        >
+                            <Text color="#000" fontSize={16}>
+                                This is a 9-slice.
+                            </Text>
+                        </Panel9Slice>
                     </Column>
                 </Panel>
             </ThemeContext.Provider>
@@ -140,6 +153,9 @@ export class ReactUi extends ReactUiBase {
 
     @property.color(1, 1, 1, 1)
     panelSecondaryActive!: Float32Array;
+
+    @property.texture()
+    nineSliceTexture!: Texture;
 
     render() {
         return <App comp={this} />;

@@ -8,6 +8,7 @@ import {
     Object3D,
     TextComponent,
     TextEffect,
+    Texture,
     VerticalAlignment,
     ViewComponent,
     WonderlandEngine,
@@ -54,6 +55,7 @@ import {
 
 import {roundedRectangle, roundedRectangleOutline} from './rounded-rectangle-mesh.js';
 import {Cursor, CursorTarget, EventTypes} from '@wonderlandengine/components';
+import {nineSlice} from './nine-slice.js';
 
 type ValueType = number | 'auto' | `${number}%`;
 type ValueTypeNoAuto = number | `${number}%`;
@@ -129,12 +131,18 @@ export interface YogaNodeProps {
     onUnhover?: (e: {x: number; y: number; e: PointerEvent}) => void;
 }
 
+/**
+ * Properties for text components
+ */
 export interface TextProps extends YogaNodeProps {
     text?: string;
     fontSize?: number;
     material?: Material | null;
 }
 
+/**
+ * Properties for roundedRectangle components
+ */
 export interface RoundedRectangleProps extends YogaNodeProps {
     /* Material for the rounded rectangle mesh */
     material?: Material | null;
@@ -150,9 +158,21 @@ export interface RoundedRectangleProps extends YogaNodeProps {
     roundBottomRight?: boolean;
 }
 
+/**
+ * Properties for mesh components
+ */
 export interface MeshProps extends YogaNodeProps {
-    material?: Material;
-    mesh?: Mesh;
+    material?: Material | null;
+    mesh?: Mesh | null;
+}
+
+/**
+ * Properties for nineSlice components
+ */
+export interface NineSliceProps extends YogaNodeProps {
+    material?: Material | null;
+    texture?: Texture | null;
+    borderSize?: number;
 }
 
 function destroyTreeForNode(child: NodeWrapper, ctx: Context) {
@@ -326,7 +346,7 @@ function applyLayoutToSceneGraph(n: NodeWrapper, context: Context, force?: boole
         setPositionLeft(o, n, context.comp.scaling);
     }
 
-    if (n.tag === 'mesh' || n.tag === 'roundedRectangle') {
+    if (n.tag === 'mesh' || n.tag === 'roundedRectangle' || n.tag === 'nineSlice') {
         /* To offset the mesh, but avoid offsetting the children,
          * we need to add a child object */
         const child =
@@ -403,6 +423,22 @@ function applyLayoutToSceneGraph(n: NodeWrapper, context: Context, force?: boole
                     );
                     (m as any).borderSize = borderSize;
                 }
+            }
+
+            child.setPositionLocal([centerX, centerY, Z_INC]);
+            child.resetScaling();
+        } else if (n.tag === 'nineSlice') {
+            const p = {
+                sw,
+                sh,
+                borderSize: (n.props.borderSize ?? 0) * context.comp.scaling[0],
+            };
+            const props = (m as any).nineSliceProps ?? {};
+            const needsUpdate = !propsEqual(props, p);
+
+            if (needsUpdate) {
+                mesh = nineSlice(context.comp.engine, p.sw, p.sh, p.borderSize, mesh);
+                (m as any).nineSliceProps = p;
             }
 
             child.setPositionLocal([centerX, centerY, Z_INC]);
