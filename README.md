@@ -14,7 +14,9 @@ Performant react-based 3D UI. Write your UI code with declarative React-based Sy
 
 ## Setup
 
-1. Ensure your project `tsconfig.json` includes:
+1. Ensure you are using Wonderland Editor 1.2+
+
+2. Ensure your project `tsconfig.json` includes:
 ```json
 {
   "compilerOptions": {
@@ -22,7 +24,7 @@ Performant react-based 3D UI. Write your UI code with declarative React-based Sy
   }
 }
 ```
-2. Ensure you have `--bundle` in "Views > Project Settings > esbuildFlagsEditor"
+3. Ensure you have `--bundle` in "Views > Project Settings > esbuildFlagsEditor"
 
 ### Pipelines
 
@@ -47,7 +49,7 @@ A copy of `UI Color`, with the `TEXTURED` feature enabled.
 
 ## Production Notes
 
-Make sure to add `--minify` in your `edbuildFlags` when building production applications.
+Make sure to add `--minify` in your `esbuildFlags` when building production applications.
 
 ## State
 
