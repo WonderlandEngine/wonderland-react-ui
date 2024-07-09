@@ -1,10 +1,5 @@
 import {Object3D} from '@wonderlandengine/api';
-import {
-    MeshProps,
-    RoundedRectangleProps,
-    TextProps,
-    YogaNodeProps,
-} from '../js/renderer.jsx';
+import {MeshProps, RoundedRectangleProps, TextProps, YogaNodeProps} from './renderer.jsx';
 
 declare module 'react' {
     namespace JSX {
