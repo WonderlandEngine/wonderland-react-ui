@@ -14,7 +14,7 @@ import {
 } from '@wonderlandengine/api';
 import {property} from '@wonderlandengine/api/decorators.js';
 import {mat4, vec3} from 'gl-matrix';
-import React, {ReactElement, ReactNode} from 'react';
+import {ReactNode} from 'react';
 
 import Reconciler, {HostConfig} from 'react-reconciler';
 import type {
