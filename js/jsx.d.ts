@@ -1,10 +1,12 @@
+import * as React from 'react';
 import {Object3D} from '@wonderlandengine/api';
 import {MeshProps, RoundedRectangleProps, TextProps, YogaNodeProps} from './renderer.jsx';
 
-declare module 'react' {
+declare global {
     namespace JSX {
+        type PropsWithChildren<P> = P & {children?: React.ReactNode | undefined};
         interface IntrinsicElements {
-            container: PropsWithChildren<YogaNodeProps>;
+            container: React.PropsWithChildren<YogaNodeProps>;
             mesh: PropsWithChildren<MeshProps>;
 
             roundedRectangle: PropsWithChildren<RoundedRectangleProps>;
