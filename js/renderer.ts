@@ -14,7 +14,7 @@ import {
 } from '@wonderlandengine/api';
 import {property} from '@wonderlandengine/api/decorators.js';
 import {mat4, vec3} from 'gl-matrix';
-import {ReactNode} from 'react';
+import React, {ReactElement, ReactNode} from 'react';
 
 import Reconciler, {HostConfig} from 'react-reconciler';
 import type {
@@ -289,7 +289,7 @@ function applyLayoutToSceneGraph(n: NodeWrapper, context: Context, force?: boole
             return o;
         })();
     n.object = o;
-    o.parent = n.parent?.object ?? context.comp.object;
+    o.parent = n.parent?.object ?? context?.comp?.object;
     o.resetPositionRotation();
     o.resetScaling();
 
@@ -323,7 +323,9 @@ function applyLayoutToSceneGraph(n: NodeWrapper, context: Context, force?: boole
         if (t.text !== n.props.text) t.text = n.props.text;
     } else {
         /* "mesh" and everything else */
-        setPositionLeft(o, n, context.comp.scaling);
+        if (context && context.comp && context.comp.scaling) {
+            setPositionLeft(o, n, context.comp.scaling);
+        }
     }
 
     if (n.tag === 'mesh' || n.tag === 'roundedRectangle') {
@@ -452,6 +454,7 @@ function applyToYogaNode(
         node.setHeight(h);
         node.setWidth(w);
     } else {
+        applyLayoutToSceneGraph(wrapper, ctx!, true);
         node.setWidth(props.width);
         node.setHeight(props.height);
     }
