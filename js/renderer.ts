@@ -454,7 +454,6 @@ function applyToYogaNode(
         node.setHeight(h);
         node.setWidth(w);
     } else {
-        applyLayoutToSceneGraph(wrapper, ctx!, true);
         node.setWidth(props.width);
         node.setHeight(props.height);
     }

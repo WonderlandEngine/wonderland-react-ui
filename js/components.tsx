@@ -21,6 +21,7 @@ import {Color, parseColor} from './utils.js';
 interface FlatMaterial {
     flatTexture: Texture;
     setColor(c: Float32Array): void;
+    color: Color;
 }
 
 export const MaterialContext = createContext(
@@ -137,10 +138,14 @@ export const Text = forwardRef<
     >
 >((props, ref) => {
     const context = useContext(MaterialContext);
+    const theme = useContext(ThemeContext);
     const mat = props.material ?? useMemo(() => context.textMaterial?.clone(), []);
     if (mat) {
         (mat as unknown as FlatMaterial).setColor(
-            parseColor(props.color ?? 'fff', tempColor)
+            parseColor(
+                props.color ?? theme.colors?.text ?? (mat as unknown as FlatMaterial).color,
+                tempColor
+            )
         );
     }
     return (

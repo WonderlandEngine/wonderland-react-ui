@@ -44,7 +44,7 @@ const App = (props: {comp: ReactUi}) => {
             borderPrimary: 0,
             borderPrimaryActive: 0,
             borderPrimaryHovered: 0xffffffff,
-            text: 0xffffffff,
+            text: comp.textColor,
         },
     };
 
