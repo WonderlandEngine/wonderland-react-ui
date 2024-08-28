@@ -8,6 +8,7 @@ import {
     Object3D,
     TextComponent,
     TextEffect,
+    Texture,
     VerticalAlignment,
     ViewComponent,
     WonderlandEngine,
@@ -54,6 +55,7 @@ import {
 
 import {roundedRectangle, roundedRectangleOutline} from './rounded-rectangle-mesh.js';
 import {Cursor, CursorTarget, EventTypes} from '@wonderlandengine/components';
+import {nineSlice} from './nine-slice.js';
 
 type ValueType = number | 'auto' | `${number}%`;
 type ValueTypeNoAuto = number | `${number}%`;
@@ -153,6 +155,15 @@ export interface RoundedRectangleProps extends YogaNodeProps {
 export interface MeshProps extends YogaNodeProps {
     material?: Material;
     mesh?: Mesh;
+}
+
+/**
+ * Properties for nineSlice components
+ */
+export interface NineSliceProps extends YogaNodeProps {
+    material?: Material | null;
+    texture?: Texture | null;
+    borderSize?: number;
 }
 
 function destroyTreeForNode(child: NodeWrapper, ctx: Context) {
@@ -328,7 +339,7 @@ function applyLayoutToSceneGraph(n: NodeWrapper, context: Context, force?: boole
         }
     }
 
-    if (n.tag === 'mesh' || n.tag === 'roundedRectangle') {
+    if (n.tag === 'mesh' || n.tag === 'roundedRectangle' || n.tag === 'nineSlice') {
         /* To offset the mesh, but avoid offsetting the children,
          * we need to add a child object */
         const child =
@@ -409,6 +420,20 @@ function applyLayoutToSceneGraph(n: NodeWrapper, context: Context, force?: boole
 
             child.setPositionLocal([centerX, centerY, Z_INC]);
             child.resetScaling();
+        } else if (n.tag === 'nineSlice') {
+            const p = {
+                sw,
+                sh,
+                borderSize: (n.props.borderSize ?? 0) * context.comp.scaling[0],
+            };
+            const props = (m as any).nineSliceProps ?? {};
+            const needsUpdate = !propsEqual(props, p);
+            if (needsUpdate) {
+                mesh = nineSlice(context.comp.engine, p.sw, p.sh, p.borderSize, mesh);
+                (m as any).nineSliceProps = p;
+            }
+            child.setPositionLocal([centerX, centerY, Z_INC]);
+            child.resetScaling();
         } else {
             /* Planes are diameter of 2 */
             child.setPositionLocal([centerX, centerY, Z_INC]);
@@ -431,7 +456,7 @@ const tempVec4 = new Float32Array(4);
 function applyToYogaNode(
     tag: string,
     node: YogaNode,
-    props: YogaNodeProps | TextProps | RoundedRectangleProps | MeshProps,
+    props: YogaNodeProps | TextProps | RoundedRectangleProps | MeshProps | NineSliceProps,
     wrapper: NodeWrapper,
     ctx?: Context
 ) {
