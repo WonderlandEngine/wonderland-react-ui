@@ -1,63 +1,63 @@
 {
-  "name": "@wonderlandengine/react-ui",
-  "version": "0.1.0-dev.7",
-  "description": "React-based UI in Wonderland Engine.",
-  "author": "Wonderland GmbH",
-  "main": "dist/index.js",
-  "type": "module",
-  "types": "dist",
-  "module": "dist/index.js",
-  "exports": {
-    ".": "./dist/index.js",
-    "./components": "./dist/components.js"
-  },
-  "scripts": {
-    "build": "tsc",
-    "watch": "tsc --watch",
-    "prepack": "npm run build",
-    "test": "npm run build && web-test-runner"
-  },
-  "files": [
-    "dist/**/*.d.ts",
-    "dist/**/*.js"
-  ],
-  "homepage": "https://github.com/WonderlandEngine/wonderland-react-ui#readme",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/WonderlandEngine/wonderland-react-ui"
-  },
-  "bugs": {
-    "url": "https://github.com/WonderlandEngine/wonderland-react-ui/issues"
-  },
-  "license": "MIT",
-  "prettier": "@wonderlandengine/prettier-config",
-  "keywords": [
-    "wonderland-engine",
-    "react",
-    "custom renderer",
-    "3d",
-    "webgl",
-    "webxr",
-    "ui"
-  ],
-  "peerDependencies": {
-    "@wonderlandengine/api": "^1.2.2",
-    "@wonderlandengine/components": "^1.1.5",
-    "gl-matrix": "^3.4.3",
-    "react": "^18.2.0",
-    "yoga-layout": "^3.0.2"
-  },
-  "dependencies": {
-    "@types/react-reconciler": "^0.28.8",
-    "@wonderlandengine/prettier-config": "^1.0.0",
-    "react-reconciler": "^0.29.0"
-  },
-  "devDependencies": {
-    "@esm-bundle/chai": "^4.3.4-fix.0",
-    "@web/test-runner": "^0.18.2",
-    "@wonderlandengine/prettier-config": "^1.0.0",
-    "esbuild": "^0.21.4",
-    "prettier": "3.2.5",
-    "typescript": "^5.4.5"
-  }
+    "name": "@wonderlandengine/react-ui",
+    "version": "0.1.0-dev.9",
+    "description": "React-based UI in Wonderland Engine.",
+    "author": "Wonderland GmbH",
+    "main": "dist/index.js",
+    "type": "module",
+    "types": "dist",
+    "module": "dist/index.js",
+    "exports": {
+        ".": "./dist/index.js",
+        "./components": "./dist/components.js"
+    },
+    "scripts": {
+        "build": "tsc",
+        "watch": "tsc --watch",
+        "prepack": "npm run build",
+        "test": "npm run build && web-test-runner"
+    },
+    "files": [
+        "dist/**/*.d.ts",
+        "dist/**/*.js"
+    ],
+    "homepage": "https://github.com/WonderlandEngine/wonderland-react-ui#readme",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/WonderlandEngine/wonderland-react-ui"
+    },
+    "bugs": {
+        "url": "https://github.com/WonderlandEngine/wonderland-react-ui/issues"
+    },
+    "license": "MIT",
+    "prettier": "@wonderlandengine/prettier-config",
+    "keywords": [
+        "wonderland-engine",
+        "react",
+        "custom renderer",
+        "3d",
+        "webgl",
+        "webxr",
+        "ui"
+    ],
+    "peerDependencies": {
+        "@wonderlandengine/api": "^1.2.2",
+        "@wonderlandengine/components": "^1.1.5",
+        "gl-matrix": "^3.4.3",
+        "react": "^18.2.0",
+        "yoga-layout": "^3.0.2"
+    },
+    "dependencies": {
+        "@types/react-reconciler": "^0.28.8",
+        "@wonderlandengine/prettier-config": "^1.0.0",
+        "react-reconciler": "^0.29.0"
+    },
+    "devDependencies": {
+        "@esm-bundle/chai": "^4.3.4-fix.0",
+        "@web/test-runner": "^0.18.2",
+        "@wonderlandengine/prettier-config": "^1.0.0",
+        "esbuild": "^0.21.4",
+        "prettier": "3.2.5",
+        "typescript": "^5.4.5"
+    }
 }
