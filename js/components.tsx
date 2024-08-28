@@ -108,6 +108,23 @@ export const Image = (
         </Panel>
     );
 };
+export const Panel9Slice = (
+    props: React.PropsWithChildren<
+        PanelProps & {
+            texture?: Texture | null;
+            borderSize?: number;
+        }
+    >
+): React.JSX.Element => {
+    const context = useContext(MaterialContext);
+    const mat = useMemo(() => context.panelMaterialTextured?.clone(), []);
+    if (mat && props.texture) (mat as any).flatTexture = props.texture;
+    return React.createElement(
+        'nineSlice',
+        {...props, material: props.material ?? mat},
+        props.children
+    );
+};
 
 export const Plane = (props: React.PropsWithChildren<MeshProps>) => {
     return <mesh {...props}>{props.children}</mesh>;
