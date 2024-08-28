@@ -454,6 +454,11 @@ function applyToYogaNode(
         node.setHeight(h);
         node.setWidth(w);
     } else {
+        if(ctx){
+            applyLayoutToSceneGraph(wrapper, ctx, true);
+        }else{
+            debug('Context is undefined, skipping applyLayoutToSceneGraph');
+        }
         node.setWidth(props.width);
         node.setHeight(props.height);
     }
