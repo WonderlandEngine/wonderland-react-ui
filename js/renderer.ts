@@ -936,7 +936,7 @@ export abstract class ReactUiBase extends Component implements ReactComp {
         return [pos[0] / this.scaling[0] / scale[0], -pos[1] / this.scaling[1] / scale[1]];
     }
 
-    onActivate(): void {
+    override onActivate(): void {
         if (this.space == UISpace.World) {
             const colliderObject =
                 this.object.findByNameDirect('UIColliderObject')[0] ??
@@ -999,7 +999,7 @@ export abstract class ReactUiBase extends Component implements ReactComp {
         }
     }
 
-    onDeactivate(): void {
+    override onDeactivate(): void {
         if (this.space == UISpace.World) {
             const target = this.object.getComponent(CursorTarget)!;
             // FIXME: We might be able to just deactivate the target here instead?
@@ -1015,6 +1015,10 @@ export abstract class ReactUiBase extends Component implements ReactComp {
                 canvas.removeEventListener(k, v);
             }
         }
+    }
+
+    override onDestroy(): void {
+        this.renderer?.unmountRoot();
     }
 
     forEachElementUnderneath(
@@ -1153,9 +1157,11 @@ export async function initializeRenderer() {
         Y = await loadYoga();
     }
     return {
+        rootContainer: null,
+        unmountRoot() {
+            reconcilerInstance.updateContainer(null, this.rootContainer);
+        },
         render(element: ReactNode, reactComp: ReactComp, callback?: () => void) {
-            // element: This is the react element for App component
-            // renderDom: This is the host root element to which the rendered app will be attached.
             const container = reconcilerInstance.createContainer(
                 new Context(reactComp),
                 0,
@@ -1166,6 +1172,7 @@ export async function initializeRenderer() {
                 (e: Error) => console.error(e),
                 null
             );
+            this.rootContainer = container;
             reactComp.setContext(container.containerInfo);
 
             const parentComponent = null;
