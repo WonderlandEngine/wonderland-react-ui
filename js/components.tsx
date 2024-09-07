@@ -1,18 +1,10 @@
-import {
-    Material,
-    Mesh,
-    MeshComponent,
-    Object3D,
-    Texture,
-    WonderlandEngine,
-} from '@wonderlandengine/api';
+import {Material, Object3D, Texture} from '@wonderlandengine/api';
 import React, {
     createContext,
     forwardRef,
     PropsWithChildren,
     useContext,
     useMemo,
-    useRef,
     useState,
 } from 'react';
 
@@ -25,7 +17,6 @@ import {
     PositionType,
 } from './renderer.js';
 import {Color, parseColor} from './utils.js';
-import {nineSlice} from './nine-slice.js';
 
 interface FlatMaterial {
     flatTexture: Texture;
@@ -69,32 +60,41 @@ export interface PanelProps extends YogaNodeProps {
 
 const tempColor = new Float32Array(4);
 
-export const Container = (props: React.PropsWithChildren<YogaNodeProps>) => {
-    return <container {...props}>{props.children}</container>;
-};
+export const Container = forwardRef<Object3D, React.PropsWithChildren<YogaNodeProps>>(
+    (props, ref) => {
+        return (
+            <container {...props} ref={ref}>
+                {props.children}
+            </container>
+        );
+    }
+);
 
-export const Panel = (props: React.PropsWithChildren<PanelProps>) => {
-    const context = useContext(MaterialContext);
-    const mat = useMemo(() => context.panelMaterial?.clone(), []);
-    mat &&
-        (mat as unknown as FlatMaterial).setColor(
-            parseColor(props.backgroundColor ?? 'fff', tempColor)
+export const Panel = forwardRef<Object3D, React.PropsWithChildren<PanelProps>>(
+    (props, ref) => {
+        const context = useContext(MaterialContext);
+        const mat = useMemo(() => context.panelMaterial?.clone(), []);
+        mat &&
+            (mat as unknown as FlatMaterial).setColor(
+                parseColor(props.backgroundColor ?? 'fff', tempColor)
+            );
+        const bmat = useMemo(() => context.panelMaterial?.clone(), []);
+        bmat &&
+            (bmat as unknown as FlatMaterial).setColor(
+                parseColor(props.borderColor ?? 'fff', tempColor)
+            );
+        return (
+            <roundedRectangle
+                {...props}
+                material={props.material ?? mat}
+                borderMaterial={props.borderMaterial ?? bmat}
+                ref={ref}
+            >
+                {props.children}
+            </roundedRectangle>
         );
-    const bmat = useMemo(() => context.panelMaterial?.clone(), []);
-    bmat &&
-        (bmat as unknown as FlatMaterial).setColor(
-            parseColor(props.borderColor ?? 'fff', tempColor)
-        );
-    return (
-        <roundedRectangle
-            {...props}
-            material={props.material ?? mat}
-            borderMaterial={props.borderMaterial ?? bmat}
-        >
-            {props.children}
-        </roundedRectangle>
-    );
-};
+    }
+);
 
 export const Panel9Slice = (
     props: React.PropsWithChildren<
@@ -111,13 +111,10 @@ export const Panel9Slice = (
     );
 };
 
-export const Image = (
-    props: React.PropsWithChildren<
-        {
-            src: string | Texture;
-        } & PanelProps
-    >
-) => {
+export const Image = forwardRef<
+    Object3D,
+    React.PropsWithChildren<{src: string | Texture} & PanelProps>
+>((props, ref) => {
     const context = useContext(MaterialContext);
     const mat = props.material ?? useMemo(() => context.panelMaterialTextured?.clone(), []);
     const texture =
@@ -127,31 +124,41 @@ export const Image = (
     texture.then((t) => ((mat as unknown as FlatMaterial).flatTexture = t));
 
     return (
-        <Panel {...props} material={mat}>
+        <Panel {...props} material={mat} ref={ref}>
             {props.children}
         </Panel>
     );
-};
+});
 
-export const Plane = (props: React.PropsWithChildren<MeshProps>) => {
-    return <mesh {...props}>{props.children}</mesh>;
-};
+export const Plane = forwardRef<Object3D, React.PropsWithChildren<MeshProps>>(
+    (props, ref) => {
+        return (
+            <mesh {...props} ref={ref}>
+                {props.children}
+            </mesh>
+        );
+    }
+);
 
-export const Column = (props: React.PropsWithChildren<YogaNodeProps>) => {
-    return (
-        <Container flexDirection={FlexDirection.Column} {...props}>
-            {props.children}
-        </Container>
-    );
-};
+export const Column = forwardRef<Object3D, React.PropsWithChildren<YogaNodeProps>>(
+    (props, ref) => {
+        return (
+            <Container flexDirection={FlexDirection.Column} {...props} ref={ref}>
+                {props.children}
+            </Container>
+        );
+    }
+);
 
-export const Row = (props: React.PropsWithChildren<YogaNodeProps>) => {
-    return (
-        <Container flexDirection={FlexDirection.Row} {...props}>
-            {props.children}
-        </Container>
-    );
-};
+export const Row = forwardRef<Object3D, React.PropsWithChildren<YogaNodeProps>>(
+    (props, ref) => {
+        return (
+            <Container flexDirection={FlexDirection.Row} {...props} ref={ref}>
+                {props.children}
+            </Container>
+        );
+    }
+);
 
 export const Text = forwardRef<
     Object3D,
@@ -185,8 +192,9 @@ export const Text = forwardRef<
     );
 });
 
-export const Button = (
-    props: PropsWithChildren<
+export const Button = forwardRef<
+    Object3D,
+    PropsWithChildren<
         {
             material?: Material;
             backgroundColor?: Color;
@@ -212,7 +220,7 @@ export const Button = (
             };
         } & YogaNodeProps
     >
-) => {
+>((props, ref) => {
     const [hovered, setHovered] = useState(false);
     const [active, setActive] = useState(false);
 
@@ -228,14 +236,16 @@ export const Button = (
             onUnhover={() => setHovered(false)}
             onDown={() => setActive(true)}
             onUp={() => setActive(false)}
+            ref={ref}
         >
             {props.children}
         </Panel>
     );
-};
+});
 
-export const ProgressBar = (
-    props: React.PropsWithChildren<
+export const ProgressBar = forwardRef<
+    Object3D,
+    React.PropsWithChildren<
         YogaNodeProps & {
             /* Number between 0-1 */
             value: number;
@@ -248,7 +258,7 @@ export const ProgressBar = (
             bgColor?: Color;
         }
     >
-) => {
+>((props, ref) => {
     const rounding = props.rounding ?? 30;
     const value = Math.min(1, props.value);
     return (
@@ -262,6 +272,7 @@ export const ProgressBar = (
             paddingRight={8}
             resolution={6}
             rounding={rounding * 1.5}
+            ref={ref}
         >
             <Container
                 alignItems={Align.FlexStart}
@@ -284,4 +295,4 @@ export const ProgressBar = (
             )}
         </Panel>
     );
-};
+});
