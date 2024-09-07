@@ -12,5 +12,5 @@
     "typeRoots": ["./@types"],
     "types": ["jsx"],
     "exclude": ["dist"],
-    "include": ["./js/**/*.tsx", "./js/**/*.ts"]
+    "include": ["./js/**/*.tsx", "./js/**/*.ts","./js/jsx.d.ts"]
 }

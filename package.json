@@ -12,10 +12,11 @@
         "./components": "./dist/components.js"
     },
     "scripts": {
-        "build": "tsc",
+        "build": "tsc && npm run copy-types",
         "watch": "tsc --watch",
         "prepack": "npm run build",
-        "test": "npm run build && web-test-runner"
+        "test": "npm run build && web-test-runner",
+        "copy-types": "copyfiles -u 1 ./js/jsx.d.ts ./dist/"
     },
     "files": [
         "dist/**/*.d.ts",
@@ -56,6 +57,7 @@
         "@esm-bundle/chai": "^4.3.4-fix.0",
         "@web/test-runner": "^0.18.2",
         "@wonderlandengine/prettier-config": "^1.0.0",
+        "copyfiles": "^2.4.1",
         "esbuild": "^0.21.4",
         "prettier": "3.2.5",
         "typescript": "^5.4.5"
