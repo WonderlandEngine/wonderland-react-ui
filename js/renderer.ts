@@ -782,8 +782,6 @@ const HostConfig: HostConfig<
     preparePortalMount(containerInfo: any) {},
     prepareScopeUpdate(scopeInstance: any, instance: any) {},
 };
-const reconcilerInstance = Reconciler(HostConfig);
-
 type ReactComp = Component & {
     needsUpdate: boolean;
     textMaterial: Material;
@@ -889,13 +887,16 @@ export abstract class ReactUiBase extends Component implements ReactComp {
     init() {
         /* We need to ensure React defers re-renders to after the callbacks were called */
         const onMove = this.onMove;
-        this.onMove = (e: any) => reconcilerInstance.batchedUpdates(onMove, e);
+        this.onMove = (e: any) =>
+            this.renderer.reconcilerInstance.batchedUpdates(onMove, e);
         const onClick = this.onClick;
-        this.onClick = (e: any) => reconcilerInstance.batchedUpdates(onClick, e);
+        this.onClick = (e: any) =>
+            this.renderer.reconcilerInstance.batchedUpdates(onClick, e);
         const onUp = this.onUp;
-        this.onUp = (e: any) => reconcilerInstance.batchedUpdates(onUp, e);
+        this.onUp = (e: any) => this.renderer.reconcilerInstance.batchedUpdates(onUp, e);
         const onDown = this.onDown;
-        this.onDown = (e: any) => reconcilerInstance.batchedUpdates(onDown, e);
+        this.onDown = (e: any) =>
+            this.renderer.reconcilerInstance.batchedUpdates(onDown, e);
 
         this.callbacks = {
             click: this.onPointerClick.bind(this),
@@ -1152,7 +1153,10 @@ export async function initializeRenderer() {
     if (!Y) {
         Y = await loadYoga();
     }
+
+    const reconcilerInstance = Reconciler(HostConfig);
     return {
+        reconcilerInstance,
         render(element: ReactNode, reactComp: ReactComp, callback?: () => void) {
             // element: This is the react element for App component
             // renderDom: This is the host root element to which the rendered app will be attached.
