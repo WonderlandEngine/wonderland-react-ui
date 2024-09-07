@@ -131,12 +131,18 @@ export interface YogaNodeProps {
     onUnhover?: (e: {x: number; y: number; e: PointerEvent}) => void;
 }
 
+/**
+ * Properties for text components
+ */
 export interface TextProps extends YogaNodeProps {
     text?: string;
     fontSize?: number;
     material?: Material | null;
 }
 
+/**
+ * Properties for roundedRectangle components
+ */
 export interface RoundedRectangleProps extends YogaNodeProps {
     /* Material for the rounded rectangle mesh */
     material?: Material | null;
@@ -152,9 +158,21 @@ export interface RoundedRectangleProps extends YogaNodeProps {
     roundBottomRight?: boolean;
 }
 
+/**
+ * Properties for mesh components
+ */
 export interface MeshProps extends YogaNodeProps {
-    material?: Material;
-    mesh?: Mesh;
+    material?: Material | null;
+    mesh?: Mesh | null;
+}
+
+/**
+ * Properties for nineSlice components
+ */
+export interface NineSliceProps extends YogaNodeProps {
+    material?: Material | null;
+    texture?: Texture | null;
+    borderSize?: number;
 }
 
 /**
@@ -428,10 +446,12 @@ function applyLayoutToSceneGraph(n: NodeWrapper, context: Context, force?: boole
             };
             const props = (m as any).nineSliceProps ?? {};
             const needsUpdate = !propsEqual(props, p);
+
             if (needsUpdate) {
                 mesh = nineSlice(context.comp.engine, p.sw, p.sh, p.borderSize, mesh);
                 (m as any).nineSliceProps = p;
             }
+
             child.setPositionLocal([centerX, centerY, Z_INC]);
             child.resetScaling();
         } else {

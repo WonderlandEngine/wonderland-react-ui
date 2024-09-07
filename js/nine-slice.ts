@@ -1,4 +1,5 @@
 import {Mesh, MeshAttribute, MeshIndexType, WonderlandEngine} from '@wonderlandengine/api';
+
 const AxisZ = [0, 0, 1];
 
 export function nineSlice(
@@ -9,20 +10,24 @@ export function nineSlice(
     oldMesh?: Mesh | null
 ): Mesh {
     const vertexCount = 16;
+
     let mesh = null;
     if (oldMesh && oldMesh.vertexCount == vertexCount) {
         mesh = oldMesh;
     }
+
     /* Vertex indices:
-    12-- 4 ----- 5 --13
-    |    |       |    |
-    11-- 0 ----- 1 -- 6
-    |    |       |    |
-    |    |       |    |
-    10-- 3 ----- 2 -- 7
-    |    |       |    |
-    15-- 9 ----- 8 --14
+
+       12-- 4 ----- 5 --13
+       |    |       |    |
+       11-- 0 ----- 1 -- 6
+       |    |       |    |
+       |    |       |    |
+       10-- 3 ----- 2 -- 7
+       |    |       |    |
+       15-- 9 ----- 8 --14
     */
+
     if (!mesh) {
         const indexData = new Uint16Array(54);
         /* Planes */
@@ -47,12 +52,14 @@ export function nineSlice(
             /* Bootom-left corner */
             3, 10, 9, 9, 10, 15
         ]);
+
         mesh = engine.meshes.create({
             indexData,
             vertexCount,
             indexType: MeshIndexType.UnsignedShort,
         });
     }
+
     const pos = mesh.attribute(MeshAttribute.Position);
     const w = width * 0.5;
     const h = height * 0.5;
@@ -131,12 +138,14 @@ export function nineSlice(
             0.0, 1.0,
         ]);
     }
+
     const norm = mesh.attribute(MeshAttribute.Normal);
     if (norm) {
         for (let i = 0; i < vertexCount; ++i) {
             norm.set(i, AxisZ);
         }
     }
+
     mesh.update();
     return mesh;
 }
