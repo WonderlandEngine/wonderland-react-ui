@@ -1,10 +1,18 @@
-import {Material, Object3D, Texture} from '@wonderlandengine/api';
+import {
+    Material,
+    Mesh,
+    MeshComponent,
+    Object3D,
+    Texture,
+    WonderlandEngine,
+} from '@wonderlandengine/api';
 import React, {
     createContext,
     forwardRef,
     PropsWithChildren,
     useContext,
     useMemo,
+    useRef,
     useState,
 } from 'react';
 
@@ -17,10 +25,12 @@ import {
     PositionType,
 } from './renderer.js';
 import {Color, parseColor} from './utils.js';
+import {nineSlice} from './nine-slice.js';
 
 interface FlatMaterial {
     flatTexture: Texture;
     setColor(c: Float32Array): void;
+    color: Color;
 }
 
 export const MaterialContext = createContext(
@@ -86,6 +96,21 @@ export const Panel = (props: React.PropsWithChildren<PanelProps>) => {
     );
 };
 
+export const Panel9Slice = (
+    props: React.PropsWithChildren<
+        PanelProps & {texture?: Texture | null; borderSize?: number}
+    >
+) => {
+    const context = useContext(MaterialContext);
+    const mat = useMemo(() => context.panelMaterialTextured?.clone(), []);
+    if (mat && props.texture) (mat as unknown as FlatMaterial).flatTexture = props.texture;
+    return (
+        <nineSlice {...props} material={props.material ?? mat}>
+            {props.children}
+        </nineSlice>
+    );
+};
+
 export const Image = (
     props: React.PropsWithChildren<
         {
@@ -137,10 +162,17 @@ export const Text = forwardRef<
     >
 >((props, ref) => {
     const context = useContext(MaterialContext);
+    const theme = useContext(ThemeContext);
     const mat = props.material ?? useMemo(() => context.textMaterial?.clone(), []);
     if (mat) {
         (mat as unknown as FlatMaterial).setColor(
-            parseColor(props.color ?? 'fff', tempColor)
+            parseColor(
+                props.color ??
+                    theme.colors?.text ??
+                    ((props.material ?? context.textMaterial) as unknown as FlatMaterial)
+                        .color,
+                tempColor
+            )
         );
     }
     return (

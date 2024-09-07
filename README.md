@@ -166,6 +166,15 @@ A `Panel`, but with a `src` property to load an image from a URL and display:
 <Image width={100} height={100} src="grumpy-cat.jpg" />
 ```
 
+### Panel9Slice
+
+A `Panel` with a 9-slice texture.
+
+```jsx
+<Panel9Slice width={100} height={100} texture={someNineSliceTexture} />
+```
+
+
 [npm]: https://img.shields.io/npm/v/@wonderlandengine/react-ui
 [npm-downloads]: https://img.shields.io/npm/dw/@wonderlandengine/react-ui
 [discord]: https://img.shields.io/discord/669166325456699392
