@@ -25,7 +25,7 @@
     "homepage": "https://github.com/WonderlandEngine/wonderland-react-ui#readme",
     "repository": {
         "type": "git",
-        "url": "https://github.com/WonderlandEngine/wonderland-react-ui"
+        "url": "git+https://github.com/WonderlandEngine/wonderland-react-ui.git"
     },
     "bugs": {
         "url": "https://github.com/WonderlandEngine/wonderland-react-ui/issues"
