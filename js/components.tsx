@@ -98,7 +98,11 @@ export const Panel = forwardRef<Object3D, React.PropsWithChildren<PanelProps>>(
 
 export const Panel9Slice = (
     props: React.PropsWithChildren<
-        PanelProps & {texture?: Texture | null; borderSize?: number}
+        PanelProps & {
+            texture?: Texture | null;
+            borderSize?: number;
+            borderTextureSize?: number;
+        }
     >
 ) => {
     const context = useContext(MaterialContext);

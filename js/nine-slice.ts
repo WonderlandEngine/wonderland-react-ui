@@ -7,6 +7,7 @@ export function nineSlice(
     width: number,
     height: number,
     borderSize: number,
+    borderTextureSize: number,
     oldMesh?: Mesh | null
 ): Mesh {
     const vertexCount = 16;
@@ -102,40 +103,41 @@ export function nineSlice(
     ]);
     const texCoords = mesh.attribute(MeshAttribute.TextureCoordinate);
     if (texCoords) {
+        const b = borderTextureSize ?? 0.5;
         // prettier-ignore
         texCoords.set(0, [
             /* 0 */
-            0.4, 0.4,
+            b, 1.0 - b,
             /* 1 */
-            0.6, 0.4,
+            1.0 - b, 1.0 - b,
             /* 2 */
-            0.6, 0.6,
+            1.0 - b, b,
             /* 3 */
-            0.4, 0.6,
+            b, b,
             /* 4 */
-            0.4, 0.0,
+            b, 1.0,
             /* 5 */
-            0.6, 0.0,
+            1.0 - b, 1.0,
             /* 6 */
-            1.0, 0.4,
+            1.0, 1.0 - b,
             /* 7 */
-            1.0, 0.6,
+            1.0, b,
             /* 8 */
-            0.6, 1.0,
+            1.0 - b, 0.0,
             /* 9 */
-            0.4, 1.0,
+            b, 0.0,
             /* 10 */
-            0.0, 0.6,
+            0.0, b,
             /* 11 */
-            0.0, 0.4,
+            0.0, 1.0 - b,
             /* 12 */
-            0.0, 0.0,
-            /* 13 */
-            1.0, 0.0,
-            /* 14 */
-            1.0, 1.0,
-            /* 15 */
             0.0, 1.0,
+            /* 13 */
+            1.0, 1.0,
+            /* 14 */
+            1.0, 0.0,
+            /* 15 */
+            0.0, 0.0,
         ]);
     }
 

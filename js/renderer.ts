@@ -173,15 +173,7 @@ export interface NineSliceProps extends YogaNodeProps {
     material?: Material | null;
     texture?: Texture | null;
     borderSize?: number;
-}
-
-/**
- * Properties for nineSlice components
- */
-export interface NineSliceProps extends YogaNodeProps {
-    material?: Material | null;
-    texture?: Texture | null;
-    borderSize?: number;
+    borderTextureSize?: number;
 }
 
 function destroyTreeForNode(child: NodeWrapper, ctx: Context) {
@@ -442,13 +434,21 @@ function applyLayoutToSceneGraph(n: NodeWrapper, context: Context, force?: boole
             const p = {
                 sw,
                 sh,
+                borderTextureSize: n.props.borderTextureSize ?? 0,
                 borderSize: (n.props.borderSize ?? 0) * context.comp.scaling[0],
             };
             const props = (m as any).nineSliceProps ?? {};
             const needsUpdate = !propsEqual(props, p);
 
             if (needsUpdate) {
-                mesh = nineSlice(context.comp.engine, p.sw, p.sh, p.borderSize, mesh);
+                mesh = nineSlice(
+                    context.comp.engine,
+                    p.sw,
+                    p.sh,
+                    p.borderSize,
+                    p.borderTextureSize,
+                    mesh
+                );
                 (m as any).nineSliceProps = p;
             }
 
