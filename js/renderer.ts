@@ -117,6 +117,9 @@ export interface YogaNodeProps {
     paddingLeft?: ValueTypeNoAuto;
     paddingRight?: ValueTypeNoAuto;
 
+    /* Relative z value to add to the usual increment, to allow widgets to render on top/behind other widgets */
+    z?: number;
+
     top?: ValueTypeNoAuto;
     left?: ValueTypeNoAuto;
     right?: ValueTypeNoAuto;
@@ -274,7 +277,7 @@ function setPositionCenter(o: Object3D, n: NodeWrapper, s: number[]) {
     o.setPositionLocal([
         (n.node.getComputedLeft() + 0.5 * n.node.getComputedWidth()) * s[0],
         -(n.node.getComputedTop() + 0.5 * n.node.getComputedHeight()) * s[1],
-        Z_INC,
+        Z_INC + (n.props.z ?? 0),
     ]);
 }
 
@@ -282,7 +285,7 @@ function setPositionLeft(o: Object3D, n: NodeWrapper, s: number[]) {
     o.setPositionLocal([
         n.node.getComputedLeft() * s[0],
         -n.node.getComputedTop() * s[1],
-        Z_INC,
+        Z_INC + (n.props.z ?? 0),
     ]);
 }
 
@@ -290,7 +293,7 @@ function setPositionRight(o: Object3D, n: NodeWrapper, s: number[]) {
     o.setPositionLocal([
         n.node.getComputedRight() * s[0],
         -n.node.getComputedTop() * s[1],
-        Z_INC,
+        Z_INC + (n.props.z ?? 0),
     ]);
 }
 
@@ -428,7 +431,7 @@ function applyLayoutToSceneGraph(n: NodeWrapper, context: Context, force?: boole
                 }
             }
 
-            child.setPositionLocal([centerX, centerY, Z_INC]);
+            child.setPositionLocal([centerX, centerY, Z_INC + (n.props.z ?? 0)]);
             child.resetScaling();
         } else if (n.tag === 'nineSlice') {
             const p = {
@@ -452,11 +455,11 @@ function applyLayoutToSceneGraph(n: NodeWrapper, context: Context, force?: boole
                 (m as any).nineSliceProps = p;
             }
 
-            child.setPositionLocal([centerX, centerY, Z_INC]);
+            child.setPositionLocal([centerX, centerY, Z_INC + (n.props.z ?? 0)]);
             child.resetScaling();
         } else {
             /* Planes are diameter of 2 */
-            child.setPositionLocal([centerX, centerY, Z_INC]);
+            child.setPositionLocal([centerX, centerY, Z_INC + (n.props.z ?? 0)]);
             child.setScalingLocal([0.5 * sw, 0.5 * sh, 1]);
         }
         m.mesh = n.props.mesh ?? mesh;
