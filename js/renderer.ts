@@ -1001,7 +1001,10 @@ export abstract class ReactUiBase extends Component implements ReactComp {
 
     override onDeactivate(): void {
         if (this.space == UISpace.World) {
-            const target = this.object.getComponent(CursorTarget)!;
+            const colliderObject = this.object.findByNameDirect('UIColliderObject')[0];
+            if (!colliderObject) return;
+            const target = colliderObject.getComponent(CursorTarget)!;
+            if (!target) return;
             // FIXME: We might be able to just deactivate the target here instead?
             target.onClick.remove('onClick');
             target.onMove.remove('onMove');
