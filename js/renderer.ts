@@ -141,6 +141,7 @@ export interface TextProps extends YogaNodeProps {
     text?: string;
     fontSize?: number;
     material?: Material | null;
+    textAlign?: 'left' | 'center' | 'right';
 }
 
 /**
@@ -318,7 +319,7 @@ function applyLayoutToSceneGraph(n: NodeWrapper, context: Context, force?: boole
     o.resetScaling();
 
     if (n.tag === 'text3d') {
-        const align = n.props.alignment;
+        const align = n.props.textAlign;
         let alignment = Alignment.Left;
         if (align === 'center') {
             setPositionCenter(o, n, context.comp.scaling);
@@ -491,6 +492,7 @@ function applyToYogaNode(
         if (!t) {
             /* Apply properties relevant to text component here */
             wrapper.props.text = p.text;
+            wrapper.props.textAlign = p.textAlign;
             applyLayoutToSceneGraph(wrapper, ctx!, true);
             t = wrapper.object?.getComponent(TextComponent)!;
         }
