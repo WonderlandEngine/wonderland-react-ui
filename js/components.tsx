@@ -123,7 +123,7 @@ export const Image = forwardRef<
     const mat = props.material ?? useMemo(() => context.panelMaterialTextured?.clone(), []);
     const texture =
         typeof props.src === 'string'
-            ? useMemo(() => mat!.engine.textures.load(props.src as string), [])
+            ? useMemo(() => mat!.engine.textures.load(props.src as string), [props.src])
             : Promise.resolve(props.src);
     texture.then((t) => ((mat as unknown as FlatMaterial).flatTexture = t));
 
