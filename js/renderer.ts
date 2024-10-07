@@ -852,8 +852,9 @@ export abstract class ReactUiBase extends Component implements ReactComp {
         const s = bottomRight[0] - topLeft[0];
         this.object.setScalingLocal([s, s, s]);
         /* Convert from yoga units to 0-1 */
-        this.width = this.engine.canvas.clientWidth;
-        this.height = this.engine.canvas.clientHeight;
+        const dpr = window.devicePixelRatio ?? 1;
+        this.width = this.engine.canvas.clientWidth * dpr;
+        this.height = this.engine.canvas.clientHeight * dpr;
         this.scaling = [1 / this.width, 1 / this.width];
         this.object.setPositionLocal(topLeft);
 
