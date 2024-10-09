@@ -847,10 +847,7 @@ export abstract class ReactUiBase extends Component implements ReactComp {
     dpr = 1;
 
     get pixelSizeAdjustment() {
-        const height = this.engine.canvas.height;
-        // if (height < minimumHeight) return minimumHeight / height;
-        // if (height > maximumHeight) return maximumHeight / height;
-        return this.automatic ? 1 : this.manualHeight / height;
+        return this.automatic ? 1 : this.manualHeight / this.engine.canvas.height;
     }
 
     static onRegister(engine: WonderlandEngine) {
@@ -880,8 +877,6 @@ export abstract class ReactUiBase extends Component implements ReactComp {
         this.height = this.engine.canvas.clientHeight * this.pixelSizeAdjustment * this.dpr;
         this.scaling = [1 / this.width, 1 / this.width];
         this.object.setPositionLocal(topLeft);
-        this.onDeactivate();
-        this.onActivate();
         this.needsUpdate = true;
         this.viewportChanged = true;
     };
