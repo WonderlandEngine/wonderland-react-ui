@@ -872,9 +872,9 @@ export abstract class ReactUiBase extends Component implements ReactComp {
         const s = bottomRight[0] - topLeft[0];
         this.object.setScalingLocal([s, s, s]);
         /* Convert from yoga units to 0-1 */
-        this.dpr = window.devicePixelRatio ?? 1;
-        this.width = this.engine.canvas.clientWidth * this.pixelSizeAdjustment * this.dpr;
-        this.height = this.engine.canvas.clientHeight * this.pixelSizeAdjustment * this.dpr;
+        this.dpr = window.devicePixelRatio;
+        this.width = this._dpiAdjust(this.engine.canvas.clientWidth);
+        this.height = this._dpiAdjust(this.engine.canvas.clientHeight);
         this.scaling = [1 / this.width, 1 / this.width];
         this.object.setPositionLocal(topLeft);
         this.needsUpdate = true;
@@ -1098,8 +1098,8 @@ export abstract class ReactUiBase extends Component implements ReactComp {
     onPointerMove(e: PointerEvent) {
         /* Don't care about secondary pointers */
         if (!e.isPrimary) return null;
-        const x = e.clientX * this.pixelSizeAdjustment * this.dpr;
-        const y = e.clientY * this.pixelSizeAdjustment * this.dpr;
+        const x = this._dpiAdjust(e.clientX);
+        const y = this._dpiAdjust(e.clientY);
         this.onMove({x, y, e});
     }
 
@@ -1149,8 +1149,8 @@ export abstract class ReactUiBase extends Component implements ReactComp {
     };
 
     onPointerClick(e: PointerEvent) {
-        const x = e.clientX * this.pixelSizeAdjustment * this.dpr;
-        const y = e.clientY * this.pixelSizeAdjustment * this.dpr;
+        const x = this._dpiAdjust(e.clientX);
+        const y = this._dpiAdjust(e.clientY);
         this.onClick({x, y, e});
     }
 
@@ -1158,8 +1158,8 @@ export abstract class ReactUiBase extends Component implements ReactComp {
     onPointerDown(e: PointerEvent): NodeWrapper | null {
         /* Don't care about secondary pointers or non-left clicks */
         if (!e.isPrimary || e.button !== 0) return null;
-        const x = e.clientX * this.pixelSizeAdjustment * this.dpr;
-        const y = e.clientY * this.pixelSizeAdjustment * this.dpr;
+        const x = this._dpiAdjust(e.clientX);
+        const y = this._dpiAdjust(e.clientY);
         return this.onDown({x, y, e});
     }
 
@@ -1167,14 +1167,18 @@ export abstract class ReactUiBase extends Component implements ReactComp {
     onPointerUp(e: PointerEvent): NodeWrapper | null {
         /* Don't care about secondary pointers or non-left clicks */
         if (!e.isPrimary || e.button !== 0) return null;
-        const x = e.clientX * this.pixelSizeAdjustment * this.dpr;
-        const y = e.clientY * this.pixelSizeAdjustment * this.dpr;
+        const x = this._dpiAdjust(e.clientX);
+        const y = this._dpiAdjust(e.clientY);
         return this.onUp({x, y, e});
     }
 
     renderCallback() {
         // FIXME: Never called
         this.needsUpdate = true;
+    }
+
+    private _dpiAdjust(value: number) {
+        return value * this.pixelSizeAdjustment * this.dpr;
     }
 
     abstract render(): ReactNode;
