@@ -806,6 +806,19 @@ export enum UISpace {
     Screen = 1,
 }
 
+export enum ScalingType {
+    /**
+     * The sizes absolute to the screen size. A pixel in the UI is a pixel on screen.
+     * This is the default.
+     */
+    Absolute = 0,
+
+    /**
+     * The height of the UI will be fixed to the value set in the `manualHeight` property.
+     */
+    FixedHeight = 1,
+}
+
 export abstract class ReactUiBase extends Component implements ReactComp {
     static TypeName = 'react-ui-base';
 
@@ -830,6 +843,29 @@ export abstract class ReactUiBase extends Component implements ReactComp {
     @property.int(100)
     height = 100;
 
+    @property.enum(
+        Object.keys(ScalingType).filter((e) => isNaN(Number(e))),
+        ScalingType.Absolute
+    )
+    scalingMode: ScalingType = ScalingType.Absolute;
+
+    @property.float(1080)
+    manualHeight = 1080;
+
+    /**
+     * Device pixel ratio, defaults to 1. Used on mobile/tablet devices to scale.
+     */
+    dpr = 1;
+
+    get pixelSizeAdjustment() {
+        switch (this.scalingMode) {
+            case ScalingType.FixedHeight:
+                return this.manualHeight / this.engine.canvas.height;
+            default:
+                return 1;
+        }
+    }
+
     static onRegister(engine: WonderlandEngine) {
         engine.registerComponent(CursorTarget);
     }
@@ -852,11 +888,11 @@ export abstract class ReactUiBase extends Component implements ReactComp {
         const s = bottomRight[0] - topLeft[0];
         this.object.setScalingLocal([s, s, s]);
         /* Convert from yoga units to 0-1 */
-        this.width = this.engine.canvas.clientWidth;
-        this.height = this.engine.canvas.clientHeight;
+        this.dpr = window.devicePixelRatio;
+        this.width = this._dpiAdjust(this.engine.canvas.clientWidth);
+        this.height = this._dpiAdjust(this.engine.canvas.clientHeight);
         this.scaling = [1 / this.width, 1 / this.width];
         this.object.setPositionLocal(topLeft);
-
         this.needsUpdate = true;
         this.viewportChanged = true;
     };
@@ -1078,8 +1114,8 @@ export abstract class ReactUiBase extends Component implements ReactComp {
     onPointerMove(e: PointerEvent) {
         /* Don't care about secondary pointers */
         if (!e.isPrimary) return null;
-        const x = e.clientX;
-        const y = e.clientY;
+        const x = this._dpiAdjust(e.clientX);
+        const y = this._dpiAdjust(e.clientY);
         this.onMove({x, y, e});
     }
 
@@ -1129,8 +1165,8 @@ export abstract class ReactUiBase extends Component implements ReactComp {
     };
 
     onPointerClick(e: PointerEvent) {
-        const x = e.clientX;
-        const y = e.clientY;
+        const x = this._dpiAdjust(e.clientX);
+        const y = this._dpiAdjust(e.clientY);
         this.onClick({x, y, e});
     }
 
@@ -1138,8 +1174,8 @@ export abstract class ReactUiBase extends Component implements ReactComp {
     onPointerDown(e: PointerEvent): NodeWrapper | null {
         /* Don't care about secondary pointers or non-left clicks */
         if (!e.isPrimary || e.button !== 0) return null;
-        const x = e.clientX;
-        const y = e.clientY;
+        const x = this._dpiAdjust(e.clientX);
+        const y = this._dpiAdjust(e.clientY);
         return this.onDown({x, y, e});
     }
 
@@ -1147,14 +1183,18 @@ export abstract class ReactUiBase extends Component implements ReactComp {
     onPointerUp(e: PointerEvent): NodeWrapper | null {
         /* Don't care about secondary pointers or non-left clicks */
         if (!e.isPrimary || e.button !== 0) return null;
-        const x = e.clientX;
-        const y = e.clientY;
+        const x = this._dpiAdjust(e.clientX);
+        const y = this._dpiAdjust(e.clientY);
         return this.onUp({x, y, e});
     }
 
     renderCallback() {
         // FIXME: Never called
         this.needsUpdate = true;
+    }
+
+    private _dpiAdjust(value: number) {
+        return value * this.pixelSizeAdjustment * this.dpr;
     }
 
     abstract render(): ReactNode;
