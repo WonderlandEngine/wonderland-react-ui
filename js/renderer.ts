@@ -806,6 +806,19 @@ export enum UISpace {
     Screen = 1,
 }
 
+export enum ScalingType {
+    /**
+     * The sizes absolute to the screen size. A pixel in the UI is a pixel on screen.
+     * This is the default.
+     */
+    Absolute = 0,
+
+    /**
+     * The height of the UI will be fixed to the value set in the `manualHeight` property.
+     */
+    FixedHeight = 1,
+}
+
 export abstract class ReactUiBase extends Component implements ReactComp {
     static TypeName = 'react-ui-base';
 
@@ -830,13 +843,11 @@ export abstract class ReactUiBase extends Component implements ReactComp {
     @property.int(100)
     height = 100;
 
-    /**
-     * If set to 'true', the UI will be scaled automatically.
-     * If set to 'false', 'manualHeight' is used instead, and the UI will scale proportionally to screen's height,
-     * always remaining the same relative size regardless of the resolution changes.
-     */
-    @property.bool(true)
-    automatic = true;
+    @property.enum(
+        Object.keys(ScalingType).filter((e) => isNaN(Number(e))),
+        ScalingType.Absolute
+    )
+    scalingMode: ScalingType = ScalingType.Absolute;
 
     @property.float(1080)
     manualHeight = 1080;
@@ -847,7 +858,12 @@ export abstract class ReactUiBase extends Component implements ReactComp {
     dpr = 1;
 
     get pixelSizeAdjustment() {
-        return this.automatic ? 1 : this.manualHeight / this.engine.canvas.height;
+        switch (this.scalingMode) {
+            case ScalingType.FixedHeight:
+                return this.manualHeight / this.engine.canvas.height;
+            default:
+                return 1;
+        }
     }
 
     static onRegister(engine: WonderlandEngine) {
