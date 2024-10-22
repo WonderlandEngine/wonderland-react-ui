@@ -817,6 +817,12 @@ export enum ScalingType {
      * The height of the UI will be fixed to the value set in the `manualHeight` property.
      */
     FixedHeight = 1,
+
+    /**
+     * The height of the UI will be fixed to the value set in the `manualHeight` property.
+     * But if the width is below a certain threshold, the height will be scaled down anyway
+     */
+    FixedHeightLimitedWidth = 2,
 }
 
 export abstract class ReactUiBase extends Component implements ReactComp {
@@ -852,6 +858,9 @@ export abstract class ReactUiBase extends Component implements ReactComp {
     @property.float(1080)
     manualHeight = 1080;
 
+    @property.float(1080)
+    manualWidth = 1080;
+
     /**
      * Device pixel ratio, defaults to 1. Used on mobile/tablet devices to scale.
      */
@@ -861,6 +870,14 @@ export abstract class ReactUiBase extends Component implements ReactComp {
         switch (this.scalingMode) {
             case ScalingType.FixedHeight:
                 return this.manualHeight / this.engine.canvas.height;
+            case ScalingType.FixedHeightLimitedWidth:
+                const factor = this.engine.canvas.height / this.manualHeight;
+
+                if (this.engine.canvas.width / factor < this.manualWidth) {
+                    return this.manualWidth / this.engine.canvas.width;
+                } else {
+                    return this.manualHeight / this.engine.canvas.height;
+                }
             default:
                 return 1;
         }
