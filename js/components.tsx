@@ -260,6 +260,8 @@ export const ProgressBar = forwardRef<
 
             fgColor?: Color;
             bgColor?: Color;
+
+            barLeftMargin?: number;
         }
     >
 >((props, ref) => {
@@ -271,9 +273,9 @@ export const ProgressBar = forwardRef<
             backgroundColor={props.bgColor}
             {...props}
             flexDirection={FlexDirection.Row}
-            padding={6}
-            paddingLeft={8}
-            paddingRight={8}
+            padding={props.padding ?? 6}
+            paddingLeft={props.paddingLeft ?? 8}
+            paddingRight={props.paddingRight ?? 8}
             resolution={6}
             rounding={rounding * 1.5}
             ref={ref}
@@ -283,11 +285,11 @@ export const ProgressBar = forwardRef<
                 position={PositionType.Absolute}
                 width="100%"
                 height="100%"
-                left={12}
+                left={props.barLeftMargin ?? 12}
             >
                 {props.children}
             </Container>
-            {value > 0.05 && (
+            {value > 0.001 && (
                 <Panel
                     width={`${100 * value}%`}
                     height="100%"
