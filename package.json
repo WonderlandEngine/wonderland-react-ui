@@ -1,6 +1,6 @@
 {
     "name": "@wonderlandengine/react-ui",
-    "version": "0.1.8",
+    "version": "0.1.10",
     "description": "React-based UI in Wonderland Engine.",
     "author": "Wonderland GmbH",
     "main": "dist/index.js",

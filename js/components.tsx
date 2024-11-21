@@ -260,20 +260,22 @@ export const ProgressBar = forwardRef<
 
             fgColor?: Color;
             bgColor?: Color;
+
+            barLeftMargin?: number;
         }
     >
 >((props, ref) => {
     const rounding = props.rounding ?? 30;
-    const value = Math.min(1, props.value);
+    const value = Math.max(Math.min(1, props.value), 0); // clamp between 0 and 1
     return (
         <Panel
             material={props.bgMaterial}
             backgroundColor={props.bgColor}
             {...props}
             flexDirection={FlexDirection.Row}
-            padding={6}
-            paddingLeft={8}
-            paddingRight={8}
+            padding={props.padding ?? 6}
+            paddingLeft={props.paddingLeft ?? 8}
+            paddingRight={props.paddingRight ?? 8}
             resolution={6}
             rounding={rounding * 1.5}
             ref={ref}
@@ -283,20 +285,20 @@ export const ProgressBar = forwardRef<
                 position={PositionType.Absolute}
                 width="100%"
                 height="100%"
-                left={12}
+                left={props.barLeftMargin ?? 12}
             >
                 {props.children}
             </Container>
-            {value > 0.05 && (
-                <Panel
-                    width={`${100 * value}%`}
-                    height="100%"
-                    material={props.fgMaterial}
-                    backgroundColor={props.fgColor}
-                    alignItems={Align.Center}
-                    rounding={rounding}
-                ></Panel>
-            )}
+
+            <Panel
+                width={`${100 * value}%`}
+                minWidth={rounding * 2}
+                height="100%"
+                material={props.fgMaterial}
+                backgroundColor={props.fgColor}
+                alignItems={Align.Center}
+                rounding={rounding}
+            ></Panel>
         </Panel>
     );
 });

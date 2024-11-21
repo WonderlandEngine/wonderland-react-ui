@@ -980,7 +980,7 @@ export abstract class ReactUiBase extends Component implements ReactComp {
         this.renderer.render(this.render(), this);
     }
 
-    update() {
+    update(dt: number | undefined = undefined) {
         if (this.needsUpdate) this.updateLayout();
     }
 
@@ -1216,10 +1216,17 @@ export abstract class ReactUiBase extends Component implements ReactComp {
 
     abstract render(): ReactNode;
 }
+let yogaInitializationPromise: Promise<void> | null = null;
 
 export async function initializeRenderer() {
     if (!Y) {
-        Y = await loadYoga();
+        if (!yogaInitializationPromise) {
+            yogaInitializationPromise = loadYoga().then((loadedYoga) => {
+                Y = loadedYoga;
+            });
+        }
+
+        await yogaInitializationPromise;
     }
     return {
         rootContainer: null,
