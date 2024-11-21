@@ -980,7 +980,7 @@ export abstract class ReactUiBase extends Component implements ReactComp {
         this.renderer.render(this.render(), this);
     }
 
-    update() {
+    update(dt: number | undefined = undefined) {
         if (this.needsUpdate) this.updateLayout();
     }
 
