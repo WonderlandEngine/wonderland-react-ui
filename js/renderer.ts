@@ -3,6 +3,7 @@ import {
     Collider,
     CollisionComponent,
     Component,
+    Font,
     Material,
     Mesh,
     Object3D,
@@ -277,7 +278,7 @@ class Context {
 function setPositionCenter(o: Object3D, n: NodeWrapper, s: number[]) {
     o.setPositionLocal([
         (n.node.getComputedLeft() + 0.5 * n.node.getComputedWidth()) * s[0],
-        -(n.node.getComputedTop() + 0.5 * n.node.getComputedHeight()) * s[1],
+        -n.node.getComputedTop() * s[1],
         Z_INC + (n.props.z ?? 0),
     ]);
 }
@@ -291,8 +292,9 @@ function setPositionLeft(o: Object3D, n: NodeWrapper, s: number[]) {
 }
 
 function setPositionRight(o: Object3D, n: NodeWrapper, s: number[]) {
+    // n.node.getComputedRight() was giving 0;
     o.setPositionLocal([
-        n.node.getComputedRight() * s[0],
+        (n.node.getComputedLeft() + n.node.getComputedWidth()) * s[0],
         -n.node.getComputedTop() * s[1],
         Z_INC + (n.props.z ?? 0),
     ]);
@@ -496,11 +498,30 @@ function applyToYogaNode(
             applyLayoutToSceneGraph(wrapper, ctx!, true);
             t = wrapper.object?.getComponent(TextComponent)!;
         }
-        const b = t.getBoundingBoxForText(p.text?.toString() ?? '', tempVec4);
 
         // TODO: Avoid all the computation when width and height is set
-        let w = props.height ?? s * (b[2] - b[0]);
-        let h = props.width ?? s * (b[3] - b[1]);
+        let h: ValueType = 0;
+        const b = t.getBoundingBoxForText(p.text?.toString() ?? '', tempVec4);
+
+        if (props.height) {
+            h = props.height;
+        } else {
+            const font = (t.material as any).getFont() as Font;
+            if (font) {
+                h = font.capHeight * s;
+            } else {
+                h = s * (b[3] - b[1]);
+            }
+        }
+
+        // when alighment is left, the width is the width of the text
+        // when alignment is center or right, the width is the width of the container
+        let w;
+        if (p.textAlign === 'left') {
+            w = props.width ?? s * (b[2] - b[0]);
+        } else {
+            w = props.width;
+        }
         node.setHeight(h);
         node.setWidth(w);
     } else {
