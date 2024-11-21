@@ -514,10 +514,10 @@ function applyToYogaNode(
             }
         }
 
-        // when alighment is left, the width is the width of the text
-        // when alignment is center or right, the width is the width of the container
+        // when alighment is left or right, the width is the width of the text
+        // when alignment is center, the width is the width of the container
         let w;
-        if (p.textAlign === 'left') {
+        if (p.textAlign === 'left' || p.textAlign === 'right') {
             w = props.width ?? s * (b[2] - b[0]);
         } else {
             w = props.width;
