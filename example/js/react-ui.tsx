@@ -105,9 +105,10 @@ const App = (props: {comp: ReactUi}) => {
                                         backgroundColor: props.comp.panelSecondaryActive,
                                     }}
                                     justifyContent={Justify.Center}
-                                    alignItems={Align.Center}
                                 >
-                                    <Text fontSize={16}>Remove</Text>
+                                    <Text textAlign="center" fontSize={16}>
+                                        Remove
+                                    </Text>
                                 </Button>
                             </Row>
                         ))}
@@ -123,6 +124,7 @@ const App = (props: {comp: ReactUi}) => {
                             height={150}
                             borderSize={30}
                             padding={30}
+                            borderTextureSize={0.4}
                         >
                             <Text color="#000" fontSize={16}>
                                 This is a 9-slice.
