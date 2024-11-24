@@ -3,11 +3,11 @@
 All notable changes to the *Wonderland React UI* library will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
-and this project adheres to [Semantic Versioning](https://emver.org/spec/v2.0.0.html).
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.2.0]
+## [0.2.0] - 2024-11-22
 
-### Change - 2024-11-22
+### Change 
 
 - [Breaking] Text alignment corrections. Note that this can make existing texts shift a bit. The following corrections are made:
   - Correct align text to the right
