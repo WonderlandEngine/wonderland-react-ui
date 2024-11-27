@@ -69,6 +69,7 @@ export const Container = forwardRef<Object3D, React.PropsWithChildren<YogaNodePr
         );
     }
 );
+Container.displayName = 'Container';
 
 export const Panel = forwardRef<Object3D, React.PropsWithChildren<PanelProps>>(
     (props, ref) => {
@@ -95,6 +96,7 @@ export const Panel = forwardRef<Object3D, React.PropsWithChildren<PanelProps>>(
         );
     }
 );
+Panel.displayName = 'Panel';
 
 export const Panel9Slice = (
     props: React.PropsWithChildren<
@@ -114,6 +116,7 @@ export const Panel9Slice = (
         </nineSlice>
     );
 };
+Panel9Slice.displayName = 'Panel9Slice';
 
 export const Image = forwardRef<
     Object3D,
@@ -133,6 +136,7 @@ export const Image = forwardRef<
         </Panel>
     );
 });
+Image.displayName = 'Image';
 
 export const Plane = forwardRef<Object3D, React.PropsWithChildren<MeshProps>>(
     (props, ref) => {
@@ -143,6 +147,7 @@ export const Plane = forwardRef<Object3D, React.PropsWithChildren<MeshProps>>(
         );
     }
 );
+Plane.displayName = 'Plane';
 
 export const Column = forwardRef<Object3D, React.PropsWithChildren<YogaNodeProps>>(
     (props, ref) => {
@@ -153,6 +158,7 @@ export const Column = forwardRef<Object3D, React.PropsWithChildren<YogaNodeProps
         );
     }
 );
+Column.displayName = 'Column';
 
 export const Row = forwardRef<Object3D, React.PropsWithChildren<YogaNodeProps>>(
     (props, ref) => {
@@ -163,6 +169,7 @@ export const Row = forwardRef<Object3D, React.PropsWithChildren<YogaNodeProps>>(
         );
     }
 );
+Row.displayName = 'Row';
 
 export const Text = forwardRef<
     Object3D,
@@ -195,6 +202,7 @@ export const Text = forwardRef<
         />
     );
 });
+Text.displayName = 'Text';
 
 export const Button = forwardRef<
     Object3D,
@@ -246,6 +254,7 @@ export const Button = forwardRef<
         </Panel>
     );
 });
+Button.displayName = 'Button';
 
 export const ProgressBar = forwardRef<
     Object3D,
@@ -302,3 +311,4 @@ export const ProgressBar = forwardRef<
         </Panel>
     );
 });
+ProgressBar.displayName = 'ProgressBar';

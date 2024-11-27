@@ -1275,6 +1275,11 @@ export async function initializeRenderer() {
                 parentComponent,
                 reactComp.renderCallback.bind(reactComp)
             );
+            reconcilerInstance.injectIntoDevTools({
+                bundleType: 0,
+                version: '0.2.1',
+                rendererPackageName: 'wonderlandengine/react-ui',
+            });
         },
     };
 }
