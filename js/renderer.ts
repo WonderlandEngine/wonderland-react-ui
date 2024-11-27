@@ -1276,7 +1276,7 @@ export async function initializeRenderer() {
                 reactComp.renderCallback.bind(reactComp)
             );
             reconcilerInstance.injectIntoDevTools({
-                bundleType: 1,
+                bundleType: 0,
                 version: '0.2.1',
                 rendererPackageName: 'wonderlandengine/react-ui',
             });
