@@ -366,8 +366,16 @@ function applyLayoutToSceneGraph(n: NodeWrapper, context: Context, force?: boole
                 return child;
             })();
 
-        const sw = n.node.getComputedWidth() * context.comp.scaling[0];
-        const sh = n.node.getComputedHeight() * context.comp.scaling[1];
+        let sw = n.node.getComputedWidth() * context.comp.scaling[0];
+        let sh = n.node.getComputedHeight() * context.comp.scaling[1];
+
+        // there is a change that on the first time the code is executed getComputedWidth
+        // and getComputedHeight return NaN. In that case we set the values to 0 to prevent
+        // any more issues.
+        if (isNaN(sw) || isNaN(sh)) {
+            sw = 0;
+            sh = 0;
+        }
         const centerX = 0.5 * sw;
         const centerY = -0.5 * sh;
 
@@ -463,7 +471,7 @@ function applyLayoutToSceneGraph(n: NodeWrapper, context: Context, force?: boole
         } else {
             /* Planes are diameter of 2 */
             child.setPositionLocal([centerX, centerY, Z_INC + (n.props.z ?? 0)]);
-            child.setScalingLocal([0.5 * sw, 0.5 * sh, 1]);
+            child.setScalingLocal([0.5 * sw, 0.5 * sh, 0.5 * sw]);
         }
         m.mesh = n.props.mesh ?? mesh;
     }
