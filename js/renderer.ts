@@ -366,8 +366,16 @@ function applyLayoutToSceneGraph(n: NodeWrapper, context: Context, force?: boole
                 return child;
             })();
 
-        const sw = n.node.getComputedWidth() * context.comp.scaling[0];
-        const sh = n.node.getComputedHeight() * context.comp.scaling[1];
+        let sw = n.node.getComputedWidth() * context.comp.scaling[0];
+        let sh = n.node.getComputedHeight() * context.comp.scaling[1];
+
+        // there is a change that on the first time the code is executed getComputedWidth
+        // and getComputedHeight return NaN. In that case we set the values to 0 to prevent
+        // any more issues.
+        if (isNaN(sw) || isNaN(sh)) {
+            sw = 0;
+            sh = 0;
+        }
         const centerX = 0.5 * sw;
         const centerY = -0.5 * sh;
 
@@ -463,7 +471,12 @@ function applyLayoutToSceneGraph(n: NodeWrapper, context: Context, force?: boole
         } else {
             /* Planes are diameter of 2 */
             child.setPositionLocal([centerX, centerY, Z_INC + (n.props.z ?? 0)]);
-            child.setScalingLocal([0.5 * sw, 0.5 * sh, 1]);
+            child.setScalingLocal([
+                0.5 * sw,
+                0.5 * sh,
+                // if there's a z value set we're not scaling the z value.
+                n.props.z === undefined ? 0.5 * sw : 1,
+            ]);
         }
         m.mesh = n.props.mesh ?? mesh;
     }
@@ -846,6 +859,9 @@ export enum ScalingType {
     FixedHeightLimitedWidth = 2,
 }
 
+const tempPos = [0, 0, 0];
+const tempScale = [0, 0, 0];
+
 export abstract class ReactUiBase extends Component implements ReactComp {
     static TypeName = 'react-ui-base';
 
@@ -1008,11 +1024,12 @@ export abstract class ReactUiBase extends Component implements ReactComp {
     callbacks: Record<string, any> = {};
 
     getCursorPosition(c: Cursor): [number, number] {
-        const pos = [0, 0, 0];
-        const scale = [0, 0, 0];
-        this.object.transformPointInverseWorld(pos, c.cursorPos);
-        this.object.getScalingWorld(scale);
-        return [pos[0] / this.scaling[0] / scale[0], -pos[1] / this.scaling[1] / scale[1]];
+        this.object.transformPointInverseWorld(tempPos, c.cursorPos);
+        this.object.getScalingWorld(tempScale);
+        return [
+            tempPos[0] / this.scaling[0] / tempScale[0],
+            -tempPos[1] / this.scaling[1] / tempScale[1],
+        ];
     }
 
     override onActivate(): void {
