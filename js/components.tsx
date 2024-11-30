@@ -98,24 +98,25 @@ export const Panel = forwardRef<Object3D, React.PropsWithChildren<PanelProps>>(
 );
 Panel.displayName = 'Panel';
 
-export const Panel9Slice = (
-    props: React.PropsWithChildren<
+export const Panel9Slice = forwardRef<
+    Object3D,
+    React.PropsWithChildren<
         PanelProps & {
             texture?: Texture | null;
             borderSize?: number;
             borderTextureSize?: number;
         }
     >
-) => {
+>((props, ref) => {
     const context = useContext(MaterialContext);
     const mat = useMemo(() => context.panelMaterialTextured?.clone(), []);
     if (mat && props.texture) (mat as unknown as FlatMaterial).flatTexture = props.texture;
     return (
-        <nineSlice {...props} material={props.material ?? mat}>
+        <nineSlice {...props} material={props.material ?? mat} ref={ref}>
             {props.children}
         </nineSlice>
     );
-};
+});
 Panel9Slice.displayName = 'Panel9Slice';
 
 export const Image = forwardRef<
