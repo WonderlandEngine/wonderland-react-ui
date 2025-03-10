@@ -126,8 +126,10 @@ const App = (props: {comp: ReactUi}) => {
                             padding={30}
                             borderTextureSize={0.4}
                         >
-                            <Text color="#000" fontSize={16}>
-                                This is a 9-slice.
+                            <Text color="#000" fontSize={16} textWrap="soft">
+                                This is a 9-slice. It is a texture that can be stretched and
+                                scaled without losing quality. It is used for UI elements
+                                like panels and buttons.
                             </Text>
                         </Panel9Slice>
                     </Column>

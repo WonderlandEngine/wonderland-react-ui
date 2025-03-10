@@ -10,6 +10,7 @@ import {
     TextComponent,
     TextEffect,
     Texture,
+    TextWrapMode,
     VerticalAlignment,
     ViewComponent,
     WonderlandEngine,
@@ -143,6 +144,7 @@ export interface TextProps extends YogaNodeProps {
     fontSize?: number;
     material?: Material | null;
     textAlign?: 'left' | 'center' | 'right';
+    textWrap?: 'none' | 'soft' | 'hard' | 'clip';
 }
 
 /**
@@ -332,6 +334,15 @@ function applyLayoutToSceneGraph(n: NodeWrapper, context: Context, force?: boole
         } else {
             setPositionLeft(o, n, context.comp.scaling);
         }
+        const wrap = n.props.textWrap;
+        let textWrapMode = TextWrapMode.None;
+        if (wrap === 'soft') {
+            textWrapMode = TextWrapMode.Soft;
+        } else if (wrap === 'hard') {
+            textWrapMode = TextWrapMode.Hard;
+        } else if (wrap === 'clip') {
+            textWrapMode = TextWrapMode.Clip;
+        }
 
         const s =
             TEXT_BASE_SIZE *
@@ -340,13 +351,15 @@ function applyLayoutToSceneGraph(n: NodeWrapper, context: Context, force?: boole
         o.setScalingLocal([s, s, s]);
 
         const t =
-            o.getComponent('text') ??
-            o.addComponent('text', {
+            o.getComponent(TextComponent) ??
+            o.addComponent(TextComponent, {
                 alignment,
                 effect: TextEffect.Outline,
                 verticalAlignment: VerticalAlignment.Top,
+                wrapMode: textWrapMode,
             });
         t.material = n.props.material ?? context.comp.textMaterial;
+        t.wrapWidth = (n.node.getComputedWidth() * context.comp.scaling[0]) / s;
         if (t.text !== n.props.text) t.text = n.props.text;
     } else {
         /* "mesh" and everything else */
@@ -508,6 +521,7 @@ function applyToYogaNode(
             /* Apply properties relevant to text component here */
             wrapper.props.text = p.text;
             wrapper.props.textAlign = p.textAlign;
+            wrapper.props.textWrap = p.textWrap;
             applyLayoutToSceneGraph(wrapper, ctx!, true);
             t = wrapper.object?.getComponent(TextComponent)!;
         }
