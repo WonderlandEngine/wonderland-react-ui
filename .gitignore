@@ -18,3 +18,5 @@
 
 # Blender backup files
 *.blend1
+
+.vscode/
