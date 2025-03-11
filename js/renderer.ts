@@ -53,10 +53,11 @@ import {
     PositionType,
     Wrap,
     loadYoga,
+    Unit,
 } from 'yoga-layout/load';
 
 import {roundedRectangle, roundedRectangleOutline} from './rounded-rectangle-mesh.js';
-import {Cursor, CursorTarget, EventTypes} from '@wonderlandengine/components';
+import {Cursor, CursorTarget, EventTypes, FingerCursor} from '@wonderlandengine/components';
 import {nineSlice} from './nine-slice.js';
 
 type ValueType = number | 'auto' | `${number}%`;
@@ -278,6 +279,10 @@ class Context {
 }
 
 function setPositionCenter(o: Object3D, n: NodeWrapper, s: number[]) {
+    const w = n.node.getComputedWidth();
+    if (isNaN(w)) {
+        return;
+    }
     o.setPositionLocal([
         (n.node.getComputedLeft() + 0.5 * n.node.getComputedWidth()) * s[0],
         -n.node.getComputedTop() * s[1],
@@ -302,8 +307,42 @@ function setPositionRight(o: Object3D, n: NodeWrapper, s: number[]) {
     ]);
 }
 
+function computeTextDimensions(
+    n: NodeWrapper,
+    context: Context
+): {width: number; height: number} {
+    const o = n.object!;
+    const t = o.getComponent(TextComponent)!;
+
+    const s =
+        TEXT_BASE_SIZE * (n.props.fontSize ?? DEFAULT_FONT_SIZE) * context.comp.scaling[1];
+    o.setScalingLocal([s, s, s]);
+
+    const ww = (n.node.getComputedWidth() * context.comp.scaling[0]) / s;
+    console.log(
+        'D:',
+        ww,
+        n.node.getComputedWidth(),
+        n.node.getWidth().value,
+        n.props.width
+    );
+    if (!isNaN(ww)) {
+        t.wrapWidth = ww;
+        const boundingBox = t.getBoundingBox();
+        const h = (s * (boundingBox[3] - boundingBox[1])) / context.comp.scaling[1];
+        const w = (s * (boundingBox[2] - boundingBox[0])) / context.comp.scaling[0];
+        //const w = s * (boundingBox[2] - boundingBox[0]); // / context.comp.scaling[0];
+        return {width: w, height: h};
+    }
+    if (n.props.width != undefined) {
+        return {width: n.props.width, height: 0};
+    }
+    return {width: 0, height: 0};
+}
+
 function applyLayoutToSceneGraph(n: NodeWrapper, context: Context, force?: boolean) {
     debug('applyLayoutToSceneGraph');
+    console.log(`applyLayoutToSceneGraph: ${n.tag}`);
     if (!force && !n.dirty && !n.node.hasNewLayout()) return;
     n.node.markLayoutSeen();
 
@@ -344,23 +383,88 @@ function applyLayoutToSceneGraph(n: NodeWrapper, context: Context, force?: boole
             textWrapMode = TextWrapMode.Clip;
         }
 
-        const s =
-            TEXT_BASE_SIZE *
-            (n.props.fontSize ?? DEFAULT_FONT_SIZE) *
-            context.comp.scaling[1];
-        o.setScalingLocal([s, s, s]);
+        // const s =
+        //     TEXT_BASE_SIZE *
+        //     (n.props.fontSize ?? DEFAULT_FONT_SIZE) *
+        //     context.comp.scaling[1];
+        // o.setScalingLocal([s, s, s]);
 
-        const t =
-            o.getComponent(TextComponent) ??
-            o.addComponent(TextComponent, {
+        let t = o.getComponent(TextComponent);
+        if (!t) {
+            t = o.addComponent(TextComponent, {
+                text: n.props.text,
                 alignment,
                 effect: TextEffect.Outline,
                 verticalAlignment: VerticalAlignment.Top,
                 wrapMode: textWrapMode,
+                //text: 'Hello World',
+                material: n.props.material ?? context.comp.textMaterial,
             });
+        }
+        if (textWrapMode == TextWrapMode.Soft) {
+            // console.log(n.node.getWidth(), n.node.getHeight());
+            // const a = n.node.getWidth();
+            // console.log(t.getBoundingBox());
+        }
+        if (t.text !== n.props.text) {
+            // if (n.props?.text) {
+            //     t.text = n.props.text;
+            // }
+        }
         t.material = n.props.material ?? context.comp.textMaterial;
-        t.wrapWidth = (n.node.getComputedWidth() * context.comp.scaling[0]) / s;
-        if (t.text !== n.props.text) t.text = n.props.text;
+        const {width, height} = computeTextDimensions(n, context);
+
+        //   const ww = (n.node.getComputedWidth() * context.comp.scaling[0]) / s;
+        // if (!isNaN(ww)) {
+        //     t.wrapWidth = ww;
+        // } else {
+        //     t.wrapWidth = 1;
+        // }
+
+        // if (width > 0) n.node.setWidth(width);
+        const currentWidth = n.node.getWidth();
+        const currentHeight = n.node.getHeight();
+
+        console.log(width, height, currentWidth, currentHeight);
+        if (height > 0) {
+            if (
+                (currentHeight.unit === Unit.Auto ||
+                    currentHeight.unit === Unit.Undefined) &&
+                !currentHeight.value
+            ) {
+                n.node.setHeight(height);
+                n.dirty = true;
+
+                const r = context.root;
+                if (r) {
+                    // Schedule update for the next event cycle
+                    setTimeout(() => {
+                        r.ctx.comp.needsUpdate = true;
+                    }, 0);
+                }
+            }
+        } else {
+            n.node.setHeight(n.props.height);
+        }
+
+        if (width > 0) {
+            if (
+                (currentWidth.unit === Unit.Auto || currentWidth.unit === Unit.Undefined) &&
+                !currentWidth.value
+            ) {
+                n.node.setWidth(width);
+                n.dirty = true;
+                const r = context.root;
+                if (r) {
+                    // Schedule update for the next event cycle
+                    setTimeout(() => {
+                        r.ctx.comp.needsUpdate = true;
+                    }, 0);
+                }
+            }
+        } else {
+            n.node.setWidth(n.props.width);
+        }
     } else {
         /* "mesh" and everything else */
         if (context && context.comp && context.comp.scaling) {
@@ -493,7 +597,7 @@ function applyLayoutToSceneGraph(n: NodeWrapper, context: Context, force?: boole
         }
         m.mesh = n.props.mesh ?? mesh;
     }
-
+    console.log(n.tag, n.node.getComputedWidth(), n.node.getComputedHeight());
     /* For children created earlier  */
     n.children?.forEach((c) => {
         applyLayoutToSceneGraph(c, context, force);
@@ -512,45 +616,96 @@ function applyToYogaNode(
     wrapper: NodeWrapper,
     ctx?: Context
 ) {
+    // console.log(`applyToYogaNode: ${tag}`);
     if (tag === 'text3d') {
         const p = props as TextProps;
         const s = TEXT_BASE_SIZE * (p.fontSize ?? DEFAULT_FONT_SIZE);
 
-        let t = wrapper.object?.getComponent(TextComponent);
+        let t = wrapper.object?.getComponent(TextComponent)!;
         if (!t) {
             /* Apply properties relevant to text component here */
             wrapper.props.text = p.text;
             wrapper.props.textAlign = p.textAlign;
             wrapper.props.textWrap = p.textWrap;
+            //console.log('calling applyLayout_ToSceneGraph');
             applyLayoutToSceneGraph(wrapper, ctx!, true);
             t = wrapper.object?.getComponent(TextComponent)!;
         }
+        const {width, height} = computeTextDimensions(wrapper, wrapper.ctx);
+        const boundingBox = t.getBoundingBox();
+        //let h = props.height ?? s * (boundingBox[3] - boundingBox[1]);
+        //let w = props.width ?? s * (boundingBox[2] - boundingBox[0]);
+        //   console.log('A:', width, height, h, w);
+        // node.setWidth(w);
+        // node.setHeight(h);
 
-        // TODO: Avoid all the computation when width and height is set
-        let h: ValueType = 0;
-        const b = t.getBoundingBoxForText(p.text?.toString() ?? '', tempVec4);
+        // const p = props as TextProps;
+        // const s = TEXT_BASE_SIZE * (p.fontSize ?? DEFAULT_FONT_SIZE);
+        // // if (p.textWrap === 'soft')
+        // //     console.log(
+        // //         'Text3D',
+        // //         p.text?.substring(0, 10),
+        // //         wrapper.props?.text?.substring(0, 10)
+        // //     );
+        // let t = wrapper.object?.getComponent(TextComponent);
+        // if (!t) {
+        //     /* Apply properties relevant to text component here */
+        //     wrapper.props.text = p.text;
+        //     wrapper.props.textAlign = p.textAlign;
+        //     wrapper.props.textWrap = p.textWrap;
+        //     console.log('calling applyLayout_ToSceneGraph');
+        //     applyLayoutToSceneGraph(wrapper, ctx!, true);
+        //     t = wrapper.object?.getComponent(TextComponent)!;
+        // } else {
+        //     console.log('no need to call applyLayout_ToSceneGraph');
+        // }
 
-        if (props.height) {
-            h = props.height;
-        } else {
-            const font = (t.material as any).getFont() as Font;
-            if (font) {
-                h = font.capHeight * s;
-            } else {
-                h = s * (b[3] - b[1]);
-            }
-        }
+        // const b = t.getBoundingBox();
+        // // TODO: Avoid all the computation when width and height is set
+        // let h;
+        // let w;
+        // if (p.textWrap && p.textWrap == 'none') {
+        //     h = props.height ?? s * (b[3] - b[1]);
+        //     if (p.textAlign === 'left' || p.textAlign === 'right') {
+        //         w = props.width ?? s * (b[2] - b[0]);
+        //     } else {
+        //         w = props.width;
+        //     }
+        //     //     console.log(
+        //     //         `Text: ${p.text?.substring(0, 10)}`,
+        //     //         `BB Height: ${s * (b[3] - b[1])}`,
+        //     //         `Computed Height:${wrapper.node.getComputedHeight()}`,
+        //     //         `Height:${wrapper.node.getHeight().value}`
+        //     //         // `WrapWidth: ${t.wrapWidth}`,
+        //     //         // `Height: ${h}`
+        //     //     );
+        // } else {
+        //     w = props.width;
+        //     h = wrapper.node.getHeight().value; //(b[3] - b[1]) * s * (wrapper.ctx.comp.scaling[0] ?? 1); //props.height;
+        //     console.log(
+        //         'applyToYogaNode: ',
+        //         p.text?.substring(0, 10),
+        //         h,
+        //         `\nprops:${props.height}, ${props.width}`,
+        //         `\nwrapWidth:${t.wrapWidth}`,
+        //         `\nb:${b[0]},${b[1]},${b[2]},${b[3]}`,
+        //         // wrapper.ctx.comp.scaling[1],
+        //         // node.getWidth(),
+        //         `\ngetHeight: ${wrapper.node.getHeight().value}`
+        //     );
+        // }
+        // // when alighment is left or right, the width is the width of the text
+        // // when alignment is center, the width is the width of the container
 
-        // when alighment is left or right, the width is the width of the text
-        // when alignment is center, the width is the width of the container
-        let w;
-        if (p.textAlign === 'left' || p.textAlign === 'right') {
-            w = props.width ?? s * (b[2] - b[0]);
-        } else {
-            w = props.width;
-        }
-        node.setHeight(h);
-        node.setWidth(w);
+        // // if (p.textAlign === 'left' || p.textAlign === 'right') {
+        // //     w = props.width ?? s * (b[2] - b[0]);
+        // // } else {
+
+        // //}
+        // // node.setHeight(h);
+        // // node.setWidth(w);
+        // node.setWidth(props.width ?? w);
+        // node.setHeight(height);
     } else {
         if (ctx) {
             applyLayoutToSceneGraph(wrapper, ctx, true);
@@ -684,7 +839,6 @@ const HostConfig: HostConfig<
         ctx.addNodeWrapper(w);
 
         applyToYogaNode(tag, node, props, w, ctx);
-
         return w;
     },
     appendInitialChild(parent: NodeWrapper, child?: NodeWrapper) {
@@ -1027,12 +1181,13 @@ export abstract class ReactUiBase extends Component implements ReactComp {
             this.engine.onResize.add(this._onViewportResize);
         }
         this.renderer = await initializeRenderer();
-
         this.renderer.render(this.render(), this);
     }
 
     update(dt: number | undefined = undefined) {
-        if (this.needsUpdate) this.updateLayout();
+        if (this.needsUpdate) {
+            this.updateLayout();
+        }
     }
 
     callbacks: Record<string, any> = {};
@@ -1064,28 +1219,28 @@ export abstract class ReactUiBase extends Component implements ReactComp {
             const collision = colliderObject.getComponent(CollisionComponent)!;
             target.onClick.add(
                 (_, c, e) => {
-                    const [x, y] = this.getCursorPosition(c);
+                    const [x, y] = this.getCursorPosition(c as Cursor);
                     this.onClick({x, y, e: e!});
                 },
                 {id: 'onClick'}
             );
             target.onMove.add(
                 (_, c, e) => {
-                    const [x, y] = this.getCursorPosition(c);
+                    const [x, y] = this.getCursorPosition(c as Cursor);
                     this.onMove({x, y, e});
                 },
                 {id: 'onMove'}
             );
             target.onUp.add(
                 (_, c, e) => {
-                    const [x, y] = this.getCursorPosition(c);
+                    const [x, y] = this.getCursorPosition(c as Cursor);
                     this.onUp({x, y, e: e!});
                 },
                 {id: 'onUp'}
             );
             target.onDown.add(
                 (_, c, e) => {
-                    const [x, y] = this.getCursorPosition(c);
+                    const [x, y] = this.getCursorPosition(c as Cursor);
                     this.onDown({x, y, e: e!});
                 },
                 {id: 'onDown'}
@@ -1269,6 +1424,12 @@ export abstract class ReactUiBase extends Component implements ReactComp {
     abstract render(): ReactNode;
 }
 let yogaInitializationPromise: Promise<void> | null = null;
+
+type yogaRenderer = {
+    rootContainer: Reconciler.OpaqueRoot;
+    unmountRoot(): void;
+    render(element: ReactNode, reactComp: ReactComp, callback?: () => void): void;
+};
 
 export async function initializeRenderer() {
     if (!Y) {
