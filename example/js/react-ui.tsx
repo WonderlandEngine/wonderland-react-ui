@@ -144,7 +144,7 @@ const App = (props: {comp: ReactUi}) => {
                         gap={20}
                     >
                         <Text color="#000" textAlign="left" fontSize={18} textWrap="soft">
-                            {text}
+                            {`A:${text}`}
                         </Text>
                         <Panel
                             width="100%"
@@ -189,18 +189,16 @@ const App = (props: {comp: ReactUi}) => {
                             textAlign="center"
                             fontSize={24}
                             textWrap="soft"
-                        >
-                            {text}
-                        </Text>
+                            text={`B:${text}`}
+                        ></Text>
                         <Text
-                            width="40%"
+                            width={250}
                             color="#FF0"
-                            textAlign="left"
+                            textAlign="center"
                             fontSize={24}
-                            textWrap="hard"
-                        >
-                            {text}
-                        </Text>
+                            textWrap="soft"
+                            text={`C:${text}`}
+                        ></Text>
                     </Row>
                 </Column>
                 {/* </Panel> */}
