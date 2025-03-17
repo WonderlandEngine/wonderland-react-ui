@@ -20,10 +20,11 @@ import {mat4, vec3} from 'gl-matrix';
 import {ReactNode} from 'react';
 
 import Reconciler, {HostConfig} from 'react-reconciler';
-import type {
+import {
     Yoga,
     Config,
     Node as YogaNode,
+    MeasureMode,
     /* We want to defer initializing the web assembly until
      * the renderer is initialized. The only way we found was
      * to import the files directly */
@@ -307,6 +308,7 @@ function setPositionRight(o: Object3D, n: NodeWrapper, s: number[]) {
     ]);
 }
 
+const tempBBVec4 = new Float32Array(4);
 function computeTextDimensions(
     n: NodeWrapper,
     context: Context
@@ -319,29 +321,29 @@ function computeTextDimensions(
     o.setScalingLocal([s, s, s]);
 
     const ww = (n.node.getComputedWidth() * context.comp.scaling[0]) / s;
-    console.log(
-        'D:',
-        ww,
-        n.node.getComputedWidth(),
-        n.node.getWidth().value,
-        n.props.width
-    );
+    // console.log(
+    //     'D:',
+    //     ww,
+    //     n.node.getComputedWidth(),
+    //     n.node.getWidth().value,
+    //     n.props.width
+    // );
     if (!isNaN(ww)) {
         t.wrapWidth = ww;
-        const boundingBox = t.getBoundingBox();
-        const h = (s * (boundingBox[3] - boundingBox[1])) / context.comp.scaling[1];
-        const w = (s * (boundingBox[2] - boundingBox[0])) / context.comp.scaling[0];
+        t.getBoundingBoxForText(n.props.text, tempBBVec4);
+        const h = (s * (tempBBVec4[3] - tempBBVec4[1])) / context.comp.scaling[1];
+        const w = (s * (tempBBVec4[2] - tempBBVec4[0])) / context.comp.scaling[0];
         return {width: w, height: h};
     }
-    if (n.props.width != undefined || n.props.height != undefined) {
-        return {width: n.props.width ?? 0, height: n.props.height ?? 0};
-    }
+    // if (n.props.width != undefined || n.props.height != undefined) {
+    //     return {width: n.props.width ?? 0, height: n.props.height ?? 0};
+    // }
     return {width: 0, height: 0};
 }
 
 function applyLayoutToSceneGraph(n: NodeWrapper, context: Context, force?: boolean) {
     debug('applyLayoutToSceneGraph');
-    console.log(`applyLayoutToSceneGraph: ${n.tag}`);
+
     if (!force && !n.dirty && !n.node.hasNewLayout()) return;
     n.node.markLayoutSeen();
 
@@ -361,7 +363,6 @@ function applyLayoutToSceneGraph(n: NodeWrapper, context: Context, force?: boole
     o.resetScaling();
 
     if (n.tag === 'text3d') {
-        console.log('==', n.props.text.substring(0, 20));
         const align = n.props.textAlign;
         let alignment = Alignment.Left;
         if (align === 'center') {
@@ -394,64 +395,77 @@ function applyLayoutToSceneGraph(n: NodeWrapper, context: Context, force?: boole
                 material: n.props.material ?? context.comp.textMaterial,
             });
         }
+        const s =
+            TEXT_BASE_SIZE *
+            (n.props.fontSize ?? DEFAULT_FONT_SIZE) *
+            context.comp.scaling[1];
+        o.setScalingLocal([s, s, s]);
 
         t.material = n.props.material ?? context.comp.textMaterial;
-        const {width, height} = computeTextDimensions(n, context);
+        const ww = (n.node.getComputedWidth() * context.comp.scaling[0]) / s;
 
-        const currentWidth = n.node.getWidth();
-        const currentHeight = n.node.getHeight();
-        const computedWidth = n.node.getComputedWidth();
-        const computedHeight = n.node.getComputedHeight();
-        console.log(
-            'w,h:',
-            width,
-            height,
-            currentWidth,
-            currentHeight,
-            computedWidth,
-            computedHeight
-        );
-        if (height > 0) {
-            if (
-                (currentHeight.unit === Unit.Auto ||
-                    currentHeight.unit === Unit.Undefined) &&
-                !currentHeight.value
-            ) {
-                n.node.setHeight(height);
-                n.dirty = true;
-
-                const r = context.root;
-                if (r) {
-                    // Schedule update for the next event cycle
-                    setTimeout(() => {
-                        console.log('needsUpdate height', r.ctx.comp.needsUpdate);
-                        r.ctx.comp.needsUpdate = true;
-                    }, 0);
-                }
-            }
-        } else {
-            n.node.setHeight(n.props.height);
+        if (!isNaN(ww)) {
+            t.wrapWidth = ww;
+            //t.getBoundingBoxForText(n.props.text, tempBBVec4);
+            // const h = (s * (tempBBVec4[3] - tempBBVec4[1])) / context.comp.scaling[1];
+            // const w = (s * (tempBBVec4[2] - tempBBVec4[0])) / context.comp.scaling[0];
+            // return {width: w, height: h};
         }
+        //const {width, height} = computeTextDimensions(n, context);
 
-        if (width > 0) {
-            if (
-                (currentWidth.unit === Unit.Auto || currentWidth.unit === Unit.Undefined) &&
-                !currentWidth.value
-            ) {
-                n.node.setWidth(width);
-                n.dirty = true;
-                const r = context.root;
-                if (r) {
-                    // Schedule update for the next event cycle
-                    setTimeout(() => {
-                        console.log('needsUpdate width', r.ctx.comp.needsUpdate);
-                        r.ctx.comp.needsUpdate = true;
-                    }, 0);
-                }
-            }
-        } else {
-            n.node.setWidth(n.props.width);
-        }
+        // const currentWidth = n.node.getWidth();
+        // const currentHeight = n.node.getHeight();
+        // const computedWidth = n.node.getComputedWidth();
+        // const computedHeight = n.node.getComputedHeight();
+        // console.log(
+        //     'w,h:',
+        //     width,
+        //     height,
+        //     currentWidth,
+        //     currentHeight,
+        //     computedWidth,
+        //     computedHeight
+        // );
+        // if (height > 0) {
+        //     if (
+        //         (currentHeight.unit === Unit.Auto ||
+        //             currentHeight.unit === Unit.Undefined) &&
+        //         !currentHeight.value
+        //     ) {
+        //         n.node.setHeight(height);
+        //         n.dirty = true;
+
+        //         const r = context.root;
+        //         if (r) {
+        //             // Schedule update for the next event cycle
+        //             setTimeout(() => {
+        //                 // console.log('needsUpdate height', r.ctx.comp.needsUpdate);
+        //                 r.ctx.comp.needsUpdate = true;
+        //             }, 0);
+        //         }
+        //     }
+        // } else {
+        //     n.node.setHeight(n.props.height);
+        // }
+
+        // if (width > 0) {
+        //     if (
+        //         (currentWidth.unit === Unit.Auto || currentWidth.unit === Unit.Undefined) &&
+        //         !currentWidth.value
+        //     ) {
+        //         n.node.setWidth(width);
+        //         n.dirty = true;
+        //         const r = context.root;
+        //         if (r) {
+        //             // Schedule update for the next event cycle
+        //             setTimeout(() => {
+        //                 r.ctx.comp.needsUpdate = true;
+        //             }, 0);
+        //         }
+        //     }
+        // } else {
+        //     n.node.setWidth(n.props.width);
+        // }
     } else {
         /* "mesh" and everything else */
         if (context && context.comp && context.comp.scaling) {
@@ -584,7 +598,7 @@ function applyLayoutToSceneGraph(n: NodeWrapper, context: Context, force?: boole
         }
         m.mesh = n.props.mesh ?? mesh;
     }
-    console.log(n.tag, n.node.getComputedWidth(), n.node.getComputedHeight());
+    // console.log(n.tag, n.node.getComputedWidth(), n.node.getComputedHeight());
     /* For children created earlier  */
     n.children?.forEach((c) => {
         applyLayoutToSceneGraph(c, context, force);
@@ -603,10 +617,9 @@ function applyToYogaNode(
     wrapper: NodeWrapper,
     ctx?: Context
 ) {
-    // console.log(`applyToYogaNode: ${tag}`);
     if (tag === 'text3d') {
         const p = props as TextProps;
-        const s = TEXT_BASE_SIZE * (p.fontSize ?? DEFAULT_FONT_SIZE);
+        // const s = TEXT_BASE_SIZE * (p.fontSize ?? DEFAULT_FONT_SIZE);
 
         let t = wrapper.object?.getComponent(TextComponent)!;
         if (!t) {
@@ -618,13 +631,16 @@ function applyToYogaNode(
             applyLayoutToSceneGraph(wrapper, ctx!, true);
             t = wrapper.object?.getComponent(TextComponent)!;
         }
-        const {width, height} = computeTextDimensions(wrapper, wrapper.ctx);
-        if (width != undefined && width > 0) {
-            node.setWidth(width);
+        if (t.text !== p.text) {
+            t.text = p.text;
         }
-        if (height != undefined && height > 0) {
-            node.setHeight(height);
-        }
+        //const {width, height} = computeTextDimensions(wrapper, wrapper.ctx);
+        //if (width != undefined && width > 0) {
+        // node.setWidth(width);
+        // }
+        // if (height != undefined && height > 0) {
+        //  node.setHeight(height);
+        //}
         //let h = props.height ?? s * (boundingBox[3] - boundingBox[1]);
         //let w = props.width ?? s * (boundingBox[2] - boundingBox[0]);
         //   console.log('A:', width, height, h, w);
@@ -698,6 +714,8 @@ function applyToYogaNode(
         // // node.setWidth(w);
         // node.setWidth(props.width ?? w);
         // node.setHeight(height);
+        node.setWidth(props.width);
+        node.setHeight(props.height);
     } else {
         if (ctx) {
             applyLayoutToSceneGraph(wrapper, ctx, true);
@@ -829,6 +847,88 @@ const HostConfig: HostConfig<
         const node = Y!.Node.create(ctx.config);
         const w = new NodeWrapper(ctx, node, tag);
         ctx.addNodeWrapper(w);
+
+        if (tag === 'text3d') {
+            node.setMeasureFunc(
+                (
+                    width: number,
+                    widthMode: MeasureMode,
+                    height: number,
+                    heightMode: MeasureMode
+                ): {
+                    width: number;
+                    height: number;
+                } => {
+                    // console.log(
+                    //     'measureFunc',
+                    //     width,
+                    //     widthMode,
+
+                    //     height,
+                    //     heightMode
+                    // );
+                    const t = w.object?.getComponent(TextComponent);
+                    if (t) {
+                        const s =
+                            TEXT_BASE_SIZE *
+                            (w.props.fontSize ?? DEFAULT_FONT_SIZE) *
+                            ctx.comp.scaling[1];
+
+                        const ww = (width * ctx.comp.scaling[0]) / s;
+                        t.wrapWidth = ww;
+                        const bb = t.getBoundingBox();
+                        const bbWidth = ((bb[2] - bb[0]) * s) / ctx.comp.scaling[0];
+                        let bbHeight = ((bb[3] - bb[1]) * s) / ctx.comp.scaling[1];
+                        const font = (t.material as any).getFont() as Font;
+
+                        if (font) {
+                            let h = 0;
+                            h = (font.capHeight * s) / ctx.comp.scaling[1];
+                            // if the text is a single line,
+                            // we need to make sure the height is constant
+                            // because the bounding box is often a bit bigger a bit extra is added
+                            if (
+                                h * 1.75 > bbHeight ||
+                                t.wrapMode === TextWrapMode.None ||
+                                t.wrapMode === TextWrapMode.Clip
+                            ) {
+                                bbHeight = h;
+                            }
+                        }
+
+                        let calulatedWidth = 0;
+                        if (widthMode === MeasureMode.Undefined) {
+                            calulatedWidth = bbWidth;
+                            //node.setWidthAuto();
+                        } else if (widthMode === MeasureMode.Exactly) {
+                            //node.setWidth(width);
+                            calulatedWidth = width;
+                        } else if (widthMode === MeasureMode.AtMost) {
+                            calulatedWidth = Math.min(bbWidth, width);
+                            //node.setWidth(width);
+                        }
+
+                        let calulatedHeight = 0;
+                        if (heightMode === MeasureMode.Undefined) {
+                            calulatedHeight = bbHeight;
+                            //node.setHeightAuto();
+                        } else if (heightMode === MeasureMode.Exactly) {
+                            calulatedHeight = height;
+                            //node.setHeight(height);
+                        } else if (heightMode === MeasureMode.AtMost) {
+                            calulatedHeight = Math.min(bbHeight, height);
+                            //node.setHeight(height);
+                        }
+
+                        node.setHeight(calulatedHeight);
+                        node.setWidth(calulatedWidth);
+                        return {width: calulatedWidth, height: calulatedHeight};
+                    } else {
+                        return {width: width, height: height};
+                    }
+                }
+            );
+        }
 
         applyToYogaNode(tag, node, props, w, ctx);
         return w;
