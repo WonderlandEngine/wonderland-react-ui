@@ -57,16 +57,20 @@ export interface PanelProps extends YogaNodeProps {
     borderColor?: Color;
     borderSize?: number;
 }
+declare global {
+    namespace JSX {
+        interface IntrinsicElements {
+            container: React.PropsWithChildren<YogaNodeProps> &
+                React.RefAttributes<Object3D>;
+        }
+    }
+}
 
 const tempColor = new Float32Array(4);
 
 export const Container = forwardRef<Object3D, React.PropsWithChildren<YogaNodeProps>>(
     (props, ref) => {
-        return (
-            <container {...props} ref={ref}>
-                {props.children}
-            </container>
-        );
+        return React.createElement('container', {...props, ref: ref}, props.children);
     }
 );
 Container.displayName = 'Container';
@@ -84,15 +88,16 @@ export const Panel = forwardRef<Object3D, React.PropsWithChildren<PanelProps>>(
             (bmat as unknown as FlatMaterial).setColor(
                 parseColor(props.borderColor ?? 'fff', tempColor)
             );
-        return (
-            <roundedRectangle
-                {...props}
-                material={props.material ?? mat}
-                borderMaterial={props.borderMaterial ?? bmat}
-                ref={ref}
-            >
-                {props.children}
-            </roundedRectangle>
+
+        return React.createElement(
+            'roundedRectangle',
+            {
+                ...props,
+                material: props.material ?? mat,
+                borderMaterial: props.borderMaterial ?? bmat,
+                ref: ref,
+            },
+            props.children
         );
     }
 );
@@ -111,10 +116,10 @@ export const Panel9Slice = forwardRef<
     const context = useContext(MaterialContext);
     const mat = useMemo(() => context.panelMaterialTextured?.clone(), []);
     if (mat && props.texture) (mat as unknown as FlatMaterial).flatTexture = props.texture;
-    return (
-        <nineSlice {...props} material={props.material ?? mat} ref={ref}>
-            {props.children}
-        </nineSlice>
+    return React.createElement(
+        'nineSlice',
+        {...props, material: props.material ?? mat, ref: ref},
+        props.children
     );
 });
 Panel9Slice.displayName = 'Panel9Slice';
@@ -141,11 +146,7 @@ Image.displayName = 'Image';
 
 export const Plane = forwardRef<Object3D, React.PropsWithChildren<MeshProps>>(
     (props, ref) => {
-        return (
-            <mesh {...props} ref={ref}>
-                {props.children}
-            </mesh>
-        );
+        return React.createElement('mesh', {...props, ref: ref}, props.children);
     }
 );
 Plane.displayName = 'Plane';
@@ -194,14 +195,12 @@ export const Text = forwardRef<
             )
         );
     }
-    return (
-        <text3d
-            {...props}
-            text={props.children?.toString() ?? props.text}
-            material={mat}
-            ref={ref}
-        />
-    );
+    return React.createElement('text3d', {
+        ...props,
+        material: mat,
+        text: props.children?.toString() ?? props.text,
+        ref: ref,
+    });
 });
 Text.displayName = 'Text';
 
