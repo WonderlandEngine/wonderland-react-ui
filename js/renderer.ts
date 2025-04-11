@@ -627,6 +627,7 @@ function applyToYogaNode(
             wrapper.props.text = p.text;
             wrapper.props.textAlign = p.textAlign;
             wrapper.props.textWrap = p.textWrap;
+            wrapper.props.material = p.material;
             //console.log('calling applyLayout_ToSceneGraph');
             applyLayoutToSceneGraph(wrapper, ctx!, true);
             t = wrapper.object?.getComponent(TextComponent)!;
