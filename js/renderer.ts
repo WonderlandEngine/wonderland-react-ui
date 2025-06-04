@@ -57,7 +57,7 @@ import {
 } from 'yoga-layout/load';
 
 import {roundedRectangle, roundedRectangleOutline} from './rounded-rectangle-mesh.js';
-import {Cursor, CursorTarget, EventTypes, FingerCursor} from '@wonderlandengine/components';
+import {Cursor, CursorTarget, EventTypes} from '@wonderlandengine/components';
 import {nineSlice} from './nine-slice.js';
 
 export type ValueType = number | 'auto' | `${number}%`;
@@ -634,6 +634,7 @@ function applyToYogaNode(
         }
         if (t.text !== p.text) {
             t.text = p.text;
+            node.markDirty(); // trigger recalculating the layout.
         }
         //const {width, height} = computeTextDimensions(wrapper, wrapper.ctx);
         //if (width != undefined && width > 0) {
@@ -884,12 +885,12 @@ const HostConfig: HostConfig<
 
                         if (font) {
                             let h = 0;
-                            h = (font.capHeight * s) / ctx.comp.scaling[1];
+                            h = (font.emHeight * s) / ctx.comp.scaling[1];
                             // if the text is a single line,
                             // we need to make sure the height is constant
                             // because the bounding box is often a bit bigger a bit extra is added
                             if (
-                                h * 1.75 > bbHeight ||
+                                h > bbHeight ||
                                 t.wrapMode === TextWrapMode.None ||
                                 t.wrapMode === TextWrapMode.Clip
                             ) {
