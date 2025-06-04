@@ -1,6 +1,4 @@
-export type Color = string | Float32Array | number;
-
-function hexToFloat32Array(hex: string, out?: Float32Array): Float32Array {
+export function hexToFloat32Array(hex: string, out?: Float32Array): Float32Array {
     // Check if the first character is '#' and remove it if present
     if (hex[0] === '#') {
         hex = hex.slice(1);

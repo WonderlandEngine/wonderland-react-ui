@@ -39,13 +39,6 @@ const App = (props: {comp: ReactUi}) => {
         'This is a 9-slice. It is a texture that can be stretched and scaled without losing quality. It is used for UI elements like panels and buttons.'
     );
 
-    // useEffect(() => {
-    //     const interval = setInterval(() => {
-    //         setText('DASDAS');
-    //     }, 3000);
-    //     return () => clearInterval(interval);
-    // }, []);
-
     const theme = {
         colors: {
             background: comp.panelSecondary,
@@ -64,144 +57,92 @@ const App = (props: {comp: ReactUi}) => {
     return (
         <MaterialContext.Provider value={props.comp}>
             <ThemeContext.Provider value={theme}>
-                {/* <Panel
+                <Panel
                     material={props.comp.panelMaterial}
                     rounding={100}
                     resolution={10}
                     borderSize={2}
                     width={'80%'}
-                > */}
-                <Column padding="8%" width="100%" rowGap={20} height="100%">
-                    {/* <ProgressBar
+                >
+                    <Column padding="8%" width="100%" rowGap={20} height="100%">
+                        <ProgressBar
                             bgColor={props.comp.panelSecondaryHovered}
                             fgColor={props.comp.panelSecondary}
                             value={list.length / 10}
                             height={50}
                             rounding={10}
                             width="100%"
-                        />*/}
-                    {/* <Button
-                        onClick={addListElement}
-                        backgroundColor={props.comp.panelSecondary}
-                        hovered={{
-                            backgroundColor: props.comp.panelSecondaryHovered,
-                            borderSize: 1,
-                        }}
-                        active={{
-                            backgroundColor: props.comp.panelSecondaryActive,
-                        }}
-                        padding={20}
-                    >
-                        <Text fontSize={24}>Add Item</Text>
-                    </Button> */}
-                    {/* {list.map((label, i) => (
-                        <Row
-                            key={i}
-                            width="100%"
-                            height={40}
-                            columnGap={20}
-                            justifyContent={Justify.SpaceBetween}
+                        />
+                        <Button
+                            onClick={addListElement}
+                            backgroundColor={props.comp.panelSecondary}
+                            hovered={{
+                                backgroundColor: props.comp.panelSecondaryHovered,
+                                borderSize: 1,
+                            }}
+                            active={{
+                                backgroundColor: props.comp.panelSecondaryActive,
+                            }}
+                            padding={20}
                         >
-                            <Text fontSize={20}>{label}</Text>
-                            <Button
-                                width={100}
-                                height="100%"
-                                rounding={10}
-                                onClick={(e) => removeListElement(i)}
-                                backgroundColor={props.comp.panelSecondary}
-                                hovered={{
-                                    backgroundColor: props.comp.panelSecondaryHovered,
-                                }}
-                                active={{
-                                    backgroundColor: props.comp.panelSecondaryActive,
-                                }}
-                                justifyContent={Justify.Center}
+                            <Text fontSize={24}>Add Item</Text>
+                        </Button>
+                        {list.map((label, i) => (
+                            <Row
+                                key={i}
+                                width="100%"
+                                height={40}
+                                columnGap={20}
+                                justifyContent={Justify.SpaceBetween}
                             >
-                                <Text textAlign="center" fontSize={16}>
-                                    Remove
-                                </Text>
-                            </Button>
-                        </Row>
-                    ))} */}
-                    {/* <Image
+                                <Text fontSize={20}>{label}</Text>
+                                <Button
+                                    width={100}
+                                    height="100%"
+                                    rounding={10}
+                                    onClick={(e) => removeListElement(i)}
+                                    backgroundColor={props.comp.panelSecondary}
+                                    hovered={{
+                                        backgroundColor: props.comp.panelSecondaryHovered,
+                                    }}
+                                    active={{
+                                        backgroundColor: props.comp.panelSecondaryActive,
+                                    }}
+                                    justifyContent={Justify.Center}
+                                >
+                                    <Text textAlign="center" fontSize={16}>
+                                        Remove
+                                    </Text>
+                                </Button>
+                            </Row>
+                        ))}
+                        <Image
                             src="Orange-grumpy-cat-.jpg"
                             width="100%"
                             height={300}
                             borderSize={2}
-                        /> */}
-                    <Panel9Slice
-                        flexGrow={1}
-                        texture={props.comp.nineSliceTexture}
-                        width={500}
-                        //height="50%"
-                        borderSize={30}
-                        padding={30}
-                        borderTextureSize={0.4}
-                        justifyContent={Justify.FlexStart}
-                        // alignItems={Align.Stretch}
-                        // alignContent={Align.Stretch}
-                        flex={FlexDirection.Column}
-                        gap={20}
-                    >
-                        <Text color="#000" textAlign="left" fontSize={18} textWrap="soft">
-                            {`A:${text}`}
-                        </Text>
-                        <Panel
-                            width="100%"
-                            height={50}
-                            backgroundColor="#F00"
-                            borderSize={2}
-                            rounding={2}
-                        ></Panel>
-                    </Panel9Slice>
-
-                    <Row
-                        //texture={props.comp.nineSliceTexture}
-                        width={1000}
-                        height={500}
-                        //borderSize={30}
-                        padding={30}
-                        gap={20}
-                        //borderTextureSize={0.4}
-                        //justifyContent={Justify.FlexStart}
-                        // alignItems={Align.Stretch}
-                        // alignContent={Align.Stretch}
-                        //flex={FlexDirection.Row}
-                    >
-                        {/* <Text color="#F00" textAlign="left" fontSize={24} textWrap="soft">
-                            HALLO
-                        </Text> */}
-                        {/* <Panel
-                            backgroundColor="#f00"
-                            rounding={2}
-                            width="25%"
-                            height={100}
-                        ></Panel>
-                        <Panel
-                            backgroundColor="#f00"
-                            rounding={2}
-                            width="25%"
-                            height={100}
-                        ></Panel> */}
-                        <Text
-                            width={250}
-                            color="#F0F"
-                            textAlign="center"
-                            fontSize={24}
-                            textWrap="soft"
-                            text={`B:${text}`}
-                        ></Text>
-                        <Text
-                            width={250}
-                            color="#FF0"
-                            textAlign="center"
-                            fontSize={24}
-                            textWrap="soft"
-                            text={`C:${text}`}
-                        ></Text>
-                    </Row>
-                </Column>
-                {/* </Panel> */}
+                        />
+                        <Panel9Slice
+                            flexGrow={1}
+                            texture={props.comp.nineSliceTexture}
+                            borderSize={30}
+                            padding={30}
+                            borderTextureSize={0.4}
+                            justifyContent={Justify.FlexStart}
+                            flex={FlexDirection.Column}
+                            gap={20}
+                        >
+                            <Text
+                                color="#000"
+                                textAlign="center"
+                                fontSize={18}
+                                textWrap="soft"
+                            >
+                                {text}
+                            </Text>
+                        </Panel9Slice>
+                    </Column>
+                </Panel>
             </ThemeContext.Provider>
         </MaterialContext.Provider>
     );

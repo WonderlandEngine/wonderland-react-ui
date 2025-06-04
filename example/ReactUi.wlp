@@ -10,7 +10,7 @@
                         "speed": 0.05
                     }
                 },
-                null
+                {}
             ],
             "translation": [
                 -3.2591099,
@@ -440,21 +440,9 @@
         }
     },
     "shaders": {
-        "1": {
-            "link": {
-                "name": "DistanceFieldVector Textured.frag",
-                "file": "default"
-            }
-        },
         "2": {
             "link": {
                 "name": "Flat.frag",
-                "file": "default"
-            }
-        },
-        "3": {
-            "link": {
-                "name": "Flat Textured.frag",
                 "file": "default"
             }
         },
@@ -470,33 +458,15 @@
                 "file": "default"
             }
         },
-        "6": {
-            "link": {
-                "name": "Phong Textured.frag",
-                "file": "default"
-            }
-        },
         "28": {
             "link": {
                 "name": "Dynamic.vert",
                 "file": "default"
             }
         },
-        "29": {
-            "link": {
-                "name": "Particle Textured.frag",
-                "file": "default"
-            }
-        },
         "30": {
             "link": {
                 "name": "Skinning.vert",
-                "file": "default"
-            }
-        },
-        "31": {
-            "link": {
-                "name": "Static.frag",
                 "file": "default"
             }
         },
@@ -568,7 +538,7 @@
         },
         "57": {
             "link": {
-                "name": "lib\\Compatibility.frag",
+                "name": "lib\\Compatibility.glsl",
                 "file": "default"
             }
         },
@@ -580,25 +550,25 @@
         },
         "59": {
             "link": {
-                "name": "lib\\GI.frag",
+                "name": "lib\\GI.glsl",
                 "file": "default"
             }
         },
         "60": {
             "link": {
-                "name": "lib\\Inputs.frag",
+                "name": "lib\\Inputs.glsl",
                 "file": "default"
             }
         },
         "61": {
             "link": {
-                "name": "lib\\Lights.frag",
+                "name": "lib\\Lights.glsl",
                 "file": "default"
             }
         },
         "62": {
             "link": {
-                "name": "lib\\Materials.frag",
+                "name": "lib\\Materials.glsl",
                 "file": "default"
             }
         },
@@ -616,7 +586,7 @@
         },
         "65": {
             "link": {
-                "name": "lib\\Packing.frag",
+                "name": "lib\\Packing.glsl",
                 "file": "default"
             }
         },
@@ -634,25 +604,25 @@
         },
         "68": {
             "link": {
-                "name": "lib\\Slug.frag",
+                "name": "lib\\Slug.frag.glsl",
                 "file": "default"
             }
         },
         "69": {
             "link": {
-                "name": "lib\\Slug.vert",
+                "name": "lib\\Slug.vert.glsl",
                 "file": "default"
             }
         },
         "70": {
             "link": {
-                "name": "lib\\Surface.frag",
+                "name": "lib\\Surface.glsl",
                 "file": "default"
             }
         },
         "71": {
             "link": {
-                "name": "lib\\Textures.frag",
+                "name": "lib\\Textures.glsl",
                 "file": "default"
             }
         },
@@ -673,6 +643,66 @@
                 "name": "lib\\SkyProcedural.glsl",
                 "file": "default"
             }
+        },
+        "92": {
+            "link": {
+                "name": "lib\\Compatibility.glsl",
+                "file": "default"
+            }
+        },
+        "93": {
+            "link": {
+                "name": "lib\\GI.glsl",
+                "file": "default"
+            }
+        },
+        "94": {
+            "link": {
+                "name": "lib\\Inputs.glsl",
+                "file": "default"
+            }
+        },
+        "95": {
+            "link": {
+                "name": "lib\\Lights.glsl",
+                "file": "default"
+            }
+        },
+        "96": {
+            "link": {
+                "name": "lib\\Materials.glsl",
+                "file": "default"
+            }
+        },
+        "97": {
+            "link": {
+                "name": "lib\\Packing.glsl",
+                "file": "default"
+            }
+        },
+        "98": {
+            "link": {
+                "name": "lib\\Slug.frag.glsl",
+                "file": "default"
+            }
+        },
+        "99": {
+            "link": {
+                "name": "lib\\Slug.vert.glsl",
+                "file": "default"
+            }
+        },
+        "100": {
+            "link": {
+                "name": "lib\\Surface.glsl",
+                "file": "default"
+            }
+        },
+        "101": {
+            "link": {
+                "name": "lib\\Textures.glsl",
+                "file": "default"
+            }
         }
     },
     "settings": {
@@ -680,8 +710,8 @@
             "name": "ReactUi",
             "version": [
                 1,
-                3,
-                3
+                4,
+                2
             ]
         },
         "xr": {
@@ -718,6 +748,10 @@
         "rendering": {
             "hdr": {
                 "exposure": 1.5
+            },
+            "environment": {
+                "bakingMode": "sky",
+                "material": null
             }
         },
         "runtime": {
@@ -916,5 +950,6 @@
             "importerName": ""
         }
     },
-    "morphTargets": {}
+    "morphTargets": {},
+    "particleEffects": {}
 }

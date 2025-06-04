@@ -54,15 +54,15 @@ import {
     PositionType,
     Wrap,
     loadYoga,
-    Unit,
 } from 'yoga-layout/load';
 
 import {roundedRectangle, roundedRectangleOutline} from './rounded-rectangle-mesh.js';
 import {Cursor, CursorTarget, EventTypes, FingerCursor} from '@wonderlandengine/components';
 import {nineSlice} from './nine-slice.js';
 
-type ValueType = number | 'auto' | `${number}%`;
-type ValueTypeNoAuto = number | `${number}%`;
+export type ValueType = number | 'auto' | `${number}%`;
+export type ValueTypeNoAuto = number | `${number}%`;
+export type Color = string | Float32Array | number;
 
 const Z_INC = 0.001;
 const TEXT_BASE_SIZE = 12;
