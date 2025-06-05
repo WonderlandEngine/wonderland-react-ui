@@ -11,10 +11,16 @@
 **/.editor/
 
 # Local editor js bundle
-**/cache/js/
+**/cache/**/js/
 
 # Local UI state
 **/imgui.ini
 
 # Blender backup files
 *.blend1
+
+*.tgz
+
+**/.vscode/
+**/.autosave/
+**/.github/

@@ -1,20 +1,23 @@
 {
-  "name": "wonderland-react-ui-example",
-  "version": "1.0.0",
-  "description": "Example to demo Wonderland React UI.",
-  "main": "js/index.js",
-  "type": "module",
-  "module": "js/index.js",
-  "scripts": {},
-  "keywords": [
-    "wonderland-engine"
-  ],
-  "dependencies": {
-    "@types/react-reconciler": "^0.28.8",
-    "@wonderlandengine/api": "^1.2.2",
-    "@wonderlandengine/components": "^1.1.5",
-    "@wonderlandengine/prettier-config": "^1.0.0",
-    "@wonderlandengine/react-ui": "file:..",
-    "gl-matrix": "^3.4.3"
-  }
+    "name": "wonderland-react-ui-example",
+    "version": "1.0.0",
+    "description": "Example to demo Wonderland React UI.",
+    "main": "js/index.js",
+    "type": "module",
+    "module": "js/index.js",
+    "scripts": {},
+    "keywords": [
+        "wonderland-engine"
+    ],
+    "dependencies": {
+        "@types/react-reconciler": "0.28.0",
+        "@wonderlandengine/api": ">=1.4.0 <1.5.0",
+        "@wonderlandengine/components": "^1.1.5",
+        "@wonderlandengine/prettier-config": "^1.0.0",
+        "@wonderlandengine/react-ui": "file:..",
+        "gl-matrix": "^3.4.3"
+    },
+    "overrides": {
+        "@wonderlandengine/api": "$@wonderlandengine/api"
+    }
 }

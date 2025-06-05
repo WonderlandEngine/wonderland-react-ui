@@ -1,0 +1,1 @@
+@types/react-reconciler:0.28.0@wonderlandengine/api:>=1.4.0 <1.5.0@wonderlandengine/components:^1.1.5@wonderlandengine/prettier-config:^1.0.0@wonderlandengine/react-ui:file:..gl-matrix:^3.4.3

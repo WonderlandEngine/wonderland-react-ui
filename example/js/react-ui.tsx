@@ -1,7 +1,7 @@
 import {Texture} from '@wonderlandengine/api';
 import {property} from '@wonderlandengine/api/decorators.js';
 
-import {Align, Justify, ReactUiBase} from '@wonderlandengine/react-ui';
+import {Align, FlexDirection, Justify, ReactUiBase} from '@wonderlandengine/react-ui';
 import {
     Column,
     Panel,
@@ -14,7 +14,7 @@ import {
     Image,
     Panel9Slice,
 } from '@wonderlandengine/react-ui/components';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 
 const App = (props: {comp: ReactUi}) => {
     const comp = props.comp;
@@ -34,6 +34,10 @@ const App = (props: {comp: ReactUi}) => {
         setList(newList);
         console.log('Remove');
     };
+
+    const [text, setText] = useState(
+        'This is a 9-slice. It is a texture that can be stretched and scaled without losing quality. It is used for UI elements like panels and buttons.'
+    );
 
     const theme = {
         colors: {
@@ -60,7 +64,7 @@ const App = (props: {comp: ReactUi}) => {
                     borderSize={2}
                     width={'80%'}
                 >
-                    <Column padding="8%" width="100%" rowGap={20}>
+                    <Column padding="8%" width="100%" rowGap={20} height="100%">
                         <ProgressBar
                             bgColor={props.comp.panelSecondaryHovered}
                             fgColor={props.comp.panelSecondary}
@@ -119,15 +123,22 @@ const App = (props: {comp: ReactUi}) => {
                             borderSize={2}
                         />
                         <Panel9Slice
+                            flexGrow={1}
                             texture={props.comp.nineSliceTexture}
-                            width="100%"
-                            height={150}
                             borderSize={30}
                             padding={30}
                             borderTextureSize={0.4}
+                            justifyContent={Justify.FlexStart}
+                            flex={FlexDirection.Column}
+                            gap={20}
                         >
-                            <Text color="#000" fontSize={16}>
-                                This is a 9-slice.
+                            <Text
+                                color="#000"
+                                textAlign="center"
+                                fontSize={18}
+                                textWrap="soft"
+                            >
+                                {text}
                             </Text>
                         </Panel9Slice>
                     </Column>
