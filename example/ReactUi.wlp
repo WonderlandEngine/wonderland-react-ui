@@ -530,177 +530,15 @@
                 "file": "default"
             }
         },
-        "56": {
-            "link": {
-                "name": "lib\\Color.glsl",
-                "file": "default"
-            }
-        },
-        "57": {
-            "link": {
-                "name": "lib\\Compatibility.glsl",
-                "file": "default"
-            }
-        },
-        "58": {
-            "link": {
-                "name": "lib\\CoordinateSystems.glsl",
-                "file": "default"
-            }
-        },
-        "59": {
-            "link": {
-                "name": "lib\\GI.glsl",
-                "file": "default"
-            }
-        },
-        "60": {
-            "link": {
-                "name": "lib\\Inputs.glsl",
-                "file": "default"
-            }
-        },
-        "61": {
-            "link": {
-                "name": "lib\\Lights.glsl",
-                "file": "default"
-            }
-        },
-        "62": {
-            "link": {
-                "name": "lib\\Materials.glsl",
-                "file": "default"
-            }
-        },
-        "63": {
-            "link": {
-                "name": "lib\\Math.glsl",
-                "file": "default"
-            }
-        },
-        "64": {
-            "link": {
-                "name": "lib\\MorphTargets.glsl",
-                "file": "default"
-            }
-        },
-        "65": {
-            "link": {
-                "name": "lib\\Packing.glsl",
-                "file": "default"
-            }
-        },
-        "66": {
-            "link": {
-                "name": "lib\\PhysicalBSDF.glsl",
-                "file": "default"
-            }
-        },
-        "67": {
-            "link": {
-                "name": "lib\\Quaternion.glsl",
-                "file": "default"
-            }
-        },
-        "68": {
-            "link": {
-                "name": "lib\\Slug.frag.glsl",
-                "file": "default"
-            }
-        },
-        "69": {
-            "link": {
-                "name": "lib\\Slug.vert.glsl",
-                "file": "default"
-            }
-        },
-        "70": {
-            "link": {
-                "name": "lib\\Surface.glsl",
-                "file": "default"
-            }
-        },
-        "71": {
-            "link": {
-                "name": "lib\\Textures.glsl",
-                "file": "default"
-            }
-        },
-        "73": {
-            "link": {
-                "name": "lib\\Uniforms.glsl",
-                "file": "default"
-            }
-        },
         "90": {
             "link": {
                 "name": "AtmosphericSky.frag",
                 "file": "default"
             }
         },
-        "91": {
+        "102": {
             "link": {
-                "name": "lib\\SkyProcedural.glsl",
-                "file": "default"
-            }
-        },
-        "92": {
-            "link": {
-                "name": "lib\\Compatibility.glsl",
-                "file": "default"
-            }
-        },
-        "93": {
-            "link": {
-                "name": "lib\\GI.glsl",
-                "file": "default"
-            }
-        },
-        "94": {
-            "link": {
-                "name": "lib\\Inputs.glsl",
-                "file": "default"
-            }
-        },
-        "95": {
-            "link": {
-                "name": "lib\\Lights.glsl",
-                "file": "default"
-            }
-        },
-        "96": {
-            "link": {
-                "name": "lib\\Materials.glsl",
-                "file": "default"
-            }
-        },
-        "97": {
-            "link": {
-                "name": "lib\\Packing.glsl",
-                "file": "default"
-            }
-        },
-        "98": {
-            "link": {
-                "name": "lib\\Slug.frag.glsl",
-                "file": "default"
-            }
-        },
-        "99": {
-            "link": {
-                "name": "lib\\Slug.vert.glsl",
-                "file": "default"
-            }
-        },
-        "100": {
-            "link": {
-                "name": "lib\\Surface.glsl",
-                "file": "default"
-            }
-        },
-        "101": {
-            "link": {
-                "name": "lib\\Textures.glsl",
+                "name": "Color.frag",
                 "file": "default"
             }
         }
@@ -710,8 +548,9 @@
             "name": "ReactUi",
             "version": [
                 1,
-                4,
-                6
+                5,
+                0,
+                1
             ]
         },
         "xr": {
@@ -730,7 +569,7 @@
             "application": {
                 "output": "ReactUi-bundle.js",
                 "bundling": "esbuild",
-                "esbuildFlags": "--format=esm --define:process.env.NODE_ENV=process.env.NODE_ENV",
+                "esbuildFlags": "--format=esm",
                 "entryPoint": "js/index.js"
             },
             "libraryPaths": [
@@ -755,7 +594,8 @@
             }
         },
         "runtime": {
-            "visualizeColliders": false
+            "visualizeColliders": false,
+            "loadUncompressedImagesAsBitmap": false
         }
     },
     "animations": {},
@@ -916,6 +756,18 @@
                 "name": "AtmosphericSky",
                 "file": "default"
             }
+        },
+        "93": {
+            "link": {
+                "name": "Color",
+                "file": "default"
+            }
+        },
+        "94": {
+            "link": {
+                "name": "VertexColor",
+                "file": "default"
+            }
         }
     },
     "textures": {
@@ -951,5 +803,117 @@
         }
     },
     "morphTargets": {},
-    "particleEffects": {}
+    "particleEffects": {},
+    "shaderChunks": {
+        "1": {
+            "link": {
+                "name": "lib\\Color.glsl",
+                "file": "default"
+            }
+        },
+        "2": {
+            "link": {
+                "name": "lib\\Compatibility.glsl",
+                "file": "default"
+            }
+        },
+        "3": {
+            "link": {
+                "name": "lib\\CoordinateSystems.glsl",
+                "file": "default"
+            }
+        },
+        "4": {
+            "link": {
+                "name": "lib\\GI.glsl",
+                "file": "default"
+            }
+        },
+        "5": {
+            "link": {
+                "name": "lib\\Inputs.glsl",
+                "file": "default"
+            }
+        },
+        "6": {
+            "link": {
+                "name": "lib\\Lights.glsl",
+                "file": "default"
+            }
+        },
+        "7": {
+            "link": {
+                "name": "lib\\Materials.glsl",
+                "file": "default"
+            }
+        },
+        "8": {
+            "link": {
+                "name": "lib\\Math.glsl",
+                "file": "default"
+            }
+        },
+        "9": {
+            "link": {
+                "name": "lib\\MorphTargets.glsl",
+                "file": "default"
+            }
+        },
+        "10": {
+            "link": {
+                "name": "lib\\Packing.glsl",
+                "file": "default"
+            }
+        },
+        "11": {
+            "link": {
+                "name": "lib\\PhysicalBSDF.glsl",
+                "file": "default"
+            }
+        },
+        "12": {
+            "link": {
+                "name": "lib\\Quaternion.glsl",
+                "file": "default"
+            }
+        },
+        "13": {
+            "link": {
+                "name": "lib\\SkyProcedural.glsl",
+                "file": "default"
+            }
+        },
+        "14": {
+            "link": {
+                "name": "lib\\Slug.frag.glsl",
+                "file": "default"
+            }
+        },
+        "15": {
+            "link": {
+                "name": "lib\\Slug.vert.glsl",
+                "file": "default"
+            }
+        },
+        "16": {
+            "link": {
+                "name": "lib\\Surface.glsl",
+                "file": "default"
+            }
+        },
+        "17": {
+            "link": {
+                "name": "lib\\Textures.glsl",
+                "file": "default"
+            }
+        },
+        "18": {
+            "link": {
+                "name": "lib\\Uniforms.glsl",
+                "file": "default"
+            }
+        }
+    },
+    "probeVolumeScenarios": {},
+    "plugins": {}
 }

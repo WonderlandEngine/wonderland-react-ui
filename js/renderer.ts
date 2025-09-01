@@ -60,19 +60,29 @@ import {roundedRectangle, roundedRectangleOutline} from './rounded-rectangle-mes
 import {Cursor, CursorTarget, EventTypes} from '@wonderlandengine/components';
 import {nineSlice} from './nine-slice.js';
 import {
+    computeTextScaleAndWrap,
+    computeDimensionsFromBoundingBox,
+    TEXT_BASE_SIZE,
+    DEFAULT_FONT_SIZE,
+} from './renderer/text-helpers.js';
+import {
     Z_INC,
-    propsEqual,
     setPositionCenter,
     setPositionLeft,
     setPositionRight,
-} from './renderer-helpers.js';
+} from './renderer/position-helpers.js';
+import {
+    buildRoundedRectangleMeshProps,
+    buildNineSliceProps,
+} from './renderer/mesh-helpers.js';
+import {computeMeshChildTransforms} from './renderer/mesh-transform-helpers.js';
+import {propsEqual} from './renderer/props-helpers.js';
 
 export type ValueType = number | 'auto' | `${number}%`;
 export type ValueTypeNoAuto = number | `${number}%`;
 export type Color = string | Float32Array | number;
 
-const TEXT_BASE_SIZE = 12;
-const DEFAULT_FONT_SIZE = 50;
+// TEXT_BASE_SIZE and DEFAULT_FONT_SIZE are provided by renderer-text-helpers
 
 let Y: Yoga | null = null;
 
@@ -284,17 +294,25 @@ function computeTextDimensions(
     const o = n.object!;
     const t = o.getComponent(TextComponent)!;
 
-    const s =
-        TEXT_BASE_SIZE * (n.props.fontSize ?? DEFAULT_FONT_SIZE) * context.comp.scaling[1];
-    o.setScalingLocal([s, s, s]);
+    const {scale, wrapWidth} = computeTextScaleAndWrap(
+        n.node.getComputedWidth(),
+        n.props.fontSize,
+        context.comp.scaling as [number, number],
+        TEXT_BASE_SIZE,
+        DEFAULT_FONT_SIZE
+    );
 
-    const ww = (n.node.getComputedWidth() * context.comp.scaling[0]) / s;
-    if (!isNaN(ww)) {
-        t.wrapWidth = ww;
+    o.setScalingLocal([scale, scale, scale]);
+
+    if (!isNaN(wrapWidth)) {
+        t.wrapWidth = wrapWidth;
         t.getBoundingBoxForText(n.props.text, tempBBVec4);
-        const h = (s * (tempBBVec4[3] - tempBBVec4[1])) / context.comp.scaling[1];
-        const w = (s * (tempBBVec4[2] - tempBBVec4[0])) / context.comp.scaling[0];
-        return {width: w, height: h};
+        const {width, height} = computeDimensionsFromBoundingBox(
+            tempBBVec4,
+            scale,
+            context.comp.scaling as [number, number]
+        );
+        return {width, height};
     }
     return {width: 0, height: 0};
 }
@@ -393,24 +411,19 @@ function applyLayoutToSceneGraph(n: NodeWrapper, context: Context, force?: boole
             sw = 0;
             sh = 0;
         }
-        const centerX = 0.5 * sw;
-        const centerY = -0.5 * sh;
+        const transforms = computeMeshChildTransforms(sw, sh, n.props.z, n.tag);
 
         const m = child.getComponent('mesh') ?? child.addComponent('mesh', {});
         m.material = n.props.material;
 
         let mesh = m.mesh;
         if (n.tag === 'roundedRectangle') {
-            const p = {
+            const p = buildRoundedRectangleMeshProps(
+                n.props,
                 sw,
                 sh,
-                rounding: (n.props.rounding ?? 30) * context.comp.scaling[0],
-                resolution: n.props.resolution ?? 4,
-                tl: n.props.roundTopLeft ?? true,
-                tr: n.props.roundTopRight ?? true,
-                bl: n.props.roundBottomLeft ?? true,
-                br: n.props.roundBottomRight ?? true,
-            };
+                context.comp.scaling as [number, number]
+            );
             const props = (m as any).roundedRectangleProps ?? {};
             const needsUpdate = !propsEqual(props, p);
 
@@ -459,15 +472,15 @@ function applyLayoutToSceneGraph(n: NodeWrapper, context: Context, force?: boole
                 }
             }
 
-            child.setPositionLocal([centerX, centerY, Z_INC + (n.props.z ?? 0)]);
-            child.resetScaling();
+            child.setPositionLocal(transforms.position);
+            if (transforms.resetScaling) child.resetScaling();
         } else if (n.tag === 'nineSlice') {
-            const p = {
+            const p = buildNineSliceProps(
+                n.props,
                 sw,
                 sh,
-                borderTextureSize: n.props.borderTextureSize ?? 0,
-                borderSize: (n.props.borderSize ?? 0) * context.comp.scaling[0],
-            };
+                context.comp.scaling as [number, number]
+            );
             const props = (m as any).nineSliceProps ?? {};
             const needsUpdate = !propsEqual(props, p);
 
@@ -483,17 +496,12 @@ function applyLayoutToSceneGraph(n: NodeWrapper, context: Context, force?: boole
                 (m as any).nineSliceProps = p;
             }
 
-            child.setPositionLocal([centerX, centerY, Z_INC + (n.props.z ?? 0)]);
-            child.resetScaling();
+            child.setPositionLocal(transforms.position);
+            if (transforms.resetScaling) child.resetScaling();
         } else {
             /* Planes are diameter of 2 */
-            child.setPositionLocal([centerX, centerY, Z_INC + (n.props.z ?? 0)]);
-            child.setScalingLocal([
-                0.5 * sw,
-                0.5 * sh,
-                // if there's a z value set we're not scaling the z value.
-                n.props.z === undefined ? 0.5 * sw : 1,
-            ]);
+            child.setPositionLocal(transforms.position);
+            if (transforms.scaling) child.setScalingLocal(transforms.scaling);
         }
         m.mesh = n.props.mesh ?? mesh;
     }

@@ -1,18 +1,5 @@
 export const Z_INC = 0.001;
 
-export function propsEqual(oldProps: any, newProps: any) {
-    const oldKeys = Object.keys(oldProps || {});
-    const newKeys = Object.keys(newProps || {});
-    if (oldKeys.length !== newKeys.length) return false;
-
-    for (const k of oldKeys) {
-        if (oldProps[k] != newProps[k]) {
-            return false;
-        }
-    }
-    return true;
-}
-
 export function setPositionCenter(o: any, n: any, s: number[]) {
     const w = n.node.getComputedWidth();
     if (isNaN(w)) {

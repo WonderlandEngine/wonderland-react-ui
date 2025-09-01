@@ -1,10 +1,10 @@
 import {describe, it, expect} from 'vitest';
+import {propsEqual} from '../../js/renderer/props-helpers';
 import {
-    propsEqual,
     setPositionCenter,
     setPositionLeft,
     setPositionRight,
-} from '../../js/renderer-helpers';
+} from '../../js/renderer/position-helpers';
 
 // Minimal fake Object3D that records the last setPositionLocal call
 class FakeObject3D {

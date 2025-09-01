@@ -16,8 +16,8 @@
         "watch": "tsc --watch",
         "prepack": "npm run build",
         "test": "npm run build && web-test-runner",
-        "test:unit": "vitest",
-        "test:unit:run": "vitest run",
+        "test:unit": "vitest --run",
+        "test:unit:watch": "vitest",
         "test:ci": "npm run build && vitest run && web-test-runner"
     },
     "files": [
