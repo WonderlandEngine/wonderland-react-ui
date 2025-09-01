@@ -5,5 +5,8 @@ export default defineConfig({
         globals: true,
         environment: 'happy-dom',
         include: ['test/unit/**/*.test.{ts,js}'],
+        coverage: {
+            include: ['js/**/*.ts'],
+        },
     },
 });
