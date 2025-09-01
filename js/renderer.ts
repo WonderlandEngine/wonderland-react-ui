@@ -11,7 +11,6 @@ import {mat4, vec3} from 'gl-matrix';
 import {ReactNode} from 'react';
 import type {ReactComp} from './renderer-types.js';
 
-// Re-export types so other modules that import from './renderer.js' keep working
 export type {
     ValueType,
     ValueTypeNoAuto,
@@ -24,7 +23,6 @@ export type {
     ReactComp,
 } from './renderer-types.js';
 
-/* These are used by props */
 export {
     Align,
     Display,
@@ -35,16 +33,11 @@ export {
     Wrap,
 } from 'yoga-layout/load';
 
-/* These are used by the renderer only */
 import {Direction} from 'yoga-layout/load';
 
 import {Cursor, CursorTarget, EventTypes} from '@wonderlandengine/components';
-
-// TEXT_BASE_SIZE and DEFAULT_FONT_SIZE are provided by renderer-text-helpers
-
 import {NodeWrapper, Context} from './renderer/core.js';
 import {applyLayoutToSceneGraph, applyToYogaNode} from './renderer/layout.js';
-
 const DEBUG_RENDERER = false;
 const DEBUG_EVENTS = false;
 const debug = DEBUG_RENDERER ? console.log : () => {};
@@ -471,4 +464,3 @@ export abstract class ReactUiBase extends Component implements ReactComp {
 
     abstract render(): ReactNode;
 }
-// Reconciler initialization and renderer are provided by './renderer/reconciler-host.js'

@@ -14,10 +14,12 @@ import {Object3D, TextComponent, TextWrapMode, Font, Material} from '@wonderland
 import {applyToYogaNode} from './layout.js';
 import {destroyTreeForNode, NodeWrapper, Context, currentYoga, setYoga} from './core.js';
 import {propsEqual} from './props-helpers.js';
+import {TEXT_BASE_SIZE} from './text-helpers.js';
 
 const DEBUG_RENDERER = false;
 const DEBUG_EVENTS = false;
 const debug = DEBUG_RENDERER ? console.log : () => {};
+const DEFAULT_FONT_SIZE = 50;
 
 const HostConfig: HostConfigType<
     string,
@@ -66,8 +68,9 @@ const HostConfig: HostConfigType<
                     const t = w.object?.getComponent(TextComponent);
                     if (t) {
                         const s =
-                            // TEXT_BASE_SIZE and DEFAULT_FONT_SIZE are read off the material/font
-                            (w.props.fontSize ?? 50) * ctx.comp.scaling[1];
+                            TEXT_BASE_SIZE *
+                            (w.props.fontSize ?? DEFAULT_FONT_SIZE) *
+                            ctx.comp.scaling[1];
 
                         const ww = (width * ctx.comp.scaling[0]) / s;
                         t.wrapWidth = ww;
