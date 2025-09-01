@@ -8,15 +8,16 @@ import React, {
     useState,
 } from 'react';
 
-import {
+import type {
     YogaNodeProps,
-    FlexDirection,
     TextProps,
-    Align,
     MeshProps,
-    PositionType,
+    NineSliceProps,
+    RoundedRectangleProps,
+    ValueType,
     Color,
-} from './renderer.js';
+} from './renderer-types.js';
+import {FlexDirection, Align, PositionType} from './renderer.js';
 
 import {parseColor} from './utils.js';
 

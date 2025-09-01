@@ -1,12 +1,12 @@
 import * as React from 'react';
 import {Object3D} from '@wonderlandengine/api';
-import {
+import type {
     MeshProps,
     NineSliceProps,
     RoundedRectangleProps,
     TextProps,
     YogaNodeProps,
-} from './renderer.ts';
+} from './renderer-types.js';
 
 declare namespace JSX {
     //type PropsWithChildren<P> = P & {children?: React.ReactNode | undefined};
