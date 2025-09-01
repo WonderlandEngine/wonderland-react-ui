@@ -711,7 +711,7 @@
             "version": [
                 1,
                 4,
-                3
+                6
             ]
         },
         "xr": {
@@ -730,7 +730,7 @@
             "application": {
                 "output": "ReactUi-bundle.js",
                 "bundling": "esbuild",
-                "esbuildFlags": "--format=esm",
+                "esbuildFlags": "--format=esm --define:process.env.NODE_ENV=process.env.NODE_ENV",
                 "entryPoint": "js/index.js"
             },
             "libraryPaths": [

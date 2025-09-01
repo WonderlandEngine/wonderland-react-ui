@@ -19,7 +19,7 @@ import {WasdControlsComponent} from '@wonderlandengine/components';
 import {ReactUi} from './react-ui.tsx';
 /* wle:auto-imports:end */
 
-import {loadRuntime} from '@wonderlandengine/api';
+import { loadRuntime } from '@wonderlandengine/api';
 import * as API from '@wonderlandengine/api'; // Deprecated: Backward compatibility.
 
 /* wle:auto-constants:start */
@@ -30,9 +30,12 @@ const Constants = {
     WebXROptionalFeatures: ['local','hand-tracking','hit-test',],
 };
 const RuntimeOptions = {
+    webgl2: true,
+    webgpu: false,
     physx: false,
     loader: false,
     xrFramebufferScaleFactor: 1,
+    loadUncompressedImagesAsBitmap: false,
     xrOfferSession: {
         mode: 'auto',
         features: Constants.WebXRRequiredFeatures,

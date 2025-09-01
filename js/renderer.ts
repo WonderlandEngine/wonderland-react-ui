@@ -19,7 +19,7 @@ import {property} from '@wonderlandengine/api/decorators.js';
 import {mat4, vec3} from 'gl-matrix';
 import {ReactNode} from 'react';
 
-import Reconciler, {HostConfig} from 'react-reconciler';
+import Reconciler, {Fiber, HostConfig} from 'react-reconciler';
 import {
     Yoga,
     Config,
@@ -59,12 +59,18 @@ import {
 import {roundedRectangle, roundedRectangleOutline} from './rounded-rectangle-mesh.js';
 import {Cursor, CursorTarget, EventTypes} from '@wonderlandengine/components';
 import {nineSlice} from './nine-slice.js';
+import {
+    Z_INC,
+    propsEqual,
+    setPositionCenter,
+    setPositionLeft,
+    setPositionRight,
+} from './renderer-helpers.js';
 
 export type ValueType = number | 'auto' | `${number}%`;
 export type ValueTypeNoAuto = number | `${number}%`;
 export type Color = string | Float32Array | number;
 
-const Z_INC = 0.001;
 const TEXT_BASE_SIZE = 12;
 const DEFAULT_FONT_SIZE = 50;
 
@@ -185,7 +191,7 @@ export interface NineSliceProps extends YogaNodeProps {
     borderTextureSize?: number;
 }
 
-function destroyTreeForNode(child: NodeWrapper, ctx: Context) {
+export function destroyTreeForNode(child: NodeWrapper, ctx: Context) {
     const childCount = child.children.length ?? 0;
     for (let c = childCount - 1; c >= 0; --c) {
         destroyTreeForNode(child.children[c], ctx);
@@ -207,18 +213,7 @@ function destroyTreeForNode(child: NodeWrapper, ctx: Context) {
     child.ctx?.removeNodeWrapper(child);
 }
 
-function propsEqual(oldProps: any, newProps: any) {
-    const oldKeys = Object.keys(oldProps as any);
-    const newKeys = Object.keys(newProps as any);
-    if (oldKeys.length !== newKeys.length) return false;
-
-    for (const k of oldKeys) {
-        if (oldProps[k] != newProps[k]) {
-            return false;
-        }
-    }
-    return true;
-}
+// propsEqual is implemented in js/renderer-helpers.ts
 
 class NodeWrapper {
     node: YogaNode;
@@ -279,34 +274,7 @@ class Context {
     }
 }
 
-function setPositionCenter(o: Object3D, n: NodeWrapper, s: number[]) {
-    const w = n.node.getComputedWidth();
-    if (isNaN(w)) {
-        return;
-    }
-    o.setPositionLocal([
-        (n.node.getComputedLeft() + 0.5 * n.node.getComputedWidth()) * s[0],
-        -n.node.getComputedTop() * s[1],
-        Z_INC + (n.props.z ?? 0),
-    ]);
-}
-
-function setPositionLeft(o: Object3D, n: NodeWrapper, s: number[]) {
-    o.setPositionLocal([
-        n.node.getComputedLeft() * s[0],
-        -n.node.getComputedTop() * s[1],
-        Z_INC + (n.props.z ?? 0),
-    ]);
-}
-
-function setPositionRight(o: Object3D, n: NodeWrapper, s: number[]) {
-    // n.node.getComputedRight() was giving 0;
-    o.setPositionLocal([
-        (n.node.getComputedLeft() + n.node.getComputedWidth()) * s[0],
-        -n.node.getComputedTop() * s[1],
-        Z_INC + (n.props.z ?? 0),
-    ]);
-}
+// position setters implemented in js/renderer-helpers.ts
 
 const tempBBVec4 = new Float32Array(4);
 function computeTextDimensions(
@@ -1392,11 +1360,17 @@ export async function initializeRenderer() {
                 parentComponent,
                 reactComp.renderCallback.bind(reactComp)
             );
-            reconcilerInstance.injectIntoDevTools({
+            const result = reconcilerInstance.injectIntoDevTools({
                 bundleType: 0,
                 version: '0.2.1',
                 rendererPackageName: 'wonderlandengine/react-ui',
+                //Reconciler.DevToolsConfig<NodeWrapper, void, any>
+                findFiberByHostInstance(instance: NodeWrapper | void): Fiber | null {
+                    console.log(instance ?? 'no instance');
+                    return null;
+                },
             });
+            console.log('Devtools:', result);
         },
     };
 }
