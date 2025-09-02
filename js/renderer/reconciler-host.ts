@@ -177,13 +177,9 @@ const HostConfig: HostConfigType<
         applyToYogaNode(child.tag, child.node, child.props, child);
 
         const beforeIndex = parent.children.findIndex((childNode) => childNode === before);
-        if (beforeIndex !== -1) {
-            parent.node.insertChild(child.node, beforeIndex);
-            parent.children.splice(beforeIndex, 0, child);
-        } else {
-            parent.node.insertChild(child.node, parent.node.getChildCount());
-            parent.children.push(child);
-        }
+        const insertIndex = beforeIndex !== -1 ? beforeIndex : parent.node.getChildCount();
+        parent.node.insertChild(child.node, insertIndex);
+        parent.children.splice(insertIndex, 0, child);
 
         child.parent = parent;
 
@@ -277,15 +273,6 @@ const HostConfig: HostConfigType<
     preparePortalMount(containerInfo: any) {},
     prepareScopeUpdate(scopeInstance: any, instance: any) {},
 };
-
-// Exported for unit tests to reproduce container insertion behavior
-export function __test_insertInContainerBefore(
-    container: any,
-    child: any,
-    beforeChild: any
-) {
-    return (HostConfig as any).insertInContainerBefore(container, child, beforeChild);
-}
 
 export const reconcilerInstance = Reconciler(HostConfig);
 

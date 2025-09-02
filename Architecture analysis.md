@@ -144,40 +144,43 @@ Below is a structured list (ID, area, severity, summary, proposed direction).
 28. MA-06: Hard-coded reliance on `activeViews[0]`.
     Fix: Allow specifying target `ViewComponent` via property; fallback to first.
 
+29. MA-07: Config of Reconciler is not testable.
+    Fix: Separate all functions into actual separate functions in a separate file. Export per function.
+
 ### API Ergonomics / DX
 
-29. DX-01: Missing guidance for world vs screen differences (pixel scaling semantics, `scalingMode`).
+30. DX-01: Missing guidance for world vs screen differences (pixel scaling semantics, `scalingMode`).
     Fix: Expand README/API docs clarifying coordinate spaces and how `width/height/manualHeight` interact.
 
-30. DX-02: `z` semantic is unclear (relative inside parent? absolute layering?).
+31. DX-02: `z` semantic is unclear (relative inside parent? absolute layering?).
     Fix: Document layering model; maybe rename to `zOffset` or `layerOffset`.
 
-31. DX-03: Event objects are minimal; no `target` wrapper reference is passed, forcing re-hit if needed.
+32. DX-03: Event objects are minimal; no `target` wrapper reference is passed, forcing re-hit if needed.
     Fix: Pass the `NodeWrapper` or a stable `id` to handlers.
 
-32. DX-04: No batching/coalescing strategy for multiple prop changes before layout; user might manually throttle.
+33. DX-04: No batching/coalescing strategy for multiple prop changes before layout; user might manually throttle.
     Fix: Add `requestLayout()` + microtask debounce.
 
 ### Testing Gaps
 
-33. T-01: No tests for pointer event dispatch / hover transitions.
-34. T-02: No tests for scaling modes (`Absolute`, `FixedHeight`, `FixedHeightLimitedWidth`).
-35. T-03: No tests ensuring `destroyTreeForNode` releases meshes/text properly (resource cleanup).
-36. T-04: No test validating percent/auto dimension parsing (if implemented).
-37. T-05: No test covering multi-root or reparent operations (insertBefore ordering with overlapping nodes).
+34. T-01: No tests for pointer event dispatch / hover transitions.
+35. T-02: No tests for scaling modes (`Absolute`, `FixedHeight`, `FixedHeightLimitedWidth`).
+36. T-03: No tests ensuring `destroyTreeForNode` releases meshes/text properly (resource cleanup).
+37. T-04: No test validating percent/auto dimension parsing (if implemented).
+38. T-05: No test covering multi-root or reparent operations (insertBefore ordering with overlapping nodes).
 
 ### Observability
 
-38. O-01: No instrumentation for layout duration or frame cost.
+39. O-01: No instrumentation for layout duration or frame cost.
     Fix: Wrap `calculateLayout` + `applyLayoutToSceneGraph` in optional timing metrics (e.g., performance.now()).
 
-39. O-02: No devtools bridge or host config warnings when unsupported prop encountered.
+40. O-02: No devtools bridge or host config warnings when unsupported prop encountered.
     Fix: Introduce a development-mode validator for props at `prepareUpdate`.
 
 ### Security / Robustness
 
-40. R-01: Lack of defensive guards if React tries to render primitive / unsupported tag (HostConfig should throw early).
-41. R-02: Pointer event handling for world space trusts `c.cursorPos`; missing null/undefined guard.
+41. R-01: Lack of defensive guards if React tries to render primitive / unsupported tag (HostConfig should throw early).
+42. R-02: Pointer event handling for world space trusts `c.cursorPos`; missing null/undefined guard.
 
 ## Prioritized “Top 8” Immediate Fixes
 
