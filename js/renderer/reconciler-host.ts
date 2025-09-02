@@ -177,7 +177,7 @@ const HostConfig: HostConfigType<
         applyToYogaNode(child.tag, child.node, child.props, child);
 
         const beforeIndex = parent.children.findIndex((childNode) => childNode === before);
-        const insertIndex = beforeIndex !== -1 ? beforeIndex : parent.node.getChildCount();
+        const insertIndex = beforeIndex !== -1 ? beforeIndex : parent.children.length;
         parent.node.insertChild(child.node, insertIndex);
         parent.children.splice(insertIndex, 0, child);
 
