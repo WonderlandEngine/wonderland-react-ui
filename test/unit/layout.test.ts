@@ -82,23 +82,25 @@ describe('layout.applyToYogaNode', () => {
 
         // store components keyed by the component identifier passed to addComponent
         const compMap = new Map<any, any>();
-        const sceneObject = {
-            getComponent: (t: any) => compMap.get(t),
-            addComponent: (t: any, opts: any) => {
-                compMap.set(t, fakeTextComp);
-                return fakeTextComp;
-            },
-            setScalingLocal: () => {},
-            setPositionLocal: () => {},
-            resetPositionRotation: () => {},
-            resetScaling: () => {},
-            findByNameDirect: () => [],
-            parent: null,
-            name: '',
-        } as any;
+        function createFakeSceneObject() {
+            return {
+                getComponent: (t: any) => compMap.get(t),
+                addComponent: (t: any, opts: any) => {
+                    compMap.set(t, fakeTextComp);
+                    return fakeTextComp;
+                },
+                setScalingLocal: () => {},
+                setPositionLocal: () => {},
+                resetPositionRotation: () => {},
+                resetScaling: () => {},
+                findByNameDirect: () => [],
+                parent: null,
+                name: '',
+            } as any;
+        }
 
         const fakeComp: any = {
-            engine: {scene: {addObject: () => sceneObject}},
+            engine: {scene: {addObject: () => createFakeSceneObject()}},
             scaling: [1, 1],
             textMaterial: {},
         };

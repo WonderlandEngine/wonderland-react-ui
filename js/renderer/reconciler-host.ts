@@ -98,27 +98,27 @@ const HostConfig: HostConfigType<
                             }
                         }
 
-                        let calulatedWidth = 0;
+                        let calculatedWidth = 0;
                         if (widthMode === MeasureMode.Undefined) {
-                            calulatedWidth = bbWidth;
+                            calculatedWidth = bbWidth;
                         } else if (widthMode === MeasureMode.Exactly) {
-                            calulatedWidth = width;
+                            calculatedWidth = width;
                         } else if (widthMode === MeasureMode.AtMost) {
-                            calulatedWidth = Math.min(bbWidth, width);
+                            calculatedWidth = Math.min(bbWidth, width);
                         }
 
-                        let calulatedHeight = 0;
+                        let calculatedHeight = 0;
                         if (heightMode === MeasureMode.Undefined) {
-                            calulatedHeight = bbHeight;
+                            calculatedHeight = bbHeight;
                         } else if (heightMode === MeasureMode.Exactly) {
-                            calulatedHeight = height;
+                            calculatedHeight = height;
                         } else if (heightMode === MeasureMode.AtMost) {
-                            calulatedHeight = Math.min(bbHeight, height);
+                            calculatedHeight = Math.min(bbHeight, height);
                         }
 
-                        node.setHeight(calulatedHeight);
-                        node.setWidth(calulatedWidth);
-                        return {width: calulatedWidth, height: calulatedHeight};
+                        node.setHeight(calculatedHeight);
+                        node.setWidth(calculatedWidth);
+                        return {width: calculatedWidth, height: calculatedHeight};
                     } else {
                         return {width: width, height: height};
                     }

@@ -7,7 +7,7 @@ export function propsEqual(oldProps: any, newProps: any) {
     if (oldKeys.length !== newKeys.length) return false;
 
     for (const k of oldKeys) {
-        if (oldProps[k] != newProps[k]) {
+        if (oldProps[k] !== newProps[k]) {
             return false;
         }
     }
