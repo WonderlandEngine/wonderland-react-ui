@@ -1,4 +1,5 @@
 import type {Yoga, Config, Node as YogaNode} from 'yoga-layout/load';
+import {loadYoga} from 'yoga-layout/load';
 
 /**
  * Core helpers shared by the renderer.
@@ -15,7 +16,7 @@ import type {Yoga, Config, Node as YogaNode} from 'yoga-layout/load';
  * This is assigned via {@link setYoga} by the loader/initializer before any
  * Contexts are constructed. It is nullable to allow lazy initialization.
  */
-export let currentYoga: Yoga | null = null;
+export let yoga: Yoga | null = null;
 
 /** Set the shared Yoga instance if one is not already present.
  *
@@ -24,13 +25,33 @@ export let currentYoga: Yoga | null = null;
  * this minimal core) to avoid surprising consumers that already rely on the
  * previously-created Config/Nodes.
  *
- * @param y - The Yoga instance to use for new Contexts and Nodes.
+ * @param yogaNew - The Yoga instance to use for new Contexts and Nodes.
  */
-export function setYoga(y: Yoga) {
+export function setYoga(yogaNew: Yoga) {
     // only set if not already set
-    if (!currentYoga) {
-        currentYoga = y;
+    if (!yoga) {
+        yoga = yogaNew;
     }
+}
+
+// Centralized lazy loader for Yoga. This mirrors the previous local
+// initialization logic but keeps it in a single place so other modules
+// don't need to import and call `loadYoga()` themselves.
+let yogaInitializationPromise: Promise<Yoga> | null = null;
+
+/**
+ * Ensure the shared Yoga instance is loaded and set on `yoga`.
+ * Multiple concurrent callers will share the same in-flight promise.
+ */
+export async function ensureYogaLoaded(): Promise<Yoga> {
+    if (yoga) return yoga;
+    if (!yogaInitializationPromise) {
+        yogaInitializationPromise = loadYoga().then((loadedYoga) => {
+            setYoga(loadedYoga as unknown as Yoga);
+            return yoga as Yoga;
+        });
+    }
+    return yogaInitializationPromise;
 }
 
 /**
@@ -110,7 +131,7 @@ export class NodeWrapper {
 /**
  * Context holds renderer-global state for a particular root tree.
  *
- * Each Context creates a Yoga Config (using the shared {@link currentYoga})
+ * Each Context creates a Yoga Config (using the shared {@link yoga})
  * and maintains a registry of NodeWrapper instances created for that tree.
  * The Context is intentionally small: it provides registration helpers and a
  * lightweight tree-printing utility used for debugging.
@@ -126,7 +147,7 @@ export class Context {
 
         // The shared Yoga instance is set by the loader/initializer.
         // We assume it exists when a Context is constructed via initializeRenderer.
-        this.config = currentYoga!.Config.create();
+        this.config = yoga!.Config.create();
         this.config.setUseWebDefaults(false);
         this.config.setPointScaleFactor(1);
     }

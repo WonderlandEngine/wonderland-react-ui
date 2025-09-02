@@ -1,6 +1,6 @@
 import Reconciler, {Fiber, HostConfig as HostConfigType} from 'react-reconciler';
 import type {Yoga, Config, Node as YogaNode} from 'yoga-layout/load';
-import {MeasureMode, loadYoga} from 'yoga-layout/load';
+import {MeasureMode} from 'yoga-layout/load';
 import type {ReactNode} from 'react';
 import type {
     YogaNodeProps,
@@ -12,7 +12,14 @@ import type {
 } from '../renderer-types.js';
 import {Object3D, TextComponent, TextWrapMode, Font, Material} from '@wonderlandengine/api';
 import {applyToYogaNode} from './layout.js';
-import {destroyTreeForNode, NodeWrapper, Context, currentYoga, setYoga} from './core.js';
+import {
+    destroyTreeForNode,
+    NodeWrapper,
+    Context,
+    yoga,
+    setYoga,
+    ensureYogaLoaded,
+} from './core.js';
 import {propsEqual} from './props-helpers.js';
 import {TEXT_BASE_SIZE} from './text-helpers.js';
 
@@ -50,7 +57,7 @@ const HostConfig: HostConfigType<
     },
     createInstance(tag: string, props: YogaNodeProps, ctx: Context) {
         debug('createInstance', tag, props, ctx);
-        const node = currentYoga!.Node.create(ctx.config);
+        const node = yoga!.Node.create(ctx.config);
         const w = new NodeWrapper(ctx, node, tag);
         ctx.addNodeWrapper(w);
 
@@ -282,19 +289,9 @@ export function __test_insertInContainerBefore(
 
 export const reconcilerInstance = Reconciler(HostConfig);
 
-let yogaInitializationPromise: Promise<void> | null = null;
-
 export async function initializeRenderer() {
-    if (!currentYoga) {
-        if (!yogaInitializationPromise) {
-            yogaInitializationPromise = loadYoga().then((loadedYoga) => {
-                // set the shared yoga instance
-                setYoga(loadedYoga as unknown as Yoga);
-            });
-        }
-
-        await yogaInitializationPromise;
-    }
+    // Ensure yoga is loaded, or wait until loaded
+    await ensureYogaLoaded();
     return {
         rootContainer: null,
         unmountRoot() {

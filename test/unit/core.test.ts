@@ -1,6 +1,6 @@
 import {describe, it, expect, beforeAll, vi} from 'vitest';
 import {
-    currentYoga,
+    yoga,
     setYoga,
     Context,
     NodeWrapper,
@@ -31,11 +31,11 @@ describe('core module', () => {
         // first set happened in beforeAll; calling setYoga again should be a no-op
         const other: any = {Config: {create: () => ({})}};
         setYoga(other);
-        // currentYoga should still be the fakeYoga we provided
-        expect(currentYoga).toBe(fakeYoga);
+        // yoga should still be the fakeYoga we provided
+        expect(yoga).toBe(fakeYoga);
     });
 
-    it('Context constructor uses currentYoga.Config.create and config methods', () => {
+    it('Context constructor uses yoga.Config.create and config methods', () => {
         const ctx = new Context({});
         // create should have been called to produce the config
         expect(createConfig).toHaveBeenCalled();

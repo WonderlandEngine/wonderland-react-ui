@@ -292,5 +292,3 @@ private _updateCollider() {
 ## Summary
 
 The core architectural pattern is solid (React → Yoga → Scene Graph), but a handful of correctness issues (notably scaling, collider staleness) and performance opportunities (full-tree invalidations, unoptimized hit testing) stand out. Addressing the top eight issues will improve reliability and pave the way for scaling to larger UI trees. Subsequent refactors can modularize concerns and enhance developer ergonomics.
-
-Let me know if you’d like a follow-up PR-style patch set for Phase 1, benchmarking scaffolding, or a UML-ish diagram of the reconciler interactions.
