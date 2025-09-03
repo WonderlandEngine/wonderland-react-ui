@@ -12,7 +12,8 @@
         "@wonderlandengine/api": "^1.1.0"
     },
     "scripts": {
-        "bootstrap": "npm install --workspaces"
+        "bootstrap": "npm install --workspaces",
+        "build": "npm run build -w @wonderlandengine/react-ui"
     },
     "devDependencies": {
         "@wonderlandengine/prettier-config": "^1.0.0",
