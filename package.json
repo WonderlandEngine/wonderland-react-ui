@@ -1,0 +1,24 @@
+{
+    "name": "@wonderlandengine/react-ui",
+    "private": true,
+    "description": "React-based UI in Wonderland Engine.",
+    "author": "Wonderland GmbH",
+    "version": "0.0.0",
+    "workspaces": [
+        "packages/*",
+        "examples/*"
+    ],
+    "peerDependencies": {
+        "@wonderlandengine/api": "^1.1.0"
+    },
+    "scripts": {
+        "bootstrap": "npm install --workspaces"
+    },
+    "devDependencies": {
+        "@wonderlandengine/prettier-config": "^1.0.0",
+        "esbuild": "^0.25.5",
+        "prettier": "^3.6.2",
+        "typescript": "^5.8.3"
+    },
+    "prettier": "@wonderlandengine/prettier-config"
+}

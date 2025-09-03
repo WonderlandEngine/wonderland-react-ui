@@ -190,7 +190,7 @@ static onRegister?: (engine: WonderlandEngine) => void;
 #### Performance Considerations
 
 **Do not create Vectors/Quaternions in Update Loop**
- For performance reasons, do not create quaternions (quats) or vectors (vec3s) inside the update loop. Instead, reuse constants defined in the global file scope or class scope.
+ For performance reasons, do not create quaternions (quats) or vectors (vec3s) inside the update loop. Instead, reuse constants defined in the global file scope or class scope to avoid JavaScript garbage.
  Prefer adding them to the global or file scope, when they are only used in 1 method.
  Only make an exception when the quat or vec is used in multiple places, and then create it on construction or definition.
  This ensures efficient memory usage and better performance.

@@ -7,6 +7,8 @@ This file gives compact, actionable guidance to help an AI code agent become pro
 -   Purpose: a React custom renderer that draws UI into the Wonderland Engine runtime (not the DOM).
 -   Key idea: React components map to an internal scene graph / mesh/materials pipeline handled by a custom reconciler.
 -   Why structure matters: rendering and layout are decoupled — Yoga is used for layout calculations while renderer code creates Wonderland Engine meshes/materials and updates transforms.
+-   Main technologies: TypeScript, React, Wonderland Engine, Yoga Layout, Vitest, Web Test Runner.
+-   Follow the [Wonderland Engine guidelines](wonderland-instructions.md) conventions for Wonderland Engine development.
 
 2. Where to look (recommended entry points)
 
@@ -31,7 +33,7 @@ Notes: many tests import compiled output, so `npm run build` is required before 
 4. Project-specific conventions and gotchas
 
 -   Renderer is not DOM-based: do not look for DOM APIs. Instead, changes usually create/update Wonderland Engine materials, meshes and transforms.
--   Colors are numeric ARGB/RGBA values (e.g. `0xff00ffff`), used across components and materials.
+-   Colors are numeric RGBA values (e.g. `0xff00ffff`), used across components and materials.
 -   Size props accept numbers or percent-strings (see `js/components.tsx` and tests in `test/unit`).
 -   Yoga layout is used — layout code lives in `renderer/layout.ts` and tests assert Yoga behavior in `test/unit/layout.test.ts`.
 -   Public package shape: `package.json` uses `type: "module"` and exports `./dist/index.js` and `./dist/components.js` — when adding public files update `exports` and `files`.
@@ -45,7 +47,7 @@ Notes: many tests import compiled output, so `npm run build` is required before 
 
 6. Tests & fast verification
 
--   Unit tests: `test/unit/*.test.ts` — prefer editing/adding tests alongside the module under `js/` or `renderer/`.
+-   Unit tests: `test/unit/*.test.ts` — Each test file should have a corresponding .ts file in the /js folder and it's subfolders.
 -   Vitest config: `vitest.config.ts` uses `happy-dom`, and includes `test/unit/**/*.test.{ts,js}`.
 
 7. Small examples to copy/paste (real code locations)
@@ -71,5 +73,3 @@ Notes: many tests import compiled output, so `npm run build` is required before 
 -   `js/renderer/*` — reconciliation, layout and mesh logic.
 -   `test/unit/` — how features are exercised in tests.
 -   `example/` — how to run and what the runtime expects (Editor project and `deploy/` artifacts).
-
-If anything here is unclear or you want me to expand a specific section (for example, a mapping of component prop -> renderer function or a short checklist for adding a new component), tell me which area to expand and I'll iterate.

@@ -1,20 +1,22 @@
 {
-    "name": "wonderland-react-ui-example",
+    "name": "wonderland-react-ui-worldspace-example",
     "version": "1.0.0",
     "description": "Example to demo Wonderland React UI.",
     "main": "js/index.js",
     "type": "module",
     "module": "js/index.js",
-    "scripts": {},
+    "scripts": {
+        "bootstrap": "npm install --workspaces=false --install-links"
+    },
     "keywords": [
         "wonderland-engine"
     ],
     "dependencies": {
         "@types/react-reconciler": "0.28.0",
-        "@wonderlandengine/api": ">=1.5.0-rc.1 <1.6.0",
+        "@wonderlandengine/api": "^1.1.0",
         "@wonderlandengine/components": "^1.1.5",
         "@wonderlandengine/prettier-config": "^1.0.0",
-        "@wonderlandengine/react-ui": "file:..",
+        "@wonderlandengine/react-ui": "*",
         "gl-matrix": "^3.4.3"
     },
     "overrides": {

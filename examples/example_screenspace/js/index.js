@@ -30,12 +30,9 @@ const Constants = {
     WebXROptionalFeatures: ['local','hand-tracking','hit-test',],
 };
 const RuntimeOptions = {
-    webgl2: true,
-    webgpu: false,
     physx: false,
     loader: false,
     xrFramebufferScaleFactor: 1,
-    loadUncompressedImagesAsBitmap: false,
     xrOfferSession: {
         mode: 'auto',
         features: Constants.WebXRRequiredFeatures,
