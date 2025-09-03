@@ -3,38 +3,38 @@ on: [push]
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+    contents: read
+    pages: write
+    id-token: write
 
 jobs:
-  package:
-    runs-on: ubuntu-latest
-    container:
-      image: wonderlandengine/editor:latest
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-    - name: Package
-      run: |
-        mkdir public
-        # Build @wonderlandengine/react-ui package
-        npm ci
-        npm run build
-        # Build example project
-        /usr/local/bin/entrypoint.sh WonderlandEditor --windowless --package --project example/ReactUi.wlp --output ./public/
-      env:
-          WLE_CREDENTIALS: ${{ secrets.WLE_CREDENTIALS }}
-    - name: Gzip
-      run: find ./public/ -type f ! -name '*.gz' -exec gzip -k "{}" \;
-    - name: Upload artifact
-      uses: actions/upload-pages-artifact@v1
-      with:
-        path: ./public
-  deploy-pages:
-    needs: package
-    runs-on: ubuntu-latest
-    if: ${{ format('refs/heads/{0}', github.event.repository.default_branch) == github.ref }}
-    steps:
-      - name: Deploy to GitHub Pages
-        uses: actions/deploy-pages@v2
+    package:
+        runs-on: ubuntu-latest
+        container:
+            image: wonderlandengine/editor:latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+            - name: Package
+              run: |
+                  mkdir public
+                  # Build @wonderlandengine/react-ui package
+                  npm ci
+                  npm run build
+                  # Build example project
+                  /usr/local/bin/entrypoint.sh WonderlandEditor --windowless --package --project example/ReactUi.wlp --output ./public/
+              env:
+                  WLE_CREDENTIALS: ${{ secrets.WLE_CREDENTIALS }}
+            - name: Gzip
+              run: find ./public/ -type f ! -name '*.gz' -exec gzip -k "{}" \;
+            - name: Upload artifact
+              uses: actions/upload-pages-artifact@v4
+              with:
+                  path: ./public
+    deploy-pages:
+        needs: package
+        runs-on: ubuntu-latest
+        if: ${{ format('refs/heads/{0}', github.event.repository.default_branch) == github.ref }}
+        steps:
+            - name: Deploy to GitHub Pages
+              uses: actions/deploy-pages@v4
