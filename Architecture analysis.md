@@ -184,7 +184,7 @@ Below is a structured list (ID, area, severity, summary, proposed direction).
 
 ## Prioritized “Top 8” Immediate Fixes
 
-1. C-01 scaling bug (likely user-visible error).
+1. ~~C-01 scaling bug (likely user-visible error).~~
 2. C-02 collider not updating after layout changes (interaction correctness).
 3. C-03 resize listener leak.
 4. C-05 unsafe `props` reference reuse (diff integrity).

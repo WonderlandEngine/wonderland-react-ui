@@ -219,7 +219,6 @@ export abstract class ReactUiBase extends Component implements ReactComp {
 
             /* Calculate size of the UI */
             this._onViewportResize();
-            this.engine.onResize.add(this._onViewportResize);
         }
         this.renderer = await initializeRenderer();
         this.renderer.render(this.render(), this);
@@ -299,6 +298,7 @@ export abstract class ReactUiBase extends Component implements ReactComp {
                 0.025,
             ]);
         } else {
+            this.engine.onResize.add(this._onViewportResize);
             for (const [k, v] of Object.entries(this.callbacks)) {
                 this.engine.canvas.addEventListener(k, v);
             }
@@ -317,6 +317,7 @@ export abstract class ReactUiBase extends Component implements ReactComp {
             target.onUp.remove('onUp');
             target.onDown.remove('onDown');
         } else {
+            this.engine.onResize.remove(this._onViewportResize);
             if (!this._viewComponent) return;
             const canvas = this.engine.canvas!;
 

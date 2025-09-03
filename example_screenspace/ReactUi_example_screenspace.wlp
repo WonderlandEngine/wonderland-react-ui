@@ -38,9 +38,6 @@
                         "mesh": "7",
                         "material": "20"
                     }
-                },
-                {
-                    "type": "collision"
                 }
             ],
             "translation": [
@@ -182,11 +179,11 @@
                     "type": "react-ui",
                     "react-ui": {
                         "textMaterial": "80",
-                        "space": "world",
+                        "space": "screen",
                         "panelMaterial": "26",
                         "panelMaterialSecondary": "22",
                         "panelMaterialSecondaryHovered": "77",
-                        "width": 600,
+                        "width": 450,
                         "height": 900,
                         "borderMaterial": "22",
                         "panelSecondaryHovered": [
@@ -208,7 +205,10 @@
                             1.0
                         ],
                         "panelMaterialTextured": "7",
-                        "nineSliceTexture": "88"
+                        "nineSliceTexture": "88",
+                        "manualHeight": 1080.0,
+                        "manualWidth": 1080.0,
+                        "scalingMode": "FixedHeight"
                     }
                 }
             ]
@@ -548,7 +548,7 @@
     },
     "settings": {
         "project": {
-            "name": "ReactUi",
+            "name": "ReactUi_example_screenspace",
             "version": [
                 1,
                 5,
@@ -570,7 +570,7 @@
         },
         "scripting": {
             "application": {
-                "output": "ReactUi-bundle.js",
+                "output": "ReactUi_example_screenspace-bundle.js",
                 "bundling": "esbuild",
                 "esbuildFlags": "--format=esm",
                 "entryPoint": "js/index.js"
