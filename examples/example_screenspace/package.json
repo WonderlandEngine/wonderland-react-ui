@@ -16,7 +16,7 @@
         "@wonderlandengine/api": "^1.1.0",
         "@wonderlandengine/components": "^1.1.5",
         "@wonderlandengine/prettier-config": "^1.0.0",
-        "@wonderlandengine/react-ui": "*",
+        "@wonderlandengine/react-ui": "file:../../packages/react-ui",
         "gl-matrix": "^3.4.3"
     },
     "overrides": {
