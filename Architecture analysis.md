@@ -48,17 +48,17 @@ Below is a structured list (ID, area, severity, summary, proposed direction).
    Box collider is sized only in `onActivate`. Any runtime layout or size change won’t adjust collision extents, breaking hit tests.
    Fix: Recompute collider size when `needsUpdate` resolves (after `updateLayout`) or subscribe to a layout-done hook.
 
-3. C-03: Missing removal of resize listener
+3. C-03: ~~Missing removal of resize listener
    `_onViewportResize` is added (`engine.onResize.add`) in `start` for Screen space but never removed in `onDeactivate`/`onDestroy`, causing leak if component cycles or multiple instances mount/unmount.
-   Fix: Track the bound callback and remove it in `onDestroy`.
+   Fix: Track the bound callback and remove it in `onDestroy`.~~
 
 4. C-04: Potential stale `dpr` logic & double scaling
    You set `width = _dpiAdjust(canvas.clientWidth)` where `_dpiAdjust` multiplies by `pixelSizeAdjustment * dpr`. If pixelSizeAdjustment ≠ 1 you end up embedding scaling into the logical width, then also use `scaling = [1/width, …]`. This may distort absolute pixel mapping (hard to reason about).
    Fix: Separate “device pixels” vs “layout units”: keep raw canvas size, store scaling factors separately.
 
-5. C-05: `applyToYogaNode` assigns `wrapper.props = props` (reference)
+5. C-05: ~~`applyToYogaNode` assigns `wrapper.props = props` (reference)
    After this, subsequent comparisons rely on the new reference having different property values than itself—works only because comparisons are made before assignment in that call, but mutating `props` elsewhere (accidentally) would break diff logic.
-   Fix: Either deep/ shallow clone into an internal object or assign after cloning: `wrapper.props = {...props}`.
+   Fix: Either deep/ shallow clone into an internal object or assign after cloning: `wrapper.props = {...props}`.~~
 
 6. C-06: Percent / 'auto' values may be passed directly to Yoga setters
    Types allow `ValueType = number | 'auto' | '${number}%'`, but `applyToYogaNode` calls `node.setWidth(props.width)` etc. Yoga expects numbers or UNDEFINED flags; passing strings may silently fail or coerce wrong.

@@ -57,16 +57,18 @@ describe('layout.applyToYogaNode', () => {
 
     it('sets width and height on node and updates wrapper.props', () => {
         const node = createFakeYogaNode();
-        const wrapper = new NodeWrapper({} as any, node, 'div');
+        const wrapper = new NodeWrapper({} as any, node, 'container');
         // Do not provide a real Context for this simple test; passing a
         // Context would cause applyLayoutToSceneGraph to try to access
         // scene/engine functions. We only want to assert width/height set.
         const props = {width: 123, height: 45};
-        applyToYogaNode('div', node, props, wrapper);
+        applyToYogaNode('container', node, props, wrapper);
 
         expect(node.setWidth).toHaveBeenCalledWith(123);
         expect(node.setHeight).toHaveBeenCalledWith(45);
-        expect(wrapper.props).toBe(props);
+        expect(wrapper.props).toEqual({...props});
+        expect(wrapper.props.width).toBe(123);
+        expect(wrapper.props.height).toBe(45);
     });
 
     it('for text3d creates text component when missing and sets node width/height', () => {
