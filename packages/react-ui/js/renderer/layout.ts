@@ -17,12 +17,7 @@ import {
     Wrap,
     type Node as YogaNode,
 } from 'yoga-layout/load';
-import {
-    computeTextScaleAndWrap,
-    computeDimensionsFromBoundingBox,
-    TEXT_BASE_SIZE,
-    DEFAULT_FONT_SIZE,
-} from './text-helpers.js';
+import {computeTextScaleAndWrap, computeDimensionsFromBoundingBox} from './text-helpers.js';
 import {setPositionCenter, setPositionLeft, setPositionRight} from './position-helpers.js';
 import {computeMeshChildTransforms} from './mesh-transform-helpers.js';
 import {buildRoundedRectangleMeshProps, buildNineSliceProps} from './mesh-helpers.js';
@@ -30,6 +25,7 @@ import {propsEqual} from './props-helpers.js';
 import {roundedRectangle, roundedRectangleOutline} from '../rounded-rectangle-mesh.js';
 import {nineSlice} from '../nine-slice.js';
 import {NodeWrapper, Context} from './core.js';
+import {DEFAULT_FONT_SIZE, TEXT_BASE_SIZE} from './constants.js';
 
 /**
  * Layout and scene-graph application helpers.

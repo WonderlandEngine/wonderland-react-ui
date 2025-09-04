@@ -1,33 +1,22 @@
 import Reconciler, {Fiber, HostConfig as HostConfigType} from 'react-reconciler';
-import type {Yoga, Config, Node as YogaNode} from 'yoga-layout/load';
 import {MeasureMode} from 'yoga-layout/load';
 import type {ReactNode} from 'react';
-import type {
-    YogaNodeProps,
-    TextProps,
-    RoundedRectangleProps,
-    MeshProps,
-    NineSliceProps,
-    ReactComp,
-} from '../renderer-types.js';
-import {Object3D, TextComponent, TextWrapMode, Font, Material} from '@wonderlandengine/api';
+import type {YogaNodeProps, ReactComp} from '../renderer-types.js';
+import {Object3D, TextComponent, TextWrapMode, Font} from '@wonderlandengine/api';
 import {applyToYogaNode} from './layout.js';
-import {
-    destroyTreeForNode,
-    NodeWrapper,
-    Context,
-    yoga,
-    setYoga,
-    ensureYogaLoaded,
-} from './core.js';
+import {destroyTreeForNode, NodeWrapper, Context, yoga, ensureYogaLoaded} from './core.js';
 import {propsEqual} from './props-helpers.js';
-import {TEXT_BASE_SIZE} from './text-helpers.js';
+import {version as reactVersion} from 'react';
+import {debug, DEFAULT_FONT_SIZE, TEXT_BASE_SIZE} from './constants.js';
 
-const DEBUG_RENDERER = false;
-const DEBUG_EVENTS = false;
-const debug = DEBUG_RENDERER ? console.log : () => {};
-const DEFAULT_FONT_SIZE = 50;
-
+/**
+ * Host configuration object used by react-reconciler to map React operations
+ * to Wonderland Engine scene graph operations.
+ *
+ * This object implements the host config callbacks required by the reconciler.
+ * It is intentionally documented at a high level because individual callbacks
+ * are already small and self-explanatory in the implementation.
+ */
 const HostConfig: HostConfigType<
     string,
     YogaNodeProps,
@@ -274,47 +263,115 @@ const HostConfig: HostConfigType<
     prepareScopeUpdate(scopeInstance: any, instance: any) {},
 };
 
+/**
+ * The reconciler instance created from the HostConfig.
+ *
+ * This is the primary entrypoint used by the renderer implementation to create
+ * React containers and drive updates into the Wonderland Engine scene.
+ */
 export const reconcilerInstance = Reconciler(HostConfig);
 
-export async function initializeRenderer() {
+/**
+ * Public renderer interface used by the package.
+ */
+export interface Renderer {
+    /**
+     * The root container created by react-reconciler.
+     */
+    rootContainer: Reconciler.OpaqueRoot;
+
+    /**
+     * Unmount the current root container, if any.
+     *
+     * This will update the reconciler with a null root to remove all mounted nodes.
+     */
+    unmountRoot: () => void;
+
+    /**
+     * Render a React element tree into the provided ReactComp context.
+     *
+     * @param element - The React element or tree to render.
+     * @param reactComp - The ReactComp instance that provides engine context.
+     * @param callback - Optional callback invoked after reconciliation completes.
+     */
+    render: (element: ReactNode, reactComp: ReactComp, callback?: () => void) => void;
+}
+
+/**
+ * Renderer implementation that wraps react-reconciler to mount React trees
+ * into Wonderland Engine via the custom HostConfig.
+ */
+class RendererImpl implements Renderer {
+    rootContainer: Reconciler.OpaqueRoot | undefined;
+
+    /**
+     * Unmount the current root container if one exists.
+     *
+     * This triggers a full unmount by updating the container with null.
+     */
+    unmountRoot() {
+        if (this.rootContainer) {
+            reconcilerInstance.updateContainer(null, this.rootContainer);
+        }
+    }
+
+    /**
+     * Create a new reconciler container and render the provided React element
+     * into the Wonderland Engine context represented by reactComp.
+     *
+     * @param element - The React element or component tree to mount.
+     * @param reactComp - The ReactComp instance providing engine and component context.
+     * @param callback - Optional callback executed after the initial render is complete.
+     */
+    render(element: ReactNode, reactComp: ReactComp, callback?: () => void) {
+        const container = reconcilerInstance.createContainer(
+            new Context(reactComp),
+            0,
+            null,
+            false,
+            null,
+            'root',
+            (e: Error) => console.error(e),
+            null
+        );
+        this.rootContainer = container;
+        reactComp.setContext(container.containerInfo);
+
+        const parentComponent = null;
+        reconcilerInstance.updateContainer(
+            element,
+            container,
+            parentComponent,
+            reactComp.renderCallback.bind(reactComp)
+        );
+        const result = reconcilerInstance.injectIntoDevTools({
+            bundleType:
+                typeof (globalThis as any).process !== 'undefined' &&
+                (globalThis as any).process.env &&
+                (globalThis as any).process.env.NODE_ENV !== 'production'
+                    ? 1
+                    : 0,
+            version: reactVersion,
+            rendererPackageName: '@wonderlandengine/react-ui',
+            findFiberByHostInstance(instance: NodeWrapper | void): Fiber | null {
+                console.log(instance ?? 'no instance');
+                return null;
+            },
+        });
+        debug('DevTools injection:', result);
+    }
+}
+
+/**
+ * Initialize and return a Renderer instance.
+ *
+ * This function ensures the Yoga layout library is loaded before constructing
+ * the renderer.
+ *
+ * @returns A Promise that resolves to a Renderer instance.
+ */
+export async function initializeRenderer(): Promise<Renderer> {
     // Ensure yoga is loaded, or wait until loaded
     await ensureYogaLoaded();
-    return {
-        rootContainer: null,
-        unmountRoot() {
-            reconcilerInstance.updateContainer(null, this.rootContainer);
-        },
-        render(element: ReactNode, reactComp: ReactComp, callback?: () => void) {
-            const container = reconcilerInstance.createContainer(
-                new Context(reactComp),
-                0,
-                null,
-                false,
-                null,
-                'root',
-                (e: Error) => console.error(e),
-                null
-            );
-            this.rootContainer = container;
-            reactComp.setContext(container.containerInfo);
-
-            const parentComponent = null;
-            reconcilerInstance.updateContainer(
-                element,
-                container,
-                parentComponent,
-                reactComp.renderCallback.bind(reactComp)
-            );
-            const result = reconcilerInstance.injectIntoDevTools({
-                bundleType: 0,
-                version: '0.2.1',
-                rendererPackageName: 'wonderlandengine/react-ui',
-                findFiberByHostInstance(instance: NodeWrapper | void): Fiber | null {
-                    console.log(instance ?? 'no instance');
-                    return null;
-                },
-            });
-            console.log('Devtools:', result);
-        },
-    };
+    return new RendererImpl();
 }

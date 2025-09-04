@@ -38,11 +38,12 @@ import {Direction} from 'yoga-layout/load';
 import {Cursor, CursorTarget, EventTypes} from '@wonderlandengine/components';
 import {NodeWrapper, Context} from './renderer/core.js';
 import {applyLayoutToSceneGraph, applyToYogaNode} from './renderer/layout.js';
-const DEBUG_RENDERER = false;
-const DEBUG_EVENTS = false;
-const debug = DEBUG_RENDERER ? console.log : () => {};
-
-import {reconcilerInstance, initializeRenderer} from './renderer/reconciler-host.js';
+import {
+    reconcilerInstance,
+    initializeRenderer,
+    Renderer,
+} from './renderer/reconciler-host.js';
+import {debug, DEBUG_EVENTS} from './renderer/constants.js';
 
 export enum UISpace {
     World = 0,
@@ -70,6 +71,9 @@ export enum ScalingType {
 
 const tempPos = [0, 0, 0];
 const tempScale = [0, 0, 0];
+const invProj = new Float32Array(16);
+const topLeft = vec3.create();
+const bottomRight = vec3.create();
 
 export abstract class ReactUiBase extends Component implements ReactComp {
     static TypeName = 'react-ui-base';
@@ -140,11 +144,8 @@ export abstract class ReactUiBase extends Component implements ReactComp {
         if (!activeView) return;
         /* Projection matrix will change if the viewport is resized, which will affect the
          * projection matrix because of the aspect ratio. */
-        const invProj = new Float32Array(16);
         mat4.invert(invProj, activeView.projectionMatrix);
 
-        const topLeft = vec3.create();
-        const bottomRight = vec3.create();
         vec3.transformMat4(topLeft, [-1, 1, 0], invProj);
         vec3.transformMat4(bottomRight, [1, -1, 0], invProj);
 
@@ -162,7 +163,7 @@ export abstract class ReactUiBase extends Component implements ReactComp {
 
     scaling = [0.01, 0.01];
 
-    renderer?: any;
+    renderer?: Renderer;
 
     ctx: Context | null = null;
 

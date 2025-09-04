@@ -13,7 +13,12 @@
     },
     "scripts": {
         "bootstrap": "npm install --workspaces",
-        "build": "npm run build -w @wonderlandengine/react-ui"
+        "build": "npm run build -w @wonderlandengine/react-ui",
+        "build-all": "npm run build -w @wonderlandengine/react-ui && npm run build:examples",
+        "build:dev": "npm run build:dev -w @wonderlandengine/react-ui && npm run update-reactui",
+        "build-all:dev": "npm run build:dev -w @wonderlandengine/react-ui && npm run update-reactui && npm run build:examples",
+        "build:examples": "npm run build:wl -w examples*",
+        "update-reactui": "npm run update-reactui -w examples*"
     },
     "devDependencies": {
         "@wonderlandengine/prettier-config": "^1.0.0",

@@ -6,7 +6,9 @@
     "type": "module",
     "module": "js/index.js",
     "scripts": {
-        "bootstrap": "npm install --workspaces=false --install-links"
+        "bootstrap": "npm install --workspaces=false",
+        "build:wl": "wonderland-editor --package --windowless --project ReactUi.wlp",
+        "update-reactui": "npm update @wonderlandengine/react-ui --workspaces=false"
     },
     "keywords": [
         "wonderland-engine"
@@ -21,5 +23,8 @@
     },
     "overrides": {
         "@wonderlandengine/api": "$@wonderlandengine/api"
+    },
+    "devDependencies": {
+        "@wonderlandengine/cli": "^0.1.4"
     }
 }

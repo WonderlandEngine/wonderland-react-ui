@@ -1,5 +1,4 @@
-export const TEXT_BASE_SIZE = 12;
-export const DEFAULT_FONT_SIZE = 50;
+import {DEFAULT_FONT_SIZE, TEXT_BASE_SIZE} from './constants.js';
 
 /**
  * Compute the text scale (s) and the wrap width (ww) used by the renderer.
