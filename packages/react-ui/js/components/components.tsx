@@ -8,18 +8,10 @@ import React, {
     useState,
 } from 'react';
 
-import type {
-    YogaNodeProps,
-    TextProps,
-    MeshProps,
-    NineSliceProps,
-    RoundedRectangleProps,
-    ValueType,
-    Color,
-} from './renderer-types.js';
-import {FlexDirection, Align, PositionType} from './renderer.js';
+import type {YogaNodeProps, TextProps, MeshProps, Color} from '../renderer-types.js';
+import {FlexDirection, Align, PositionType} from '../renderer.js';
 
-import {parseColor} from './utils.js';
+import {parseColor} from '../utils.js';
 
 interface FlatMaterial {
     flatTexture: Texture;

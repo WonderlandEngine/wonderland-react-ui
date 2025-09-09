@@ -32,8 +32,11 @@ import {
     buildNineSliceProps,
 } from '../helpers/mesh-helpers.js';
 import {propsEqual} from '../helpers/props-helpers.js';
-import {roundedRectangle, roundedRectangleOutline} from '../rounded-rectangle-mesh.js';
-import {nineSlice} from '../nine-slice.js';
+import {
+    roundedRectangle,
+    roundedRectangleOutline,
+} from '../components/rounded-rectangle-mesh.js';
+import {nineSlice} from '../components/nine-slice.js';
 import {NodeWrapper, Context} from './yoga.js';
 import {DEFAULT_FONT_SIZE, TEXT_BASE_SIZE} from '../constants.js';
 
