@@ -1,6 +1,6 @@
 import {describe, it, expect, vi, beforeEach} from 'vitest';
 import {applyToYogaNode} from '../../js/core/layout';
-import {NodeWrapper, Context, setYoga} from '../../js/core/core';
+import {NodeWrapper, Context, setYoga} from '../../js/core/yoga';
 
 // Minimal fake Yoga Node providing setters used by applyToYogaNode
 function createFakeYogaNode() {

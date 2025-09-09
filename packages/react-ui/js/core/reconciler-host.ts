@@ -4,7 +4,7 @@ import type {ReactNode} from 'react';
 import type {YogaNodeProps, ReactComp} from '../renderer-types.js';
 import {Object3D, TextComponent, TextWrapMode, Font} from '@wonderlandengine/api';
 import {applyToYogaNode} from './layout.js';
-import {destroyTreeForNode, NodeWrapper, Context, yoga, ensureYogaLoaded} from './core.js';
+import {destroyTreeForNode, NodeWrapper, Context, yoga, ensureYogaLoaded} from './yoga.js';
 import {propsEqual} from '../helpers/props-helpers.js';
 import {version as reactVersion} from 'react';
 import {debug, DEFAULT_FONT_SIZE, TEXT_BASE_SIZE} from '../constants.js';

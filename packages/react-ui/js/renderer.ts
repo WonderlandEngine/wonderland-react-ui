@@ -36,7 +36,7 @@ export {
 import {Direction} from 'yoga-layout/load';
 
 import {Cursor, CursorTarget, EventTypes} from '@wonderlandengine/components';
-import {NodeWrapper, Context} from './core/core.js';
+import {NodeWrapper, Context} from './core/yoga.js';
 import {applyLayoutToSceneGraph, applyToYogaNode} from './core/layout.js';
 import {reconcilerInstance, initializeRenderer, Renderer} from './core/reconciler-host.js';
 import {debug, DEBUG_EVENTS} from './constants.js';
