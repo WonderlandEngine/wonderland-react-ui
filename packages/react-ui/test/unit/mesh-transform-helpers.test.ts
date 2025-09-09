@@ -1,5 +1,5 @@
 import {describe, it, expect} from 'vitest';
-import {computeMeshChildTransforms} from '../../js/renderer/mesh-transform-helpers';
+import {computeMeshChildTransforms} from '../../js/helpers/mesh-transform-helpers';
 
 describe('mesh transform helpers', () => {
     it('returns center position and resetScaling for roundedRectangle', () => {

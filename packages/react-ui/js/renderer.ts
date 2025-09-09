@@ -36,14 +36,10 @@ export {
 import {Direction} from 'yoga-layout/load';
 
 import {Cursor, CursorTarget, EventTypes} from '@wonderlandengine/components';
-import {NodeWrapper, Context} from './renderer/core.js';
-import {applyLayoutToSceneGraph, applyToYogaNode} from './renderer/layout.js';
-import {
-    reconcilerInstance,
-    initializeRenderer,
-    Renderer,
-} from './renderer/reconciler-host.js';
-import {debug, DEBUG_EVENTS} from './renderer/constants.js';
+import {NodeWrapper, Context} from './core/core.js';
+import {applyLayoutToSceneGraph, applyToYogaNode} from './core/layout.js';
+import {reconcilerInstance, initializeRenderer, Renderer} from './core/reconciler-host.js';
+import {debug, DEBUG_EVENTS} from './constants.js';
 
 export enum UISpace {
     World = 0,

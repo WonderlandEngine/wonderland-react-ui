@@ -2,8 +2,8 @@ import {describe, it, expect} from 'vitest';
 import {
     computeTextScaleAndWrap,
     computeDimensionsFromBoundingBox,
-} from '../../js/renderer/text-helpers';
-import {DEFAULT_FONT_SIZE, TEXT_BASE_SIZE} from '../../js/renderer/constants';
+} from '../../js/helpers/text-helpers';
+import {DEFAULT_FONT_SIZE, TEXT_BASE_SIZE} from '../../js/constants';
 
 describe('text helpers', () => {
     it('computes scale and wrap width for normal values', () => {

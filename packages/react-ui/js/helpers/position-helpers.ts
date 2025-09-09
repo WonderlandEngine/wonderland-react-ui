@@ -1,4 +1,4 @@
-import {Z_INC} from './constants.js';
+import {Z_INC} from '../constants.js';
 
 export function setPositionCenter(o: any, n: any, s: number[]) {
     const w = n.node.getComputedWidth();

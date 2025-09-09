@@ -1,11 +1,5 @@
 import {describe, it, expect, beforeAll, vi} from 'vitest';
-import {
-    yoga,
-    setYoga,
-    Context,
-    NodeWrapper,
-    destroyTreeForNode,
-} from '../../js/renderer/core';
+import {yoga, setYoga, Context, NodeWrapper, destroyTreeForNode} from '../../js/core/core';
 
 describe('core module', () => {
     // Prepare a fake Yoga instance that exposes Config.create() used by Context

@@ -1,4 +1,4 @@
-import {Z_INC} from './constants.js';
+import {Z_INC} from '../constants.js';
 
 export type MeshTransform = {
     position: [number, number, number];

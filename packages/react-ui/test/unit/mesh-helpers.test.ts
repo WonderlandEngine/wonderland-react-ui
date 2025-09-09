@@ -2,7 +2,7 @@ import {describe, it, expect} from 'vitest';
 import {
     buildRoundedRectangleMeshProps,
     buildNineSliceProps,
-} from '../../js/renderer/mesh-helpers';
+} from '../../js/helpers/mesh-helpers';
 
 describe('mesh helpers', () => {
     it('buildRoundedRectangleMeshProps applies defaults and scaling', () => {
