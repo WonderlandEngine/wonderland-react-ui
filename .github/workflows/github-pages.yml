@@ -15,12 +15,17 @@ jobs:
         steps:
             - name: Checkout repository
               uses: actions/checkout@v4
-            - name: Package
+            - name: Create folders
               run: |
                   mkdir public
+                  mkdir -p packages/react-ui/dist && chmod -R 777 packages/react-ui/dist
+            - name: Build Package
+              run: |
                   # Build @wonderlandengine/react-ui package
-                  npm ci --fund=false
+                  npm ci --fund=false --no-audit
                   npm run build
+            - name: Build Example Project
+              run: |
                   # Build example project
                   /usr/local/bin/entrypoint.sh WonderlandEditor --windowless --package --project examples/example_worldspace/ReactUi.wlp --output ./public/
               env:
