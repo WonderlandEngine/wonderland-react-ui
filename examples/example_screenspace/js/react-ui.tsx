@@ -25,14 +25,12 @@ const App = (props: {comp: ReactUi}) => {
         const newList = list.slice();
         newList.push('Element ' + list.length.toString());
         setList(newList);
-        console.log('Add');
     };
 
     const removeListElement = (i: number) => {
         const newList = list.slice();
         newList.splice(i, 1);
         setList(newList);
-        console.log('Remove');
     };
 
     const [text, setText] = useState(
