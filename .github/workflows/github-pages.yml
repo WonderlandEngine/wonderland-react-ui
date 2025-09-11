@@ -19,15 +19,12 @@ jobs:
               run: |
                   mkdir public
                   mkdir -p packages/react-ui/dist && chmod -R 777 packages/react-ui/dist
-            - name: Build Package
-              run: |
-                  # Build @wonderlandengine/react-ui package
-                  npm ci --fund=false --no-audit
-                  npm run build
-            - name: Build Example Project
-              run: |
-                  # Build example project
-                  /usr/local/bin/entrypoint.sh WonderlandEditor --windowless --package --project examples/example_worldspace/ReactUi.wlp --output ./public/
+            - name: Install packages for workspaces
+              run: npm ci --workspaces --fund=false --no-audit
+            - name: Build @wonderlandengine/react-ui Package
+              run: npm run build
+            - name: Build Worldspace Example Project
+              run: /usr/local/bin/entrypoint.sh WonderlandEditor --windowless --package --project examples/example_worldspace/ReactUi.wlp --output ./public/
               env:
                   WLE_CREDENTIALS: ${{ secrets.WLE_CREDENTIALS }}
             - name: Gzip
