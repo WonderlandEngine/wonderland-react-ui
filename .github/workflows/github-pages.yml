@@ -20,7 +20,11 @@ jobs:
                   mkdir public
                   mkdir -p packages/react-ui/dist && chmod -R 777 packages/react-ui/dist
             - name: Install packages for workspaces
-              run: npm ci --workspaces --fund=false --no-audit
+              run: |
+                  npm ci --workspaces --fund=false --no-audit
+                  # Install dependencies for example workspace to make WL happy.
+                  cd examples/example_worldspace
+                  npm ci --fund=false --no-audit
             - name: Build @wonderlandengine/react-ui Package
               run: npm run build
             - name: Build Worldspace Example Project
