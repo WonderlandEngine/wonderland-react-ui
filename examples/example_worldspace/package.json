@@ -15,7 +15,7 @@
     ],
     "dependencies": {
         "@types/react-reconciler": "0.28.0",
-        "@wonderlandengine/api": "^1.4.6",
+        "@wonderlandengine/api": "^1.4.7",
         "@wonderlandengine/components": "^1.2.3",
         "@wonderlandengine/prettier-config": "^1.0.0",
         "@wonderlandengine/react-ui": "file:../../packages/react-ui",
