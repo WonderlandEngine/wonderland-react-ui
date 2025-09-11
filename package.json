@@ -5,8 +5,7 @@
     "author": "Wonderland GmbH",
     "version": "0.0.0",
     "workspaces": [
-        "packages/*",
-        "examples/*"
+        "packages/*"
     ],
     "peerDependencies": {
         "@wonderlandengine/api": "^1.1.0"
