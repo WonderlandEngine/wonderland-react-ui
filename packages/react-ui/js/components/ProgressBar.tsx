@@ -1,6 +1,6 @@
 import {Object3D, Material} from '@wonderlandengine/api';
 import React, {forwardRef} from 'react';
-import {FlexDirection, Align, PositionType} from 'yoga-layout';
+import {FlexDirection, Align, PositionType} from '../renderer.js';
 import type {YogaNodeProps, Color} from '../renderer-types.js';
 import {Container} from './Container.js';
 import {Panel} from './Panel.js';

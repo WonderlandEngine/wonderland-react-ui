@@ -6,7 +6,7 @@
                 {
                     "type": "wasd-controls",
                     "wasd-controls": {
-                        "headObject": "17",
+                        "headObject": 3,
                         "speed": 0.05
                     }
                 },
@@ -223,7 +223,7 @@
                 {
                     "type": "cursor",
                     "cursor": {
-                        "cursorObject": "86"
+                        "cursorObject": 12
                     }
                 }
             ]
@@ -657,7 +657,7 @@
             "version": [
                 1,
                 4,
-                6
+                7
             ]
         },
         "xr": {
@@ -676,7 +676,7 @@
             "application": {
                 "output": "ReactUi-bundle.js",
                 "bundling": "esbuild",
-                "esbuildFlags": "--format=esm",
+                "esbuildFlags": "--format=esm --target=es2022",
                 "entryPoint": "js/index.js"
             },
             "libraryPaths": [
@@ -684,12 +684,12 @@
             ],
             "components": {
                 "sourcePaths": [
-                    "js/",
-                    "../js"
+                    "js/"
                 ],
                 "bundling": "none"
             },
-            "esbuildFlagsEditor": " --bundle"
+            "esbuildFlagsEditor": "",
+            "materialDefinitions": ""
         },
         "rendering": {
             "hdr": {

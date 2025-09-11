@@ -6,7 +6,7 @@ import type {
     Overflow,
     PositionType,
     Wrap,
-} from 'yoga-layout/load';
+} from './renderer.js';
 import type {
     Component,
     Material,
