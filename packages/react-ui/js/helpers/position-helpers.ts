@@ -1,29 +1,46 @@
+import {Object3D} from '@wonderlandengine/api';
 import {Z_INC} from '../constants.js';
+import {NodeWrapper} from '../renderer.js';
 
-export function setPositionCenter(o: any, n: any, s: number[]) {
-    const w = n.node.getComputedWidth();
+/**
+ * Position an Object3D at the horizontal center of the node's computed layout.
+ */
+export function setPositionCenter(
+    obj: Object3D,
+    nodeWrapper: NodeWrapper,
+    scale: number[]
+) {
+    const w = nodeWrapper.node.getComputedWidth();
     if (isNaN(w)) {
         return;
     }
-    o.setPositionLocal([
-        (n.node.getComputedLeft() + 0.5 * n.node.getComputedWidth()) * s[0],
-        -n.node.getComputedTop() * s[1],
-        Z_INC + (n.props.z ?? 0),
+    obj.setPositionLocal([
+        (nodeWrapper.node.getComputedLeft() + 0.5 * nodeWrapper.node.getComputedWidth()) *
+            scale[0],
+        -nodeWrapper.node.getComputedTop() * scale[1],
+        Z_INC + (nodeWrapper.props.z ?? 0),
     ]);
 }
 
-export function setPositionLeft(o: any, n: any, s: number[]) {
-    o.setPositionLocal([
-        n.node.getComputedLeft() * s[0],
-        -n.node.getComputedTop() * s[1],
-        Z_INC + (n.props.z ?? 0),
+/**
+ * Position an Object3D at the left edge of the node's computed layout.
+ */
+export function setPositionLeft(obj: Object3D, nodeWrapper: NodeWrapper, scale: number[]) {
+    obj.setPositionLocal([
+        nodeWrapper.node.getComputedLeft() * scale[0],
+        -nodeWrapper.node.getComputedTop() * scale[1],
+        Z_INC + (nodeWrapper.props.z ?? 0),
     ]);
 }
 
-export function setPositionRight(o: any, n: any, s: number[]) {
-    o.setPositionLocal([
-        (n.node.getComputedLeft() + n.node.getComputedWidth()) * s[0],
-        -n.node.getComputedTop() * s[1],
-        Z_INC + (n.props.z ?? 0),
+/**
+ * Position an Object3D at the right edge of the node's computed layout.
+ */
+export function setPositionRight(obj: Object3D, nodeWrapper: NodeWrapper, scale: number[]) {
+    obj.setPositionLocal([
+        (nodeWrapper.node.getComputedLeft() + nodeWrapper.node.getComputedWidth()) *
+            scale[0],
+        -nodeWrapper.node.getComputedTop() * scale[1],
+        Z_INC + (nodeWrapper.props.z ?? 0),
     ]);
 }
