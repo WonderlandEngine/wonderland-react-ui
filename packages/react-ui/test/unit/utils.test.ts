@@ -1,5 +1,5 @@
 import {describe, it, expect} from 'vitest';
-import {parseColor} from '../../dist/utils.js';
+import {parseColor} from '../../js/utils.js';
 
 describe('Utils', () => {
     it('parseColor', () => {

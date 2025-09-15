@@ -6,13 +6,13 @@
  * ```typescript
  * // 3-character hex (RGB)
  * hexToFloat32Array('#f0f'); // Returns [1, 0, 1, 1]
- * 
+ *
  * // 6-character hex (RGB)
  * hexToFloat32Array('#ff00ff'); // Returns [1, 0, 1, 1]
- * 
+ *
  * // 8-character hex (RGBA)
  * hexToFloat32Array('#ff00ff80'); // Returns [1, 0, 1, 0.502]
- * 
+ *
  * // Without hash prefix
  * hexToFloat32Array('ff00ff'); // Returns [1, 0, 1, 1]
  * ```
@@ -72,15 +72,15 @@ export function hexToFloat32Array(hex: string, out?: Float32Array): Float32Array
  * // String hex color
  * parseColor('#ff0000'); // Returns [1, 0, 0, 1]
  * parseColor('00ff00'); // Returns [0, 1, 0, 1]
- * 
+ *
  * // Number color (0xRRGGBBAA format)
  * parseColor(0xff0000ff); // Returns [1, 0, 0, 1]
  * parseColor(0x00ff0080); // Returns [0, 1, 0, 0.502]
- * 
+ *
  * // Float32Array pass-through
  * const color = new Float32Array([0.5, 0.5, 0.5, 1]);
  * parseColor(color); // Returns the same array
- * 
+ *
  * // With output array
  * const output = new Float32Array(4);
  * parseColor('#ff0000', output); // Fills output array and returns it

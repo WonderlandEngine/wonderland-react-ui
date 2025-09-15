@@ -22,3 +22,24 @@ export function propsEqual(oldProps: any, newProps: any) {
 export function canonicalizeProps(props: any) {
     return Object.assign({}, props);
 }
+
+/**
+ * Update the properties of `target` in place to match `src`.
+ *
+ * @param target - The object to be mutated to reflect the incoming properties.
+ * @param src - The source of incoming properties; if `undefined`, treated as `{}`.
+ */
+export function updatePropsInPlace(
+    target: Record<string, any>,
+    src: Record<string, any> | undefined
+) {
+    const incoming = src ?? {};
+    // remove keys that no longer exist
+    for (const key of Object.keys(target)) {
+        if (!(key in incoming)) {
+            delete target[key];
+        }
+    }
+    // copy incoming keys (shallow)
+    Object.assign(target, incoming);
+}
