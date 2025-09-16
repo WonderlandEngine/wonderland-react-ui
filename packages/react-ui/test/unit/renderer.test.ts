@@ -47,5 +47,20 @@ describe('Renderer', () => {
 
             expect(mockNodeWrapper.props).toEqual(props);
         });
+
+        it('should apply events to yoga node', () => {
+            const tag = 'container';
+            const node = mockNodeWrapper.node;
+            const props = {
+                onHover: () => console.log('hover'),
+                onUnhover: () => console.log('unhover'),
+                onDown: () => console.log('down'),
+                onUp: () => console.log('up'),
+            };
+
+            applyToYogaNode(tag, node, props, mockNodeWrapper, mockContext);
+
+            expect(mockNodeWrapper.props).toEqual(props);
+        });
     });
 });

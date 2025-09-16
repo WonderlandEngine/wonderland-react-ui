@@ -444,7 +444,7 @@ export function applyToYogaNode(
     if (wrapper.props.left !== props.left) node.setPosition(Edge.Left, props.left);
     if (wrapper.props.right !== props.right) node.setPosition(Edge.Right, props.right);
 
-    Object.assign(wrapper.props, props || {});
+    wrapper.props = {...props};
 }
 
 /**
