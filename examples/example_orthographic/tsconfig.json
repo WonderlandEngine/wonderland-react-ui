@@ -1,0 +1,16 @@
+{
+    "compilerOptions": {
+        "outDir": "dist",
+        "target": "ES2022",
+        "module": "NodeNext",
+        "moduleResolution": "nodenext",
+        "strict": true,
+        "allowJs": true,
+        "experimentalDecorators": true,
+        "jsx": "react",
+    },
+    "typeRoots": ["./@types"],
+    "types": ["jsx"],
+    "exclude": ["dist"],
+    "include": ["./js/**/*.tsx", "./js/**/*.ts"]
+}
