@@ -736,71 +736,6 @@ export interface Renderer {
 }
 
 /**
- * Renderer implementation that wraps react-reconciler to mount React trees
- * into Wonderland Engine via the custom HostConfig.
- */
-class RendererImpl implements Renderer {
-    rootContainer: Reconciler.OpaqueRoot | undefined;
-
-    /**
-     * Unmount the current root container if one exists.
-     *
-     * This triggers a full unmount by updating the container with null.
-     */
-    unmountRoot() {
-        if (this.rootContainer) {
-            reconcilerInstance.updateContainer(null, this.rootContainer);
-        }
-    }
-
-    /**
-     * Create a new reconciler container and render the provided React element
-     * into the Wonderland Engine context represented by reactComp.
-     *
-     * @param element - The React element or component tree to mount.
-     * @param reactComp - The ReactComp instance providing engine and component context.
-     * @param callback - Optional callback executed after the initial render is complete.
-     */
-    render(element: ReactNode, reactComp: ReactComp, callback?: () => void) {
-        const container = reconcilerInstance.createContainer(
-            new Context(reactComp),
-            0,
-            null,
-            false,
-            null,
-            'root',
-            (e: Error) => console.error(e),
-            null
-        );
-        this.rootContainer = container;
-        reactComp.setContext(container.containerInfo);
-
-        const parentComponent = null;
-        reconcilerInstance.updateContainer(
-            element,
-            container,
-            parentComponent,
-            reactComp.renderCallback.bind(reactComp)
-        );
-        const result = reconcilerInstance.injectIntoDevTools({
-            bundleType:
-                typeof (globalThis as any).process !== 'undefined' &&
-                (globalThis as any).process.env &&
-                (globalThis as any).process.env.NODE_ENV !== 'production'
-                    ? 1
-                    : 0,
-            version: reactVersion,
-            rendererPackageName: '@wonderlandengine/react-ui',
-            findFiberByHostInstance(instance: NodeWrapper | void): Fiber | null {
-                console.log(instance ?? 'no instance');
-                return null;
-            },
-        });
-        debug('DevTools injection:', result);
-    }
-}
-
-/**
  * Recursively destroy a NodeWrapper subtree and free underlying resources.
  *
  * This function assumes wrappers and their .node fields are valid and that the
@@ -887,13 +822,13 @@ export class Context {
     config: Config;
     comp: any;
     wrappers: NodeWrapper[] = [];
-    constructor(c: any) {
+    constructor(c: ReactComp, yoga: Yoga) {
         this.root = null;
         this.comp = c;
 
         // The shared Yoga instance is set by the loader/initializer.
         // We assume it exists when a Context is constructed via initializeRenderer.
-        this.config = yoga!.Config.create();
+        this.config = yoga.Config.create();
         this.config.setUseWebDefaults(false);
         this.config.setPointScaleFactor(1);
     }
@@ -1363,7 +1298,7 @@ export async function initializeRenderer() {
         },
         render(element: ReactNode, reactComp: ReactComp, callback?: () => void) {
             const container = reconcilerInstance.createContainer(
-                new Context(reactComp),
+                new Context(reactComp, yoga!),
                 0,
                 null,
                 false,

@@ -1,4 +1,4 @@
-import {describe, it, expect, beforeEach} from 'vitest';
+import {describe, it, expect, beforeEach, vi} from 'vitest';
 import {
     applyLayoutToSceneGraph,
     applyToYogaNode,
@@ -7,7 +7,7 @@ import {
     ReactComp,
 } from '../../js/renderer.js';
 import {mock} from 'vitest-mock-extended';
-import {Node} from 'yoga-layout/load';
+import {Config, Node, Yoga} from 'yoga-layout/load';
 import {Object3D, Scene, WonderlandEngine} from '@wonderlandengine/api';
 
 describe('Renderer', () => {
@@ -61,6 +61,22 @@ describe('Renderer', () => {
             applyToYogaNode(tag, node, props, mockNodeWrapper, mockContext);
 
             expect(mockNodeWrapper.props).toEqual(props);
+        });
+    });
+});
+
+describe('Context', () => {
+    describe('constructor', () => {
+        it('should create a Context instance', () => {
+            const mockComp = mock<ReactComp>();
+            const mockYoga = mock<Yoga>();
+            const mockConfig = mock<Config>();
+            mockYoga.Config.create = vi.fn(() => mockConfig);
+            const context = new Context(mockComp, mockYoga);
+            expect(context).toBeInstanceOf(Context);
+            expect(context.comp).toBe(mockComp);
+            expect(mockYoga.Config.create).toHaveBeenCalled();
+            expect(context.config).toBe(mockConfig);
         });
     });
 });
