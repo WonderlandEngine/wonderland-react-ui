@@ -889,6 +889,9 @@ export class Context {
             const width = node.node.getComputedWidth();
             const height = node.node.getComputedHeight();
 
+            if (isNaN(left) || isNaN(top) || isNaN(width) || isNaN(height)) {
+                throw new Error('Context.computeUIBounds: Invalid layout values detected');
+            }
             minX = Math.min(minX, left);
             maxX = Math.max(maxX, left + width);
             minY = Math.min(minY, top);
