@@ -1,4 +1,4 @@
-import {Material, Object3D, Texture} from '@wonderlandengine/api';
+import {Font, Material, Object3D, Texture} from '@wonderlandengine/api';
 import React, {createContext} from 'react';
 
 import type {YogaNodeProps, Color} from '../renderer-types.js';
@@ -7,6 +7,10 @@ export interface FlatMaterial {
     flatTexture: Texture;
     setColor(c: Float32Array): void;
     color: Color;
+}
+
+export interface TextMaterial extends FlatMaterial {
+    setEffectColor(value: Float32Array): void;
 }
 
 export const MaterialContext = createContext(

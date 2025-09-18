@@ -6,7 +6,7 @@
                 {
                     "type": "wasd-controls",
                     "wasd-controls": {
-                        "headObject": 3,
+                        "headObject": "17",
                         "speed": 0.05
                     }
                 },
@@ -223,7 +223,7 @@
                 {
                     "type": "cursor",
                     "cursor": {
-                        "cursorObject": 12
+                        "cursorObject": "86"
                     }
                 }
             ]
@@ -901,7 +901,8 @@
             "link": {
                 "name": "DejaVuSans.ttf",
                 "file": "default"
-            }
+            },
+            "outline": false
         }
     },
     "languages": {},

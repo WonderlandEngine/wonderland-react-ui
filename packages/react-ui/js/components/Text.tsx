@@ -2,12 +2,20 @@ import {Object3D} from '@wonderlandengine/api';
 import React, {forwardRef, PropsWithChildren, useContext, useMemo} from 'react';
 import type {TextProps, Color} from '../renderer-types.js';
 import {parseColor} from '../utils.js';
-import {MaterialContext, ThemeContext, FlatMaterial} from './component-types.js';
+import {
+    MaterialContext,
+    ThemeContext,
+    FlatMaterial,
+    TextMaterial,
+} from './component-types.js';
 
 const tempColor = new Float32Array(4);
 /**
  * A 3D text component that renders text in 3D space with customizable styling.
  * Supports color customization and inherits text properties from theme context.
+ *
+ * @note
+ * To use outline, ensure the Outline option is checked in the Wonderland Editor for the font.
  *
  * @component
  * @example
@@ -15,7 +23,9 @@ const tempColor = new Float32Array(4);
  * <Text
  *   color="#ff0000"
  *   fontSize={24}
- *   fontWeight="bold"
+ *   textEffect="shadow"
+ *   textEffectColor="#440000"
+ *   textEffectOffset={[0.05, -0.05]}
  * >
  *   Hello World
  * </Text>
@@ -42,7 +52,7 @@ export const Text = forwardRef<
     const theme = useContext(ThemeContext);
     const mat = props.material ?? useMemo(() => context.textMaterial?.clone(), []);
     if (mat) {
-        (mat as unknown as FlatMaterial).setColor(
+        (mat as unknown as TextMaterial).setColor(
             parseColor(
                 props.color ??
                     theme.colors?.text ??
@@ -51,6 +61,11 @@ export const Text = forwardRef<
                 tempColor
             )
         );
+        if (props.textEffectColor) {
+            (mat as unknown as TextMaterial).setEffectColor(
+                parseColor(props.textEffectColor, tempColor)
+            );
+        }
     }
     return React.createElement('text3d', {
         ...props,

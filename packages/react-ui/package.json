@@ -14,7 +14,7 @@
     "scripts": {
         "build": "tsc",
         "build:dev": "tsc --sourceMap",
-        "watch": "tsc --watch",
+        "watch": "tsc --watch --sourceMap",
         "prepack": "npm run build",
         "test": "npm run build && web-test-runner",
         "test:unit": "vitest --run",
