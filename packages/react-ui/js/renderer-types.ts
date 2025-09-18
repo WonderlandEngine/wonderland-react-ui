@@ -99,7 +99,11 @@ export interface TextProps extends YogaNodeProps {
     material?: Material | null;
     textAlign?: 'left' | 'center' | 'right';
     textWrap?: 'none' | 'soft' | 'hard' | 'clip';
-    /** Text effect to apply. For `Outline`, it needs to have the Outline option checked in Wonderland Editor */
+    /**
+     * Text effect to apply.
+     * For `outline`, you need to have the Outline option checked in Wonderland Editor.
+     * For `shadow`, no special setup is required in Wonderland Editor.
+     */
     textEffect?: 'none' | 'outline' | 'shadow';
     /** Color of the text effect */
     textEffectColor?: Color | null;
