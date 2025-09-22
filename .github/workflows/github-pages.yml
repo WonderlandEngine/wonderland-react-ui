@@ -40,7 +40,7 @@ jobs:
     deploy-pages:
         needs: package
         runs-on: ubuntu-latest
-        #  if: ${{ format('refs/heads/{0}', github.event.repository.default_branch) == github.ref }}
+        if: ${{ format('refs/heads/{0}', github.event.repository.default_branch) == github.ref }}
         steps:
             - name: Deploy to GitHub Pages
               uses: actions/deploy-pages@v4
