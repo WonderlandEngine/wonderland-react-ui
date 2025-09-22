@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+        "outDir": "dist",
+        "target": "es2017",
+        "module": "NodeNext",
+        "moduleResolution": "nodenext",
+        "strict": true,
+        "declaration": true,
+        "experimentalDecorators": true,
+        "jsx": "react-jsx",
+        "typeRoots": ["./node_modules/@types", "js/jsx.d.ts"]
+    },
+    "exclude": ["dist", "node_modules"],
+    "include": ["./js/**/*.tsx", "./js/**/*.ts"]
+}

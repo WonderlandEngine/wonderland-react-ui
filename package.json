@@ -1,63 +1,29 @@
 {
     "name": "@wonderlandengine/react-ui",
-    "version": "0.2.11",
+    "private": true,
     "description": "React-based UI in Wonderland Engine.",
     "author": "Wonderland GmbH",
-    "main": "dist/index.js",
-    "type": "module",
-    "types": "dist",
-    "module": "dist/index.js",
-    "exports": {
-        ".": "./dist/index.js",
-        "./components": "./dist/components.js"
-    },
-    "scripts": {
-        "build": "tsc",
-        "watch": "tsc --watch",
-        "prepack": "npm run build",
-        "test": "npm run build && web-test-runner"
-    },
-    "files": [
-        "dist/**/*.d.ts",
-        "dist/**/*.js"
-    ],
-    "homepage": "https://github.com/WonderlandEngine/wonderland-react-ui#readme",
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/WonderlandEngine/wonderland-react-ui.git"
-    },
-    "bugs": {
-        "url": "https://github.com/WonderlandEngine/wonderland-react-ui/issues"
-    },
-    "license": "MIT",
-    "prettier": "@wonderlandengine/prettier-config",
-    "keywords": [
-        "wonderland-engine",
-        "react",
-        "custom renderer",
-        "3d",
-        "webgl",
-        "webxr",
-        "ui"
+    "version": "0.0.0",
+    "workspaces": [
+        "packages/*"
     ],
     "peerDependencies": {
-        "@wonderlandengine/api": "^1.2.2",
-        "@wonderlandengine/components": "^1.1.5",
-        "gl-matrix": "^3.4.3",
-        "react": "18.3.0",
-        "yoga-layout": "3.2.1"
+        "@wonderlandengine/api": "^1.1.0"
     },
-    "dependencies": {
-        "@types/react-reconciler": "0.28.0",
-        "@wonderlandengine/prettier-config": "^1.0.0",
-        "react-reconciler": "0.29.0"
+    "scripts": {
+        "bootstrap": "npm install --workspaces",
+        "build": "npm run build -w @wonderlandengine/react-ui",
+        "build-all": "npm run build -w @wonderlandengine/react-ui && npm run build:examples",
+        "build:dev": "npm run build:dev -w @wonderlandengine/react-ui && npm run update-reactui",
+        "build-all:dev": "npm run build:dev -w @wonderlandengine/react-ui && npm run update-reactui && npm run build:examples",
+        "build:examples": "npm run build:wl -w examples*",
+        "update-reactui": "npm run update-reactui -w examples*"
     },
     "devDependencies": {
-        "@esm-bundle/chai": "^4.3.4-fix.0",
-        "@web/test-runner": "^0.18.2",
         "@wonderlandengine/prettier-config": "^1.0.0",
         "esbuild": "^0.25.5",
-        "prettier": "3.2.5",
+        "prettier": "^3.6.2",
         "typescript": "^5.8.3"
-    }
+    },
+    "prettier": "@wonderlandengine/prettier-config"
 }
