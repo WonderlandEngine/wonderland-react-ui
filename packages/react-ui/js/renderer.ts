@@ -12,7 +12,7 @@ import {
 import {property} from '@wonderlandengine/api/decorators.js';
 import {mat4, vec3} from 'gl-matrix';
 import type {ReactNode} from 'react';
-import type {YogaNodeProps, ReactComp} from './renderer-types.js';
+import type {YogaNodeProps, ReactComp, TextProps} from './renderer-types.js';
 import {Object3D, TextComponent, TextWrapMode, Font} from '@wonderlandengine/api';
 
 import {propsEqual} from './helpers/props-helpers.js';
@@ -166,50 +166,7 @@ export function applyLayoutToSceneGraph(n: NodeWrapper, context: Context, force?
     o.resetScaling();
 
     if (n.tag === 'text3d') {
-        const align = n.props.textAlign;
-        let alignment = Alignment.Left;
-        if (align === 'center') {
-            setPositionCenter(o, n, context.comp.scaling);
-            alignment = Alignment.Center;
-        } else if (align === 'right') {
-            setPositionRight(o, n, context.comp.scaling);
-            alignment = Alignment.Right;
-        } else {
-            setPositionLeft(o, n, context.comp.scaling);
-        }
-        const wrap = n.props.textWrap;
-        let textWrapMode = TextWrapMode.None;
-        if (wrap === 'soft') {
-            textWrapMode = TextWrapMode.Soft;
-        } else if (wrap === 'hard') {
-            textWrapMode = TextWrapMode.Hard;
-        } else if (wrap === 'clip') {
-            textWrapMode = TextWrapMode.Clip;
-        }
-
-        let t = o.getComponent(TextComponent);
-        if (!t) {
-            t = o.addComponent(TextComponent, {
-                text: n.props.text,
-                alignment,
-                effect: TextEffect.Outline,
-                verticalAlignment: VerticalAlignment.Top,
-                wrapMode: textWrapMode,
-                material: n.props.material ?? context.comp.textMaterial,
-            });
-        }
-        const s =
-            TEXT_BASE_SIZE *
-            (n.props.fontSize ?? DEFAULT_FONT_SIZE) *
-            context.comp.scaling[1];
-        o.setScalingLocal([s, s, s]);
-
-        t.material = n.props.material ?? context.comp.textMaterial;
-        const ww = (n.node.getComputedWidth() * context.comp.scaling[0]) / s;
-
-        if (!isNaN(ww)) {
-            t.wrapWidth = ww;
-        }
+        applyTextLayout(n, o, context);
     } else {
         /* mesh and everything else */
         if (context && context.comp && context.comp.scaling) {
@@ -336,6 +293,89 @@ export function applyLayoutToSceneGraph(n: NodeWrapper, context: Context, force?
     });
 }
 
+export function applyTextLayout(
+    nodeWrapper: NodeWrapper,
+    object: Object3D,
+    context: Context
+) {
+    const align = nodeWrapper.props.textAlign;
+    let alignment = Alignment.Left;
+    if (align === 'center') {
+        setPositionCenter(object, nodeWrapper, context.comp.scaling);
+        alignment = Alignment.Center;
+    } else if (align === 'right') {
+        setPositionRight(object, nodeWrapper, context.comp.scaling);
+        alignment = Alignment.Right;
+    } else {
+        setPositionLeft(object, nodeWrapper, context.comp.scaling);
+    }
+    const wrap = nodeWrapper.props.textWrap;
+    let textWrapMode = TextWrapMode.None;
+    if (wrap === 'soft') {
+        textWrapMode = TextWrapMode.Soft;
+    } else if (wrap === 'hard') {
+        textWrapMode = TextWrapMode.Hard;
+    } else if (wrap === 'clip') {
+        textWrapMode = TextWrapMode.Clip;
+    }
+
+    let textEffect = TextEffect.None;
+    switch (nodeWrapper.props.textEffect) {
+        case 'outline':
+            textEffect = TextEffect.Outline;
+            break;
+        case 'shadow':
+            textEffect = TextEffect.Shadow;
+            break;
+        default:
+            textEffect = TextEffect.None;
+            break;
+    }
+    let textEffectOffset: [number, number];
+
+    const offset = nodeWrapper.props.textEffectOffset;
+    if (
+        typeof offset === 'object' &&
+        offset !== null &&
+        'x' in offset &&
+        'y' in offset &&
+        typeof offset.x === 'number' &&
+        typeof offset.y === 'number'
+    ) {
+        textEffectOffset = [offset.x, offset.y];
+    } else if (Array.isArray(offset) && offset.length === 2) {
+        textEffectOffset = offset as [number, number];
+    } else {
+        textEffectOffset = [0, 0];
+    }
+
+    let textComponent = object.getComponent(TextComponent);
+    if (!textComponent) {
+        textComponent = object.addComponent(TextComponent, {
+            text: nodeWrapper.props.text,
+            alignment,
+            effect: textEffect,
+            effectOffset: textEffectOffset,
+            verticalAlignment: VerticalAlignment.Top,
+            wrapMode: textWrapMode,
+            material: nodeWrapper.props.material ?? context.comp.textMaterial,
+        });
+    }
+    const scale =
+        TEXT_BASE_SIZE *
+        (nodeWrapper.props.fontSize ?? DEFAULT_FONT_SIZE) *
+        context.comp.scaling[1];
+    object.setScalingLocal([scale, scale, scale]);
+
+    textComponent.material = nodeWrapper.props.material ?? context.comp.textMaterial;
+    const adjustedWidth =
+        (nodeWrapper.node.getComputedWidth() * context.comp.scaling[0]) / scale;
+
+    if (!isNaN(adjustedWidth)) {
+        textComponent.wrapWidth = adjustedWidth;
+    }
+}
+
 export function applyToYogaNode(
     tag: string,
     node: YogaNode,
@@ -344,13 +384,16 @@ export function applyToYogaNode(
     ctx?: Context
 ) {
     if (tag === 'text3d') {
-        const p = props as any;
+        const p = props as TextProps;
         let t = wrapper.object?.getComponent(TextComponent)!;
         if (!t) {
             wrapper.props.text = p.text;
             wrapper.props.textAlign = p.textAlign;
             wrapper.props.textWrap = p.textWrap;
             wrapper.props.material = p.material;
+            wrapper.props.textEffect = p.textEffect;
+            wrapper.props.textEffectOffset = p.textEffectOffset;
+            wrapper.props.textEffectColor = p.textEffectColor;
             applyLayoutToSceneGraph(wrapper, ctx!, true);
             t = wrapper.object?.getComponent(TextComponent)!;
         }

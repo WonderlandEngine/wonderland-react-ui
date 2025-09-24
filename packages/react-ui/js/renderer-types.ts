@@ -23,6 +23,7 @@ import type {ReactNode} from 'react';
 export type ValueType = number | 'auto' | `${number}%`;
 export type ValueTypeNoAuto = number | `${number}%`;
 export type Color = string | Float32Array | number;
+export type Vec2 = {x: number; y: number} | [number, number];
 
 export interface YogaNodeProps {
     height?: ValueType;
@@ -98,6 +99,16 @@ export interface TextProps extends YogaNodeProps {
     material?: Material | null;
     textAlign?: 'left' | 'center' | 'right';
     textWrap?: 'none' | 'soft' | 'hard' | 'clip';
+    /**
+     * Text effect to apply.
+     * For `outline`, you need to have the Outline option checked in Wonderland Editor.
+     * For `shadow`, no special setup is required in Wonderland Editor.
+     */
+    textEffect?: 'none' | 'outline' | 'shadow';
+    /** Color of the text effect */
+    textEffectColor?: Color | null;
+    /** Offset of the text effect */
+    textEffectOffset?: Vec2 | null;
 }
 
 export interface RoundedRectangleProps extends YogaNodeProps {

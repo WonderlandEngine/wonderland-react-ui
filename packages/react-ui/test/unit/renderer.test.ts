@@ -5,10 +5,19 @@ import {
     Context,
     NodeWrapper,
     ReactComp,
+    applyTextLayout,
 } from '../../js/renderer.js';
 import {mock} from 'vitest-mock-extended';
-import {Config, Node, Yoga} from 'yoga-layout/load';
-import {Object3D, Scene, WonderlandEngine} from '@wonderlandengine/api';
+import {Config, Node, Wrap, Yoga} from 'yoga-layout/load';
+import {
+    Alignment,
+    Object3D,
+    Scene,
+    TextComponent,
+    TextEffect,
+    TextWrapMode,
+    WonderlandEngine,
+} from '@wonderlandengine/api';
 
 describe('Renderer', () => {
     let mockContext: Context;
@@ -61,6 +70,80 @@ describe('Renderer', () => {
             applyToYogaNode(tag, node, props, mockNodeWrapper, mockContext);
 
             expect(mockNodeWrapper.props).toEqual(props);
+        });
+    });
+
+    describe('applyTextLayout', () => {
+        it('should apply text layout to yoga node', () => {
+            const props = {
+                text: 'Hello World',
+                fontSize: 24,
+                textAlign: 'center',
+                textWrap: 'soft',
+                textEffect: 'shadow',
+                textEffectColor: '#ff0000',
+                textEffectOffset: {x: 0.1, y: -0.1},
+            };
+            mockNodeWrapper.props = props;
+            const obj = mockNodeWrapper.object;
+
+            const textComp = mock<TextComponent>();
+            obj.addComponent = vi.fn((_, x) => {
+                textComp.text = x.text;
+                textComp.alignment = x.alignment;
+                textComp.effect = x.effect;
+                textComp.effectOffset = x.effectOffset;
+                textComp.verticalAlignment = x.verticalAlignment;
+                textComp.wrapMode = x.wrapMode;
+                textComp.material = x.material;
+                return textComp;
+            });
+
+            applyTextLayout(mockNodeWrapper, obj, mockContext);
+
+            expect(textComp.text).toBe(props.text);
+            expect(textComp.alignment).toBe(Alignment.Center);
+            expect(textComp.wrapMode).toBe(TextWrapMode.Soft);
+            expect(textComp.effect).toBe(TextEffect.Shadow);
+            expect(textComp.effectOffset).toEqual([0.1, -0.1]);
+        });
+
+        it('should set effect offset to 0,0 when array too long', () => {
+            const props = {
+                textEffectOffset: [1, 2, 3],
+            };
+            mockNodeWrapper.props = props;
+            const obj = mockNodeWrapper.object;
+
+            const textComp = mock<TextComponent>();
+            obj.addComponent = vi.fn((_, x) => {
+                textComp.effectOffset = x.effectOffset;
+
+                return textComp;
+            });
+
+            applyTextLayout(mockNodeWrapper, obj, mockContext);
+
+            expect(textComp.effectOffset).toEqual([0, 0]);
+        });
+
+        it('should set effect offset to 0,0 when type incorrect', () => {
+            const props = {
+                textEffectOffset: 'invalid',
+            };
+            mockNodeWrapper.props = props;
+            const obj = mockNodeWrapper.object;
+
+            const textComp = mock<TextComponent>();
+            obj.addComponent = vi.fn((_, x) => {
+                textComp.effectOffset = x.effectOffset;
+
+                return textComp;
+            });
+
+            applyTextLayout(mockNodeWrapper, obj, mockContext);
+
+            expect(textComp.effectOffset).toEqual([0, 0]);
         });
     });
 });
