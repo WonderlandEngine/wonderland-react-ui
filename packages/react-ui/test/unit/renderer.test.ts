@@ -107,6 +107,44 @@ describe('Renderer', () => {
             expect(textComp.effect).toBe(TextEffect.Shadow);
             expect(textComp.effectOffset).toEqual([0.1, -0.1]);
         });
+
+        it('should set effect offset to 0,0 when array too long', () => {
+            const props = {
+                textEffectOffset: [1, 2, 3],
+            };
+            mockNodeWrapper.props = props;
+            const obj = mockNodeWrapper.object;
+
+            const textComp = mock<TextComponent>();
+            obj.addComponent = vi.fn((_, x) => {
+                textComp.effectOffset = x.effectOffset;
+
+                return textComp;
+            });
+
+            applyTextLayout(mockNodeWrapper, obj, mockContext);
+
+            expect(textComp.effectOffset).toEqual([0, 0]);
+        });
+
+        it('should set effect offset to 0,0 when type incorrect', () => {
+            const props = {
+                textEffectOffset: 'invalid',
+            };
+            mockNodeWrapper.props = props;
+            const obj = mockNodeWrapper.object;
+
+            const textComp = mock<TextComponent>();
+            obj.addComponent = vi.fn((_, x) => {
+                textComp.effectOffset = x.effectOffset;
+
+                return textComp;
+            });
+
+            applyTextLayout(mockNodeWrapper, obj, mockContext);
+
+            expect(textComp.effectOffset).toEqual([0, 0]);
+        });
     });
 });
 

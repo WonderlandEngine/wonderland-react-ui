@@ -332,15 +332,19 @@ export function applyTextLayout(
             break;
     }
     let textEffectOffset: [number, number];
-    if (nodeWrapper.props.textEffectOffset) {
-        if (!Array.isArray(nodeWrapper.props.textEffectOffset)) {
-            textEffectOffset = [
-                nodeWrapper.props.textEffectOffset.x,
-                nodeWrapper.props.textEffectOffset.y,
-            ];
-        } else {
-            textEffectOffset = nodeWrapper.props.textEffectOffset;
-        }
+
+    const offset = nodeWrapper.props.textEffectOffset;
+    if (
+        typeof offset === 'object' &&
+        offset !== null &&
+        'x' in offset &&
+        'y' in offset &&
+        typeof offset.x === 'number' &&
+        typeof offset.y === 'number'
+    ) {
+        textEffectOffset = [offset.x, offset.y];
+    } else if (Array.isArray(offset) && offset.length === 2) {
+        textEffectOffset = offset as [number, number];
     } else {
         textEffectOffset = [0, 0];
     }
