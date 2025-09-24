@@ -17,7 +17,13 @@ import {Object3D, TextComponent, TextWrapMode, Font} from '@wonderlandengine/api
 
 import {propsEqual} from './helpers/props-helpers.js';
 import {version as reactVersion} from 'react';
-import {debug, DEBUG_EVENTS, DEFAULT_FONT_SIZE, TEXT_BASE_SIZE} from './constants.js';
+import {
+    COLLIDER_THICKNESS,
+    debug,
+    DEBUG_EVENTS,
+    DEFAULT_FONT_SIZE,
+    TEXT_BASE_SIZE,
+} from './constants.js';
 export type {
     ValueType,
     ValueTypeNoAuto,
@@ -874,6 +880,40 @@ export class Context {
             this.printTree(n, prefix + '--');
         }
     }
+
+    computeUIBounds(): {minX: number; maxX: number; minY: number; maxY: number} {
+        if (!this.root) return {minX: 0, maxX: 0, minY: 0, maxY: 0};
+
+        const rootLeft = this.root.node.getComputedLeft();
+        const rootTop = this.root.node.getComputedTop();
+        const rootWidth = this.root.node.getComputedWidth();
+        const rootHeight = this.root.node.getComputedHeight();
+
+        let minX = rootLeft,
+            maxX = rootLeft + rootWidth,
+            minY = rootTop,
+            maxY = rootTop + rootHeight;
+
+        const traverse = (node: NodeWrapper) => {
+            const left = node.node.getComputedLeft();
+            const top = node.node.getComputedTop();
+            const width = node.node.getComputedWidth();
+            const height = node.node.getComputedHeight();
+
+            if (isNaN(left) || isNaN(top) || isNaN(width) || isNaN(height)) {
+                throw new Error('Context.computeUIBounds: Invalid layout values detected');
+            }
+            minX = Math.min(minX, left);
+            maxX = Math.max(maxX, left + width);
+            minY = Math.min(minY, top);
+            maxY = Math.max(maxY, top + height);
+
+            node.children.forEach(traverse);
+        };
+
+        traverse(this.root);
+        return {minX, maxX, minY, maxY};
+    }
 }
 
 export abstract class ReactUiBase extends Component implements ReactComp {
@@ -934,6 +974,8 @@ export abstract class ReactUiBase extends Component implements ReactComp {
         }
     }
 
+    private _colliderObject?: Object3D;
+
     static onRegister(engine: WonderlandEngine) {
         engine.registerComponent(CursorTarget);
     }
@@ -989,6 +1031,40 @@ export abstract class ReactUiBase extends Component implements ReactComp {
         );
 
         applyLayoutToSceneGraph(this.ctx.root, this.ctx!, this.viewportChanged);
+
+        if (this.space === UISpace.World && this._colliderObject) {
+            const bounds = this.ctx.computeUIBounds();
+            const width = bounds.maxX - bounds.minX;
+            const height = bounds.maxY - bounds.minY;
+            const centerX = (bounds.minX + bounds.maxX) / 2;
+            const centerY = (bounds.minY + bounds.maxY) / 2;
+
+            const rootScaling = this.object.getScalingWorld(tempScale);
+
+            // Adjust for scaling
+            const scaledWidth = width * this.scaling[0];
+            const scaledHeight = height * this.scaling[1];
+            const scaledCenterX = centerX * this.scaling[0];
+            const scaledCenterY = -centerY * this.scaling[1]; // Flip Y for Wonderland coords
+
+            // Update collider position (center of bounds)
+            this._colliderObject.setPositionLocal([
+                scaledCenterX,
+                scaledCenterY,
+                COLLIDER_THICKNESS / 2,
+            ]);
+
+            // Update extents (half-size)
+            const collision = this._colliderObject.getComponent(CollisionComponent)!;
+            const extents = new Float32Array(3);
+
+            extents[0] = 0.5 * scaledWidth * rootScaling[0]; // Half-width, scaled
+            extents[1] = 0.5 * scaledHeight * rootScaling[1]; // Half-height, scaled
+            extents[2] = COLLIDER_THICKNESS; // Keep fixed depth
+
+            collision.extents.set(extents);
+        }
+
         this.needsUpdate = false;
     }
 
@@ -1045,7 +1121,7 @@ export abstract class ReactUiBase extends Component implements ReactComp {
 
     override onActivate(): void {
         if (this.space == UISpace.World) {
-            const colliderObject =
+            this._colliderObject =
                 this.object.findByNameDirect('UIColliderObject')[0] ??
                 (() => {
                     const o = this.engine.scene.addObject(this.object);
@@ -1057,8 +1133,8 @@ export abstract class ReactUiBase extends Component implements ReactComp {
                     });
                     return o;
                 })();
-            const target = colliderObject.getComponent(CursorTarget)!;
-            const collision = colliderObject.getComponent(CollisionComponent)!;
+            const target = this._colliderObject.getComponent(CursorTarget)!;
+            const collision = this._colliderObject.getComponent(CollisionComponent)!;
             target.onClick.add(
                 (_, c, e) => {
                     const [x, y] = this.getCursorPosition(c as Cursor);
@@ -1091,10 +1167,10 @@ export abstract class ReactUiBase extends Component implements ReactComp {
             const extents = this.object.getScalingWorld(new Float32Array(3));
             extents[0] *= 0.5 * this.width * this.scaling[0];
             extents[1] *= 0.5 * this.height * this.scaling[1];
-            extents[2] = 0.05;
+            extents[2] = COLLIDER_THICKNESS;
             collision.extents.set(extents);
 
-            colliderObject.setPositionLocal([
+            this._colliderObject.setPositionLocal([
                 this.width * 0.5 * this.scaling[0],
                 -this.height * 0.5 * this.scaling[1],
                 0.025,
@@ -1109,9 +1185,8 @@ export abstract class ReactUiBase extends Component implements ReactComp {
 
     override onDeactivate(): void {
         if (this.space == UISpace.World) {
-            const colliderObject = this.object.findByNameDirect('UIColliderObject')[0];
-            if (!colliderObject) return;
-            const target = colliderObject.getComponent(CursorTarget)!;
+            if (!this._colliderObject) return;
+            const target = this._colliderObject.getComponent(CursorTarget)!;
             if (!target) return;
             // FIXME: We might be able to just deactivate the target here instead?
             target.onClick.remove('onClick');

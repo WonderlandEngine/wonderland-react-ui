@@ -79,4 +79,59 @@ describe('Context', () => {
             expect(context.config).toBe(mockConfig);
         });
     });
+
+    describe('computeUIBounds', () => {
+        it('should compute UI bounds', () => {
+            const mockComp = mock<ReactComp>();
+            const mockYoga = mock<Yoga>();
+            const mockConfig = mock<Config>();
+            mockYoga.Config.create = vi.fn(() => mockConfig);
+            const context = new Context(mockComp, mockYoga);
+            context.root = mock<NodeWrapper>();
+            context.root.children = [];
+            context.root.node = mock<Node>();
+
+            const minX = 10;
+            const minY = 20;
+            const width = 30;
+            const height = 40;
+
+            context.root.node.getComputedLeft = vi.fn(() => minX);
+            context.root.node.getComputedTop = vi.fn(() => minY);
+            context.root.node.getComputedWidth = vi.fn(() => width);
+            context.root.node.getComputedHeight = vi.fn(() => height);
+
+            const bounds = context.computeUIBounds();
+
+            expect(bounds.minX).toEqual(minX);
+            expect(bounds.maxX).toEqual(minX + width);
+            expect(bounds.minY).toEqual(minY);
+            expect(bounds.maxY).toEqual(minY + height);
+        });
+
+        it('should handle NaN with an error', () => {
+            const mockComp = mock<ReactComp>();
+            const mockYoga = mock<Yoga>();
+            const mockConfig = mock<Config>();
+            mockYoga.Config.create = vi.fn(() => mockConfig);
+            const context = new Context(mockComp, mockYoga);
+            context.root = mock<NodeWrapper>();
+            context.root.children = [];
+            context.root.node = mock<Node>();
+
+            const minX = NaN;
+            const minY = NaN;
+            const width = NaN;
+            const height = NaN;
+
+            context.root.node.getComputedLeft = vi.fn(() => minX);
+            context.root.node.getComputedTop = vi.fn(() => minY);
+            context.root.node.getComputedWidth = vi.fn(() => width);
+            context.root.node.getComputedHeight = vi.fn(() => height);
+
+            expect(() => {
+                context.computeUIBounds();
+            }).toThrowError('Context.computeUIBounds: Invalid layout values detected');
+        });
+    });
 });
