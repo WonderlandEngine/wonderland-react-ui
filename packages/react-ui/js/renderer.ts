@@ -327,7 +327,7 @@ export function applyTextLayout(
         case 'shadow':
             textEffect = TextEffect.Shadow;
             break;
-        case 'default':
+        default:
             textEffect = TextEffect.None;
             break;
     }
