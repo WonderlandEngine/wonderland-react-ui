@@ -17,7 +17,13 @@ import {Object3D, TextComponent, TextWrapMode, Font} from '@wonderlandengine/api
 
 import {propsEqual} from './helpers/props-helpers.js';
 import {version as reactVersion} from 'react';
-import {debug, DEBUG_EVENTS, DEFAULT_FONT_SIZE, TEXT_BASE_SIZE} from './constants.js';
+import {
+    COLLIDER_THICKNESS,
+    debug,
+    DEBUG_EVENTS,
+    DEFAULT_FONT_SIZE,
+    TEXT_BASE_SIZE,
+} from './constants.js';
 export type {
     ValueType,
     ValueTypeNoAuto,
@@ -1037,7 +1043,11 @@ export abstract class ReactUiBase extends Component implements ReactComp {
             const scaledCenterY = -centerY * this.scaling[1]; // Flip Y for Wonderland coords
 
             // Update collider position (center of bounds)
-            this._colliderObject.setPositionLocal([scaledCenterX, scaledCenterY, 0.025]);
+            this._colliderObject.setPositionLocal([
+                scaledCenterX,
+                scaledCenterY,
+                COLLIDER_THICKNESS / 2,
+            ]);
 
             // Update extents (half-size)
             const collision = this._colliderObject.getComponent(CollisionComponent)!;
@@ -1045,7 +1055,7 @@ export abstract class ReactUiBase extends Component implements ReactComp {
 
             extents[0] = 0.5 * scaledWidth * rootScaling[0]; // Half-width, scaled
             extents[1] = 0.5 * scaledHeight * rootScaling[1]; // Half-height, scaled
-            extents[2] = 0.05; // Keep fixed depth
+            extents[2] = COLLIDER_THICKNESS; // Keep fixed depth
 
             collision.extents.set(extents);
         }
@@ -1152,7 +1162,7 @@ export abstract class ReactUiBase extends Component implements ReactComp {
             const extents = this.object.getScalingWorld(new Float32Array(3));
             extents[0] *= 0.5 * this.width * this.scaling[0];
             extents[1] *= 0.5 * this.height * this.scaling[1];
-            extents[2] = 0.05;
+            extents[2] = COLLIDER_THICKNESS;
             collision.extents.set(extents);
 
             this._colliderObject.setPositionLocal([
