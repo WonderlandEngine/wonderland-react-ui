@@ -884,10 +884,15 @@ export class Context {
     computeUIBounds(): {minX: number; maxX: number; minY: number; maxY: number} {
         if (!this.root) return {minX: 0, maxX: 0, minY: 0, maxY: 0};
 
-        let minX = Infinity,
-            maxX = -Infinity,
-            minY = Infinity,
-            maxY = -Infinity;
+        const rootLeft = this.root.node.getComputedLeft();
+        const rootTop = this.root.node.getComputedTop();
+        const rootWidth = this.root.node.getComputedWidth();
+        const rootHeight = this.root.node.getComputedHeight();
+
+        let minX = rootLeft,
+            maxX = rootLeft + rootWidth,
+            minY = rootTop,
+            maxY = rootTop + rootHeight;
 
         const traverse = (node: NodeWrapper) => {
             const left = node.node.getComputedLeft();
