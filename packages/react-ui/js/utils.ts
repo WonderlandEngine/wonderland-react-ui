@@ -1,3 +1,5 @@
+import React from 'react';
+
 /**
  * Converts a hexadecimal color string to a Float32Array with RGBA values.
  * Supports multiple hex formats including 3, 6, and 8 character representations.
@@ -109,4 +111,39 @@ export function parseColor(
         return out;
     }
     return hex;
+}
+
+/**
+ * Converts React children into a flat string representation.
+ * Extracts all string and number children, concatenating them into a single string.
+ * Non-string and non-number children (such as React elements) are ignored.
+ *
+ * @example
+ * ```typescript
+ * // Simple text children
+ * childrenToFlatString('Hello'); // Returns 'Hello'
+ *
+ * // Multiple text and number children
+ * childrenToFlatString(['Hello', ' ', 'World']); // Returns 'Hello World'
+ *
+ * // Mixed with React elements (elements are ignored)
+ * childrenToFlatString(['Text', <Component />, 123]); // Returns 'Text123'
+ * ```
+ *
+ * @param {React.ReactNode} children - React children nodes to flatten. Can contain strings, numbers, elements, or fragments.
+ * @returns {string} A concatenated string of all string and number children
+ */
+export function childrenToFlatString(children: React.ReactNode): string {
+    return React.Children.toArray(children)
+        .map((child) => {
+            if (
+                typeof child === 'string' ||
+                typeof child === 'number' ||
+                typeof child === 'bigint'
+            ) {
+                return child;
+            }
+            return ''; // ignore anything else
+        })
+        .join('');
 }

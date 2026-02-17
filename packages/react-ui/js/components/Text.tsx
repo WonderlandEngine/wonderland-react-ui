@@ -1,7 +1,7 @@
 import {Object3D} from '@wonderlandengine/api';
 import React, {forwardRef, PropsWithChildren, useContext, useMemo} from 'react';
 import type {TextProps, Color} from '../renderer-types.js';
-import {parseColor} from '../utils.js';
+import {childrenToFlatString, parseColor} from '../utils.js';
 import {
     MaterialContext,
     ThemeContext,
@@ -34,7 +34,7 @@ const tempColor = new Float32Array(4);
  * @param {TextProps & {color?: Color}} props - The text properties
  * @param {Color} [props.color] - Text color. Falls back to theme color or material color
  * @param {Material} [props.material] - Custom material for the text. If not provided, uses cloned text material from context
- * @param {string} [props.text] - Alternative way to provide text content (children takes precedence)
+ * @param {string} [props.text] - Alternative way to provide text content (prioritized over children)
  * @param {React.ReactNode} props.children - Text content to display (converted to string)
  * @param {React.Ref<Object3D>} ref - Forward ref to access the underlying 3D object
  * @returns {React.ReactElement} A 3D text element
@@ -70,7 +70,7 @@ export const Text = forwardRef<
     return React.createElement('text3d', {
         ...props,
         material: mat,
-        text: props.children?.toString() ?? props.text,
+        text: props.text ?? childrenToFlatString(props.children),
         ref: ref,
     });
 });
